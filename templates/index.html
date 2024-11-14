@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia de Circulação Interna</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Guia de Circulação Interna</h1>
+        
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        
+        <form method="POST" action="/">
+            <label for="bmp_numbers">Nº BMPs (separados por vírgula):</label>
+            <input type="text" id="bmp_numbers" name="bmp_numbers" required>
+
+            <label for="secao_origem">Seção de Origem:</label>
+            <select id="secao_origem" name="secao_origem" required>
+                <option value="">Selecione</option>
+                {% for secao in secoes_origem %}
+                    <option value="{{ secao }}">{{ secao }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="chefia_origem">Chefia de Origem:</label>
+            <input type="text" id="chefia_origem" name="chefia_origem" readonly>
+
+            <label for="secao_destino">Seção de Destino:</label>
+            <select id="secao_destino" name="secao_destino" required>
+                <option value="">Selecione</option>
+                {% for secao in secoes_destino %}
+                    <option value="{{ secao }}">{{ secao }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="chefia_destino">Chefia de Destino:</label>
+            <input type="text" id="chefia_destino" name="chefia_destino" readonly>
+
+            <button type="submit">Gerar PDF</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("secao_origem").addEventListener("change", function () {
+            fetch("/get_chefia", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ secao: this.value, tipo: "origem" })
+            })
+            .then(response => response.json())
+            .then(data => document.getElementById("chefia_origem").value = data.chefia || "");
+        });
+
+        document.getElementById("secao_destino").addEventListener("change", function () {
+            fetch("/get_chefia", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ secao: this.value, tipo: "destino" })
+            })
+            .then(response => response.json())
+            .then(data => document.getElementById("chefia_destino").value = data.chefia || "");
+        });
+    </script>
+</body>
+</html>
