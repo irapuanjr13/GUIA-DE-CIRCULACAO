@@ -1,77 +1,146 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guia de Circulação Interna</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        select, input[type="text"], input[type="number"], button {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+        }
+        .success {
+            color: green;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1>Guia de Circulação Interna</h1>
-
-        {% if error %}
-            <p class="error">{{ error }}</p>
-        {% endif %}
-
-        <form method="POST" action="/">
-            <label for="bmp_numbers">Nº BMPs (separados por vírgula):</label>
-            <input type="text" id="bmp_numbers" name="bmp_numbers" placeholder="Ex: 1234, 5678" required>
-
-            <label for="secao_origem">Seção de Origem:</label>
-            <select id="secao_origem" name="secao_origem" required>
-                <option value="">Selecione</option>
-                {% for secao in secoes_origem %}
-                    <option value="{{ secao }}">{{ secao }}</option>
-                {% endfor %}
-            </select>
-
-            <label for="chefia_origem">Chefia de Origem:</label>
-            <input type="text" id="chefia_origem" name="chefia_origem" readonly>
-
-            <label for="secao_destino">Seção de Destino:</label>
-            <select id="secao_destino" name="secao_destino" required>
-                <option value="">Selecione</option>
-                {% for secao in secoes_destino %}
-                    <option value="{{ secao }}">{{ secao }}</option>
-                {% endfor %}
-            </select>
-
-            <label for="chefia_destino">Chefia de Destino:</label>
-            <input type="text" id="chefia_destino" name="chefia_destino" readonly>
-
-            <button type="submit" class="btn">Gerar PDF</button>
+        <form method="POST" action="/" id="guia-form">
+            <div class="form-group">
+                <label for="bmp_numbers">Números de BMP (separados por vírgula):</label>
+                <input type="text" id="bmp_numbers" name="bmp_numbers" placeholder="Ex.: 123, 456, 789">
+            </div>
+            <div class="form-group">
+                <label for="secao_origem">Seção de Origem:</label>
+                <select id="secao_origem" name="secao_origem">
+                    <option value="" disabled selected>Selecione uma seção</option>
+                    {% for secao in secoes_origem %}
+                        <option value="{{ secao }}">{{ secao }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="chefia_origem">Chefia de Origem:</label>
+                <input type="text" id="chefia_origem" name="chefia_origem" readonly>
+            </div>
+            <div class="form-group">
+                <label for="secao_destino">Seção de Destino:</label>
+                <select id="secao_destino" name="secao_destino">
+                    <option value="" disabled selected>Selecione uma seção</option>
+                    {% for secao in secoes_destino %}
+                        <option value="{{ secao }}">{{ secao }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="chefia_destino">Chefia de Destino:</label>
+                <input type="text" id="chefia_destino" name="chefia_destino" readonly>
+            </div>
+            <div class="form-group">
+                <button type="submit">Gerar Guia</button>
+            </div>
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
         </form>
-
-        {% if not error and request.method == "POST" %}
-            <p><a href="{{ url_for('static', filename='guia_circulacao_interna.pdf') }}" download="Guia de Circulação Interna" class="download-link">Baixe aqui o PDF gerado</a></p>
-        {% endif %}
     </div>
 
     <script>
-        // Preencher chefia de origem automaticamente
-        document.getElementById("secao_origem").addEventListener("change", function () {
-            fetch("/autocomplete", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ secao_origem: this.value })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("chefia_origem").value = data.chefia_origem || "";
-            });
-        });
+        document.addEventListener("DOMContentLoaded", function () {
+            // Preenchimento automático da chefia de origem
+            document.getElementById("secao_origem").addEventListener("change", function () {
+                const secaoOrigem = this.value;
 
-        // Preencher chefia de destino automaticamente
-        document.getElementById("secao_destino").addEventListener("change", function () {
-            fetch("/autocomplete", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ secao_destino: this.value })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("chefia_destino").value = data.chefia_destino || "";
+                fetch("/autocomplete", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ secao_origem: secaoOrigem }),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.chefia_origem) {
+                            document.getElementById("chefia_origem").value = data.chefia_origem;
+                        }
+                    })
+                    .catch((error) => console.error("Erro no preenchimento automático:", error));
+            });
+
+            // Preenchimento automático da chefia de destino
+            document.getElementById("secao_destino").addEventListener("change", function () {
+                const secaoDestino = this.value;
+
+                fetch("/autocomplete", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ secao_destino: secaoDestino }),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.chefia_destino) {
+                            document.getElementById("chefia_destino").value = data.chefia_destino;
+                        }
+                    })
+                    .catch((error) => console.error("Erro no preenchimento automático:", error));
             });
         });
     </script>
