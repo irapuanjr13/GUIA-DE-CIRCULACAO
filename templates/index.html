@@ -95,12 +95,12 @@
         </form>
     </div>
     
-  <script>
+ <script>
     $(document).ready(function() {
-        // Função de atualização dos campos de origem
+        // Função para atualizar os campos de origem com base no(s) BMP(s)
         $("#bmp_number").on("input", function() {
             const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
-            
+
             if (bmpNumbers.length > 0) {
                 console.log("Enviando BMPs: ", bmpNumbers);  // Verifique no console se os BMPs estão sendo enviados corretamente
 
@@ -108,37 +108,26 @@
                     url: "/autocomplete",
                     type: "POST",
                     contentType: "application/json",
-                    data: JSON.stringify({ "bmp_numbers": bmpNumbers }),
+                    data: JSON.stringify({ "bmp_numbers": bmpNumbers }),  // Passa todos os BMPs, mesmo que seja um só
                     success: function(response) {
                         console.log("Resposta do servidor:", response);  // Verifique a resposta do servidor
                         
-                        if (response.secao_origem) {
-                            $("#secao_origem").val(response.secao_origem);
-                        }
-                        if (response.chefia_origem) {
-                            $("#chefia_origem").val(response.chefia_origem);
-                        }
+                        // Preencher os campos de seção e chefia de origem para todos os BMPs
+                        bmpNumbers.forEach(function(bmp) {
+                            if (response[bmp]) {
+                                if (response[bmp].secao_origem) {
+                                    $("#secao_origem").val(response[bmp].secao_origem);
+                                }
+                                if (response[bmp].chefia_origem) {
+                                    $("#chefia_origem").val(response[bmp].chefia_origem);
+                                }
+                            }
+                        });
                     },
                     error: function() {
                         console.error("Erro ao buscar os dados dos BMPs!");
                     }
                 });
-            }
-        });
-
-        // Função para validar o formulário antes de enviar
-        $("#guia-form").on("submit", function(event) {
-            const bmpNumbers = $("#bmp_number").val().trim();
-            const secaoOrigem = $("#secao_origem").val().trim();
-            const chefiaOrigem = $("#chefia_origem").val().trim();
-            const secaoDestino = $("#secao_destino").val().trim();
-            const chefiaDestino = $("#chefia_destino").val().trim();
-
-            if (!bmpNumbers || !secaoOrigem || !chefiaOrigem || !secaoDestino || !chefiaDestino) {
-                alert("Por favor, preencha todos os campos antes de gerar a guia.");
-                event.preventDefault();
-            } else {
-                alert("Todos os dados foram preenchidos com sucesso. Gerando a guia...");
             }
         });
     });
