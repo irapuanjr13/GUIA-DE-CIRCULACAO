@@ -179,7 +179,9 @@ def get_chefia():
     tipo = data.get("tipo")
 
     if tipo == "destino":
-        chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique()
+       chefia = df[
+    df['Seção de Destino'].str.strip().str.casefold() == secao.strip().casefold()
+]['Chefia de Destino'].dropna().unique()
     else:
         return jsonify({"error": "Tipo inválido"}), 400
 
