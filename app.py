@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, jsonify
 import pandas as pd
 import gdown
 from fpdf import FPDF
@@ -72,7 +72,9 @@ class PDF(FPDF):
             self.cell(col_widths[2], row_height, self.fix_text(row["Nº SERIE"]), border=1, align="C")
             self.cell(col_widths[3], row_height, f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ','), border=1, align="R")
             self.ln()
-            text = f"""
+
+    def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
+        text = f"""
 Solicitação de Transferência:
 Informo à Senhora Chefe do GAP-LS que os bens especificados estão inservíveis para uso neste setor, classificados como ociosos, recuperáveis, reparados ou novos - aguardando distribuição. Diante disso, solicito autorização para transferir o(s) Bem(ns) Móvel(is) Permanente(s) acima discriminado(s), atualmente sob minha guarda, para a Seção {secao_destino}.
 
@@ -147,7 +149,7 @@ def index():
 
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
-    """Rota para preenchimento automático."""
+    """Rota para preenchimento automático."""    
     data = request.json
     response = {}
 
@@ -172,6 +174,7 @@ def autocomplete():
 
     return jsonify(response)
 
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))  # Lê a variável PORT ou usa 5000 como padrão
-    app.run(debug=True, host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port)
