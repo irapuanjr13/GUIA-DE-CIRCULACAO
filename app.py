@@ -149,26 +149,28 @@ def index():
 
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
-    """Rota para preenchimento automático."""    
+    """Rota para preenchimento automático com múltiplos BMPs."""    
     data = request.json
+    bmp_numbers = data.get("bmp_numbers", [])
     
-    # Imprimir os dados recebidos do frontend
-    print("Dados recebidos do frontend:", data)
-    
+    if not bmp_numbers:
+        return jsonify({"error": "Nenhum número de BMP fornecido."}), 400
+
+    # Preparar uma lista de respostas para cada BMP
     response = {}
 
-    # Verifica se o número do BMP foi enviado
-    if "bmp_number" in data:
-        bmp_number = data["bmp_number"]
+    for bmp_number in bmp_numbers:
         # Garantir que o número BMP seja string para comparação
         row = df[df["Nº BMP"].astype(str) == str(bmp_number)]
         
         # Verifica se encontrou algum dado
         if not row.empty:
-            response["secao_origem"] = row.iloc[0]["Seção de Origem"]
-            response["chefia_origem"] = row.iloc[0]["Chefia de Origem"]
+            response[bmp_number] = {
+                "secao_origem": row.iloc[0]["Seção de Origem"],
+                "chefia_origem": row.iloc[0]["Chefia de Origem"]
+            }
         else:
-            response["error"] = "Nenhum dado encontrado para o BMP."
+            response[bmp_number] = {"error": "Nenhum dado encontrado para o BMP."}
 
     return jsonify(response)
 
