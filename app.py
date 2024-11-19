@@ -133,7 +133,6 @@ def index():
                 secoes_destino=secoes_destino,
                 error="Nenhum BMP encontrado para os números fornecidos.",
             )
-
         pdf = PDF()
         pdf.add_page()
         pdf.add_table(dados_bmps)
