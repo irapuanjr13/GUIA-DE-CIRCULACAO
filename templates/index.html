@@ -75,10 +75,6 @@
             </div>
             <div class="form-group">
                 <label for="chefia_origem">Chefia de Origem:</label>
-                <input type="text" id="chefia_origem" name="chefia_origem" readonly>
-            </div>
-            <div class="form-group">
-                <label for="secao_destino">Seção de Destino:</label>
                 <select id="secao_destino" name="secao_destino">
                     <option value="" disabled selected>Selecione uma seção</option>
                     {% for secao in secoes_destino %}
@@ -87,8 +83,8 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="chefia_destino">Chefia de Destino:</label>
-                <input type="text" id="chefia_destino" name="chefia_destino" readonly>
+               <label for="chefia_destino">Chefia de Destino:</label>
+               <input type="text" id="chefia_destino" name="chefia_destino" readonly>
             </div>
             <div class="form-group">
                 <button type="submit">Gerar Guia</button>
@@ -105,16 +101,25 @@
             $("#bmp_number").on("input", function () {
                 const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
 
+                // Verifique se pelo menos um número de BMP foi inserido
                 if (bmpNumbers.length > 0) {
+                    console.log("Enviando BMPs: ", bmpNumbers);  // Verifique no console se os BMPs estão sendo enviados corretamente
+
                     $.ajax({
-                        url: "/autocomplete",
+                       url: "/autocomplete", // Certifique-se de que a URL esteja correta
                         type: "POST",
                         contentType: "application/json",
                         data: JSON.stringify({ "bmp_numbers": bmpNumbers }),
                         success: function (response) {
-                            if (response.secao_origem) $("#secao_origem").val(response.secao_origem);
-                            if (response.chefia_origem) $("#chefia_origem").val(response.chefia_origem);
-                        },
+                            console.log("Resposta do servidor:", response);  // Verifique se a resposta está sendo recebida
+
+                        if (response.secao_origem) {
+                                $("#secao_origem").val(response.secao_origem);
+                            }
+                        if (response.chefia_origem) {
+                                $("#chefia_origem").val(response.chefia_origem);
+                            }    
+
                         error: function () {
                             console.error("Erro ao buscar os dados dos BMPs!");
                         }
