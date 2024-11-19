@@ -58,31 +58,45 @@
         }
     </style>
    <script>
-    $(document).ready(function() {
-        // Atualizar seção e chefia de origem com base no BMP
-        $("#bmp_number").on("input", function() {
-            const bmpNumber = $(this).val();
-            if (bmpNumber.length >= 3) {
-                $.ajax({
-                    url: "/autocomplete",
-                    type: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify({ "bmp_number": bmpNumber }),
-                    success: function(response) {
-                        if (response.error) {
-                            alert(response.error);
-                        } else {
-                            if (response.secao_origem) $("#secao_origem").val(response.secao_origem);
-                            if (response.chefia_origem) $("#chefia_origem").val(response.chefia_origem);
-                        }
-                    },
-                    error: function() {
-                        alert("Erro ao buscar os dados!");
-                    }
-                });
-            }
-        });
+    $(document).ready(function () {
+    // Atualizar seção e chefia de origem com base nos BMPs
+    $("#bmp_number").on("input", function () {
+        const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
 
+        if (bmpNumbers.length > 0) {
+            $.ajax({
+                url: "/autocomplete",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ "bmp_numbers": bmpNumbers }),
+                success: function (response) {
+                    if (response.secao_origem) $("#secao_origem").val(response.secao_origem);
+                    if (response.chefia_origem) $("#chefia_origem").val(response.chefia_origem);
+                },
+                error: function () {
+                    console.error("Erro ao buscar os dados dos BMPs!");
+                }
+            });
+        }
+    });
+
+    // Verificar se todos os campos estão preenchidos ao submeter o formulário
+    $("#guia-form").on("submit", function (event) {
+        const bmpNumbers = $("#bmp_number").val().trim();
+        const secaoOrigem = $("#secao_origem").val().trim();
+        const chefiaOrigem = $("#chefia_origem").val().trim();
+        const secaoDestino = $("#secao_destino").val().trim();
+        const chefiaDestino = $("#chefia_destino").val().trim();
+
+        // Verificar se algum campo está vazio
+        if (!bmpNumbers || !secaoOrigem || !chefiaOrigem || !secaoDestino || !chefiaDestino) {
+            alert("Por favor, preencha todos os campos antes de gerar a guia.");
+            event.preventDefault(); // Evitar envio do formulário
+        } else {
+            alert("Todos os dados foram preenchidos com sucesso. Gerando a guia...");
+        }
+    });
+});
         // Atualizar chefia de destino com base na seção selecionada
         $("#secao_destino").on("change", function() {
             const secao = $(this).val();
