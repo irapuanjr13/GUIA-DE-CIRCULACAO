@@ -81,9 +81,9 @@
                 <label for="secao_destino">Seção de Destino:</label>
                 <select id="secao_destino" name="secao_destino">
                     <option value="" disabled selected>Selecione uma seção</option>
-                    <option value="Secao1">Secao 1</option>
-                    <option value="Secao2">Secao 2</option>
-                    <option value="Secao3">Secao 3</option>
+                    {% for secao in secoes_destino %}
+                        <option value="{{ secao }}">{{ secao }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="form-group">
