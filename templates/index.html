@@ -68,12 +68,7 @@
             </div>
             <div class="form-group">
                 <label for="secao_origem">Seção de Origem:</label>
-                <select id="secao_origem" name="secao_origem">
-                    <option value="" disabled selected>Selecione uma seção</option>
-                    {% for secao in secoes_origem %}
-                        <option value="{{ secao }}">{{ secao }}</option>
-                    {% endfor %}
-                </select>
+                <input type="text" id="secao_origem" name="secao_origem" readonly>
             </div>
             <div class="form-group">
                 <label for="chefia_origem">Chefia de Origem:</label>
@@ -103,27 +98,33 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Preenchimento automático da chefia de origem
-            document.getElementById("secao_origem").addEventListener("change", function () {
-                const secaoOrigem = this.value;
+            // Preenchimento automático da seção de origem e chefia com base nos números de BMP
+            document.getElementById("bmp_numbers").addEventListener("input", function () {
+                const bmpNumbers = this.value.split(",").map(num => num.trim()); // Extrai e limpa os números de BMP
 
-                fetch("/autocomplete", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ secao_origem: secaoOrigem }),
-                })
+                if (bmpNumbers.length > 0) {
+                    // Considera apenas o primeiro número de BMP
+                    const primeiroBmp = bmpNumbers[0];
+
+                    fetch("/get_secao_chefia", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ bmp_number: primeiroBmp }),
+                    })
                     .then((response) => response.json())
                     .then((data) => {
-                        if (data.chefia_origem) {
+                        if (data.secao_origem && data.chefia_origem) {
+                            document.getElementById("secao_origem").value = data.secao_origem;
                             document.getElementById("chefia_origem").value = data.chefia_origem;
                         }
                     })
                     .catch((error) => console.error("Erro no preenchimento automático:", error));
+                }
             });
 
-            // Preenchimento automático da chefia de destino
+            // Preenchimento automático da chefia de destino com base na seção de destino selecionada
             document.getElementById("secao_destino").addEventListener("change", function () {
                 const secaoDestino = this.value;
 
@@ -134,13 +135,13 @@
                     },
                     body: JSON.stringify({ secao_destino: secaoDestino }),
                 })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data.chefia_destino) {
-                            document.getElementById("chefia_destino").value = data.chefia_destino;
-                        }
-                    })
-                    .catch((error) => console.error("Erro no preenchimento automático:", error));
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.chefia_destino) {
+                        document.getElementById("chefia_destino").value = data.chefia_destino;
+                    }
+                })
+                .catch((error) => console.error("Erro no preenchimento automático:", error));
             });
         });
     </script>
