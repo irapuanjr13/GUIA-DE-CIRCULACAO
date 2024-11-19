@@ -31,7 +31,7 @@ class PDF(FPDF):
         self.cell(0, 8, "GUIA DE MOVIMENTAÇÃO DE BEM MÓVEL PERMANENTE ENTRE AS SEÇÕES DO GAPLS", ln=True, align="C")
         self.ln(10)
 
-    def fix_text(self, text):
+   def fix_text(self, text):
         """Corrige caracteres incompatíveis com a codificação latin-1."""
         replacements = {
             "–": "-", "“": '"', "”": '"', "’": "'"
@@ -41,25 +41,39 @@ class PDF(FPDF):
         return text
 
     def add_table(self, dados_bmps):
+        # Define largura das colunas e título da tabela
         col_widths = [25, 70, 55, 35]
         headers = ["Nº BMP", "Nomenclatura", "Nº Série", "Valor Atualizado"]
 
+        # Adicionar cabeçalho da tabela
         self.set_font("Arial", "B", 10)
         for width, header in zip(col_widths, headers):
             self.cell(width, 10, header, border=1, align="C")
         self.ln()
 
+        # Adiciona as linhas da tabela
         self.set_font("Arial", size=10)
         for _, row in dados_bmps.iterrows():
-            self.cell(col_widths[0], 10, str(row["Nº BMP"]), border=1, align="C")
-            x, y = self.get_x(), self.get_y()
-            self.multi_cell(col_widths[1], 10, self.fix_text(row["NOMECLATURA/COMPONENTE"]), border=1)
-            self.set_xy(x + col_widths[1], y)
-            self.cell(col_widths[2], 10, str(row["Nº SERIE"]), border=1, align="C")
-            # Converte valor para string formatada corretamente
-            valor_atualizado = f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ',') if not pd.isnull(row["VL. ATUALIZ."]) else "N/A"
-            self.cell(col_widths[3], 10, valor_atualizado, border=1, align="R")
-            self.ln()
+            # Calcular a altura necessária para a célula com maior texto
+            texts = [
+                str(row["Nº BMP"]),
+                str(row["NOMECLATURA/COMPONENTE"]),
+                str(row["Nº SERIE"]),
+                f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ',')
+            ]
+            heights = [self.get_string_width(t) // col_widths[i] + 1 for i, t in enumerate(texts)]
+            row_height = max(heights) * 6  # 6 é a altura padrão da fonte
+
+            # Renderizar cada célula na linha com a mesma altura
+            x_start = self.get_x()
+            for i, text in enumerate(texts):
+                if i == 1:  # "Nomenclatura" precisa de quebra de texto
+                    x, y = self.get_x(), self.get_y()
+                    self.multi_cell(col_widths[i], 6, text, border=1)
+                    self.set_xy(x + col_widths[i], y)
+                else:
+                    self.cell(col_widths[i], row_height, text, border=1, align="C" if i != 3 else "R")
+            self.ln(row_height)
 
     def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
         self.set_font("Arial", size=12)
@@ -92,7 +106,7 @@ Autorizo a movimentação solicitada e determino:
 LUCIANA DO AMARAL CORREA  Cel Int
 Dirigente Máximo
 """
-        self.multi_cell(0, 8, self.fix_text(text))
+        self.multi_cell(0, 8, text)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -136,21 +150,6 @@ def index():
     return render_template(
         "index.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
     )
-
-@app.route("/get_chefia", methods=["POST"])
-def get_chefia():
-    data = request.json
-    secao = data.get("secao")
-    tipo = data.get("tipo")
-
-    if tipo == "origem":
-        chefia = df[df['Seção de Origem'] == secao]['Chefia de Origem'].dropna().unique()
-    elif tipo == "destino":
-        chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique()
-    else:
-        return jsonify({"error": "Tipo inválido"}), 400
-
-    return jsonify({"chefia": chefia[0] if len(chefia) > 0 else ""})
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))  # Lê a variável PORT ou usa 5000 como padrão
