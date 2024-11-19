@@ -148,28 +148,27 @@ def index():
 
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
-    """Rota para preenchimento automático com múltiplos BMPs."""    
-    data = request.json
+    data = request.get_json()
     bmp_numbers = data.get("bmp_numbers", [])
-    
+
     if not bmp_numbers:
-        return jsonify({"error": "Nenhum número de BMP fornecido."}), 400
+        return jsonify({"error": "Nenhum BMP fornecido!"}), 400
 
-    # Preparar uma lista de respostas para cada BMP
     response = {}
+    for bmp in bmp_numbers:
+        # Aqui você deve implementar a lógica para buscar a seção e chefia para o BMP
+        # Supondo que você tenha um DataFrame `df` com essas informações:
+        filtro_bmp = df[df["Nº BMP"].astype(str) == bmp]
 
-    for bmp_number in bmp_numbers:
-        # Garantir que o número BMP seja string para comparação
-        row = df[df["Nº BMP"].astype(str) == str(bmp_number)]
-        
-        # Verifica se encontrou algum dado
-        if not row.empty:
-            response[bmp_number] = {
-                "secao_origem": row.iloc[0]["Seção de Origem"],
-                "chefia_origem": row.iloc[0]["Chefia de Origem"]
+        if not filtro_bmp.empty:
+            secao_origem = filtro_bmp["Seção de Origem"].values[0]
+            chefia_origem = filtro_bmp["Chefia de Origem"].values[0]
+            response[bmp] = {
+                "secao_origem": secao_origem,
+                "chefia_origem": chefia_origem
             }
         else:
-            response[bmp_number] = {"error": "Nenhum dado encontrado para o BMP."}
+            response[bmp] = {"secao_origem": "", "chefia_origem": ""}
 
     return jsonify(response)
 
