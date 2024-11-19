@@ -95,55 +95,53 @@
         </form>
     </div>
     
-    <script>
-        $(document).ready(function () {
-            // Atualizar seção e chefia de origem com base no BMP
-            $("#bmp_number").on("input", function () {
-                const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
+  <script>
+    $(document).ready(function() {
+        // Função de atualização dos campos de origem
+        $("#bmp_number").on("input", function() {
+            const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
+            
+            if (bmpNumbers.length > 0) {
+                console.log("Enviando BMPs: ", bmpNumbers);  // Verifique no console se os BMPs estão sendo enviados corretamente
 
-                // Verifique se pelo menos um número de BMP foi inserido
-                if (bmpNumbers.length > 0) {
-                    console.log("Enviando BMPs: ", bmpNumbers);  // Verifique no console se os BMPs estão sendo enviados corretamente
-
-                    $.ajax({
-                       url: "/autocomplete", // Certifique-se de que a URL esteja correta
-                        type: "POST",
-                        contentType: "application/json",
-                        data: JSON.stringify({ "bmp_numbers": bmpNumbers }),
-                        success: function (response) {
-                            console.log("Resposta do servidor:", response);  // Verifique se a resposta está sendo recebida
-
+                $.ajax({
+                    url: "/autocomplete",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ "bmp_numbers": bmpNumbers }),
+                    success: function(response) {
+                        console.log("Resposta do servidor:", response);  // Verifique a resposta do servidor
+                        
                         if (response.secao_origem) {
-                                $("#secao_origem").val(response.secao_origem);
-                            }
-                        if (response.chefia_origem) {
-                                $("#chefia_origem").val(response.chefia_origem);
-                            }    
-
-                        error: function () {
-                            console.error("Erro ao buscar os dados dos BMPs!");
+                            $("#secao_origem").val(response.secao_origem);
                         }
-                    });
-                }
-            });
-
-            // Validar todos os campos antes de enviar
-            $("#guia-form").on("submit", function (event) {
-                const bmpNumbers = $("#bmp_number").val().trim();
-                const secaoOrigem = $("#secao_origem").val().trim();
-                const chefiaOrigem = $("#chefia_origem").val().trim();
-                const secaoDestino = $("#secao_destino").val().trim();
-                const chefiaDestino = $("#chefia_destino").val().trim();
-
-                // Checar campos obrigatórios
-                if (!bmpNumbers || !secaoOrigem || !chefiaOrigem || !secaoDestino || !chefiaDestino) {
-                    alert("Por favor, preencha todos os campos antes de gerar a guia.");
-                    event.preventDefault();
-                } else {
-                    alert("Todos os dados foram preenchidos com sucesso. Gerando a guia...");
-                }
-            });
+                        if (response.chefia_origem) {
+                            $("#chefia_origem").val(response.chefia_origem);
+                        }
+                    },
+                    error: function() {
+                        console.error("Erro ao buscar os dados dos BMPs!");
+                    }
+                });
+            }
         });
-    </script>
+
+        // Função para validar o formulário antes de enviar
+        $("#guia-form").on("submit", function(event) {
+            const bmpNumbers = $("#bmp_number").val().trim();
+            const secaoOrigem = $("#secao_origem").val().trim();
+            const chefiaOrigem = $("#chefia_origem").val().trim();
+            const secaoDestino = $("#secao_destino").val().trim();
+            const chefiaDestino = $("#chefia_destino").val().trim();
+
+            if (!bmpNumbers || !secaoOrigem || !chefiaOrigem || !secaoDestino || !chefiaDestino) {
+                alert("Por favor, preencha todos os campos antes de gerar a guia.");
+                event.preventDefault();
+            } else {
+                alert("Todos os dados foram preenchidos com sucesso. Gerando a guia...");
+            }
+        });
+    });
+</script>
 </body>
 </html>
