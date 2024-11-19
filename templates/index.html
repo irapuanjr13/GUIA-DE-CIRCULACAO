@@ -32,7 +32,7 @@
             font-weight: bold;
             color: #555;
         }
-        select, input[type="text"], input[type="number"], button {
+        select, input[type="text"], button {
             width: 100%;
             padding: 8px;
             border: 1px solid #ccc;
@@ -57,14 +57,15 @@
             font-size: 14px;
         }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>Guia de Circulação Interna</h1>
         <form method="POST" action="/" id="guia-form">
             <div class="form-group">
-                <label for="bmp_numbers">Números de BMP (separados por vírgula):</label>
-                <input type="text" id="bmp_numbers" name="bmp_numbers" placeholder="Ex.: 123, 456, 789">
+                <label for="bmp_number">Números de BMP (separados por vírgula):</label>
+                <input type="text" id="bmp_number" name="bmp_numbers" placeholder="Ex.: 123, 456, 789">
             </div>
             <div class="form-group">
                 <label for="secao_origem">Seção de Origem:</label>
@@ -95,33 +96,22 @@
             {% endif %}
         </form>
     </div>
-
 <script>
     function updateFields(bmpNumber) {
         if (bmpNumber.length >= 3) {
-            // Envia a requisição ao backend para buscar os dados
             $.ajax({
                 url: "/autocomplete",
                 type: "POST",
                 contentType: "application/json",
                 data: JSON.stringify({ "bmp_number": bmpNumber }),
                 success: function(response) {
-                    // Atualiza os campos automaticamente
                     if (response.error) {
-                        alert(response.error);  // Se não encontrar o BMP
+                        alert(response.error);
                     } else {
-                        if (response.secao_origem) {
-                            $("#secao_origem").val(response.secao_origem);
-                        }
-                        if (response.chefia_origem) {
-                            $("#chefia_origem").val(response.chefia_origem);
-                        }
-                        if (response.secao_destino) {
-                            $("#secao_destino").val(response.secao_destino);
-                        }
-                        if (response.chefia_destino) {
-                            $("#chefia_destino").val(response.chefia_destino);
-                        }
+                        if (response.secao_origem) $("#secao_origem").val(response.secao_origem);
+                        if (response.chefia_origem) $("#chefia_origem").val(response.chefia_origem);
+                        if (response.secao_destino) $("#secao_destino").val(response.secao_destino);
+                        if (response.chefia_destino) $("#chefia_destino").val(response.chefia_destino);
                     }
                 },
                 error: function() {
@@ -130,7 +120,6 @@
             });
         }
     }
-
     $(document).ready(function() {
         $("#bmp_number").on("input", function() {
             const bmpNumber = $(this).val();
