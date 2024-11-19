@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guia de Circulação Interna de Bens Moveis</title>
+    <title>Guia de Circulação Interna</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
         <h1>Guia de Circulação Interna</h1>
-        
+
         {% if error %}
             <p class="error">{{ error }}</p>
         {% endif %}
-        
+
         <form method="POST" action="/">
             <label for="bmp_numbers">Nº BMPs (separados por vírgula):</label>
-            <input type="text" id="bmp_numbers" name="bmp_numbers" required>
+            <input type="text" id="bmp_numbers" name="bmp_numbers" placeholder="Ex: 1234, 5678" required>
 
             <label for="secao_origem">Seção de Origem:</label>
             <select id="secao_origem" name="secao_origem" required>
@@ -40,29 +40,39 @@
             <label for="chefia_destino">Chefia de Destino:</label>
             <input type="text" id="chefia_destino" name="chefia_destino" readonly>
 
-            <button type="submit">Gerar PDF</button>
+            <button type="submit" class="btn">Gerar PDF</button>
         </form>
+
+        {% if not error and request.method == "POST" %}
+            <p><a href="{{ url_for('static', filename='guia_circulacao_interna.pdf') }}" download="Guia de Circulação Interna" class="download-link">Baixe aqui o PDF gerado</a></p>
+        {% endif %}
     </div>
 
     <script>
+        // Preencher chefia de origem automaticamente
         document.getElementById("secao_origem").addEventListener("change", function () {
-            fetch("/get_chefia", {
+            fetch("/autocomplete", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ secao: this.value, tipo: "origem" })
+                body: JSON.stringify({ secao_origem: this.value })
             })
             .then(response => response.json())
-            .then(data => document.getElementById("chefia_origem").value = data.chefia || "");
+            .then(data => {
+                document.getElementById("chefia_origem").value = data.chefia_origem || "";
+            });
         });
 
+        // Preencher chefia de destino automaticamente
         document.getElementById("secao_destino").addEventListener("change", function () {
-            fetch("/get_chefia", {
+            fetch("/autocomplete", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ secao: this.value, tipo: "destino" })
+                body: JSON.stringify({ secao_destino: this.value })
             })
             .then(response => response.json())
-            .then(data => document.getElementById("chefia_destino").value = data.chefia || "");
+            .then(data => {
+                document.getElementById("chefia_destino").value = data.chefia_destino || "";
+            });
         });
     </script>
 </body>
