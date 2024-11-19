@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, send_file
 import pandas as pd
 import gdown
 from fpdf import FPDF
+import os
 
 app = Flask(__name__)
 
@@ -164,4 +165,6 @@ def get_chefia():
     return jsonify({"chefia": chefia[0] if len(chefia) > 0 else ""})
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5001)
+    
+	port = int(os.getenv("PORT", 5000))  # Lê a variável PORT, ou usa 5000 como padrão
+app.run(debug=True, host="0.0.0.0", port=port)
