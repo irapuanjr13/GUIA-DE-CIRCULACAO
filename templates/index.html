@@ -97,53 +97,37 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Preenchimento automático da seção de origem e chefia com base nos números de BMP
-            document.getElementById("bmp_numbers").addEventListener("input", function () {
-                const bmpNumbers = this.value.split(",").map(num => num.trim()); // Extrai e limpa os números de BMP
-
-                if (bmpNumbers.length > 0) {
-                    // Considera apenas o primeiro número de BMP
-                    const primeiroBmp = bmpNumbers[0];
-
-                    fetch("/get_secao_chefia", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ bmp_number: primeiroBmp }),
-                    })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data.secao_origem && data.chefia_origem) {
-                            document.getElementById("secao_origem").value = data.secao_origem;
-                            document.getElementById("chefia_origem").value = data.chefia_origem;
-                        }
-                    })
-                    .catch((error) => console.error("Erro no preenchimento automático:", error));
+        <script>
+    function updateFields(bmpNumber) {
+        if (bmpNumber.length >= 3) {
+            // Envia a requisição ao backend para buscar os dados
+            $.ajax({
+                url: "/autocomplete",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ "bmp_number": bmpNumber }),
+                success: function(response) {
+                    // Atualiza os campos automaticamente
+                    if (response.secao_destino) {
+                        $("#secao_destino").val(response.secao_destino);
+                    }
+                    if (response.chefia_destino) {
+                        $("#chefia_destino").val(response.chefia_destino);
+                    }
+                },
+                error: function() {
+                    alert("Erro ao buscar os dados!");
                 }
             });
+        }
+    }
 
-            // Preenchimento automático da chefia de destino com base na seção de destino selecionada
-            document.getElementById("secao_destino").addEventListener("change", function () {
-                const secaoDestino = this.value;
-
-                fetch("/autocomplete", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ secao_destino: secaoDestino }),
-                })
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.chefia_destino) {
-                        document.getElementById("chefia_destino").value = data.chefia_destino;
-                    }
-                })
-                .catch((error) => console.error("Erro no preenchimento automático:", error));
-            });
+    $(document).ready(function() {
+        $("#bmp_number").on("input", function() {
+            const bmpNumber = $(this).val();
+            updateFields(bmpNumber);
         });
-    </script>
+    });
+</script>
 </body>
 </html>
