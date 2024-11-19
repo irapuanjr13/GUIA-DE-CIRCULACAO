@@ -95,7 +95,7 @@
         </form>
     </div>
     
- <script>
+<script>
     $(document).ready(function() {
         // Função para atualizar os campos de origem com base no(s) BMP(s)
         $("#bmp_number").on("input", function() {
@@ -128,6 +128,31 @@
                         console.error("Erro ao buscar os dados dos BMPs!");
                     }
                 });
+            }
+        });
+
+        // Evento para preencher a chefia de destino quando a seção de destino for selecionada
+        $("#secao_destino").on("change", function() {
+            const secaoDestino = $(this).val();
+            if (secaoDestino) {
+                $.ajax({
+                    url: "/get_chefia",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }),
+                    success: function(response) {
+                        if (response.chefia) {
+                            $("#chefia_destino").val(response.chefia);  // Preencher o campo Chefia de Destino
+                        } else {
+                            $("#chefia_destino").val('');  // Limpar se não houver chefia encontrada
+                        }
+                    },
+                    error: function() {
+                        console.error("Erro ao buscar a chefia de destino!");
+                    }
+                });
+            } else {
+                $("#chefia_destino").val('');  // Limpar o campo Chefia de Destino se não houver seção selecionada
             }
         });
     });
