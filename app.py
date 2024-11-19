@@ -153,28 +153,22 @@ def autocomplete():
     data = request.json
     response = {}
 
+    # Verifica se o número do BMP foi enviado
     if "bmp_number" in data:
         bmp_number = data["bmp_number"]
+        # Garantir que o número BMP seja string para comparação
         row = df[df["Nº BMP"].astype(str) == str(bmp_number)]
+        
+        # Verifica se encontrou algum dado
         if not row.empty:
+            response["secao_origem"] = row.iloc[0]["Seção de Origem"]
+            response["chefia_origem"] = row.iloc[0]["Chefia de Origem"]
             response["secao_destino"] = row.iloc[0]["Seção de Destino"]
             response["chefia_destino"] = row.iloc[0]["Chefia de Destino"]
-
-    if "secao_origem" in data:
-        secao_origem = data["secao_origem"]
-        row = df[df["Seção de Origem"] == secao_origem]
-        if not row.empty:
-            response["chefia_origem"] = row.iloc[0]["Chefia de Origem"]
-
-    if "secao_destino" in data:
-        secao_destino = data["secao_destino"]
-        row = df[df["Seção de Destino"] == secao_destino]
-        if not row.empty:
-            response["chefia_destino"] = row.iloc[0]["Chefia de Destino"]
+        else:
+            response["error"] = "Nenhum dado encontrado para o BMP."
 
     return jsonify(response)
-
-
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))  # Lê a variável PORT ou usa 5000 como padrão
     app.run(host="0.0.0.0", port=port)
