@@ -6,7 +6,7 @@ import os
 
 app = Flask(__name__)
 
-# ID do arquivo no Google Drive (extraído do link compartilhado)
+# ID do arquivo no Google Drive
 GOOGLE_DRIVE_FILE_ID = "1mPYlc_uC3SfJnNQ_ToG6eVmn2ZYMhPCX"
 
 def get_excel_from_google_drive():
@@ -24,7 +24,6 @@ class PDF(FPDF):
         super().__init__('P', 'mm', 'A4')  # Orientação retrato, milímetros, formato A4
 
     def header(self):
-        # Cabeçalho centralizado
         self.set_font("Arial", "B", 12)
         self.cell(0, 6, "MINISTÉRIO DA DEFESA", ln=True, align="C")
         self.cell(0, 6, "COMANDO DA AERONÁUTICA", ln=True, align="C")
@@ -35,42 +34,31 @@ class PDF(FPDF):
     def fix_text(self, text):
         """Corrige caracteres incompatíveis com a codificação latin-1."""
         replacements = {
-            "–": "-",  # Substituir travessão por hífen
-            "“": '"',  # Substituir aspas abertas por aspas duplas
-            "”": '"',  # Substituir aspas fechadas por aspas duplas
-            "’": "'",  # Substituir apóstrofo por aspas simples
+            "–": "-", "“": '"', "”": '"', "’": "'"
         }
         for old, new in replacements.items():
             text = text.replace(old, new)
         return text
 
     def add_table(self, dados_bmps):
-        # Define largura das colunas e título da tabela
         col_widths = [25, 70, 55, 35]
         headers = ["Nº BMP", "Nomenclatura", "Nº Série", "Valor Atualizado"]
 
-        # Adicionar cabeçalho da tabela
         self.set_font("Arial", "B", 10)
         for width, header in zip(col_widths, headers):
             self.cell(width, 10, header, border=1, align="C")
         self.ln()
 
-        # Adiciona as linhas da tabela
         self.set_font("Arial", size=10)
         for _, row in dados_bmps.iterrows():
-            # Calcular a altura necessária para a célula "Nomenclatura"
-            text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
-            line_count = self.get_string_width(text) // col_widths[1] + 1
-            row_height = 10 * line_count  # 10 é a altura padrão da célula
-            
-            self.cell(col_widths[0], row_height, str(row["Nº BMP"]), border=1, align="C")
-
+            self.cell(col_widths[0], 10, str(row["Nº BMP"]), border=1, align="C")
             x, y = self.get_x(), self.get_y()
-            self.multi_cell(col_widths[1], 10, text, border=1)
-            self.set_xy(x + col_widths[1], y)  # Reposicionar para a próxima coluna
-
-            self.cell(col_widths[2], row_height, self.fix_text(row["Nº SERIE"]), border=1, align="C")
-            self.cell(col_widths[3], row_height, f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ','), border=1, align="R")
+            self.multi_cell(col_widths[1], 10, self.fix_text(row["NOMECLATURA/COMPONENTE"]), border=1)
+            self.set_xy(x + col_widths[1], y)
+            self.cell(col_widths[2], 10, str(row["Nº SERIE"]), border=1, align="C")
+            # Converte valor para string formatada corretamente
+            valor_atualizado = f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ',') if not pd.isnull(row["VL. ATUALIZ."]) else "N/A"
+            self.cell(col_widths[3], 10, valor_atualizado, border=1, align="R")
             self.ln()
 
     def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
@@ -165,6 +153,5 @@ def get_chefia():
     return jsonify({"chefia": chefia[0] if len(chefia) > 0 else ""})
 
 if __name__ == "__main__":
-    
-	port = int(os.getenv("PORT", 5000))  # Lê a variável PORT, ou usa 5000 como padrão
-app.run(debug=True, host="0.0.0.0", port=port)
+    port = int(os.getenv("PORT", 5000))  # Lê a variável PORT ou usa 5000 como padrão
+    app.run(debug=True, host="0.0.0.0", port=port)
