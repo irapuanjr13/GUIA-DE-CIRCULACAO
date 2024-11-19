@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, send_file
 import pandas as pd
 import gdown
 from fpdf import FPDF
@@ -31,7 +31,7 @@ class PDF(FPDF):
         self.cell(0, 8, "GUIA DE MOVIMENTAÇÃO DE BEM MÓVEL PERMANENTE ENTRE AS SEÇÕES DO GAPLS", ln=True, align="C")
         self.ln(10)
 
-   def fix_text(self, text):
+    def fix_text(self, text):
         """Corrige caracteres incompatíveis com a codificação latin-1."""
         replacements = {
             "–": "-", "“": '"', "”": '"', "’": "'"
@@ -54,22 +54,17 @@ class PDF(FPDF):
         # Adiciona as linhas da tabela
         self.set_font("Arial", size=10)
         for _, row in dados_bmps.iterrows():
-            # Calcular a altura necessária para a célula com maior texto
             texts = [
                 str(row["Nº BMP"]),
                 str(row["NOMECLATURA/COMPONENTE"]),
                 str(row["Nº SERIE"]),
                 f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ',')
             ]
-            heights = [self.get_string_width(t) // col_widths[i] + 1 for i, t in enumerate(texts)]
-            row_height = max(heights) * 6  # 6 é a altura padrão da fonte
-
-            # Renderizar cada célula na linha com a mesma altura
-            x_start = self.get_x()
+            row_height = 6
             for i, text in enumerate(texts):
                 if i == 1:  # "Nomenclatura" precisa de quebra de texto
                     x, y = self.get_x(), self.get_y()
-                    self.multi_cell(col_widths[i], 6, text, border=1)
+                    self.multi_cell(col_widths[i], row_height, text, border=1)
                     self.set_xy(x + col_widths[i], y)
                 else:
                     self.cell(col_widths[i], row_height, text, border=1, align="C" if i != 3 else "R")
