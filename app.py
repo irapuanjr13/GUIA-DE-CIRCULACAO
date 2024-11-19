@@ -167,8 +167,6 @@ def autocomplete():
         if not row.empty:
             response["secao_origem"] = row.iloc[0]["Seção de Origem"]
             response["chefia_origem"] = row.iloc[0]["Chefia de Origem"]
-            response["secao_destino"] = row.iloc[0]["Seção de Destino"]
-            response["chefia_destino"] = row.iloc[0]["Chefia de Destino"]
         else:
             response["error"] = "Nenhum dado encontrado para o BMP."
 
