@@ -24,6 +24,7 @@ class PDF(FPDF):
         super().__init__('P', 'mm', 'A4')  # Orientação retrato, milímetros, formato A4
 
     def header(self):
+        # Cabeçalho centralizado
         self.set_font("Arial", "B", 12)
         self.cell(0, 6, "MINISTÉRIO DA DEFESA", ln=True, align="C")
         self.cell(0, 6, "COMANDO DA AERONÁUTICA", ln=True, align="C")
@@ -34,7 +35,10 @@ class PDF(FPDF):
     def fix_text(self, text):
         """Corrige caracteres incompatíveis com a codificação latin-1."""
         replacements = {
-            "–": "-", "“": '"', "”": '"', "’": "'"
+            "–": "-",  # Substituir travessão por hífen
+            "“": '"',  # Substituir aspas abertas por aspas duplas
+            "”": '"',  # Substituir aspas fechadas por aspas duplas
+            "’": "'",  # Substituir apóstrofo por aspas simples
         }
         for old, new in replacements.items():
             text = text.replace(old, new)
@@ -54,26 +58,21 @@ class PDF(FPDF):
         # Adiciona as linhas da tabela
         self.set_font("Arial", size=10)
         for _, row in dados_bmps.iterrows():
-            texts = [
-                str(row["Nº BMP"]),
-                str(row["NOMECLATURA/COMPONENTE"]),
-                str(row["Nº SERIE"]),
-                f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ',')
-            ]
-            row_height = 6
-            for i, text in enumerate(texts):
-                if i == 1:  # "Nomenclatura" precisa de quebra de texto
-                    x, y = self.get_x(), self.get_y()
-                    self.multi_cell(col_widths[i], row_height, text, border=1)
-                    self.set_xy(x + col_widths[i], y)
-                else:
-                    self.cell(col_widths[i], row_height, text, border=1, align="C" if i != 3 else "R")
-            self.ln(row_height)
+            # Calcular a altura necessária para a célula "Nomenclatura"
+            text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
+            line_count = self.get_string_width(text) // col_widths[1] + 1
+            row_height = 10 * line_count  # 10 é a altura padrão da célula
+            
+            self.cell(col_widths[0], row_height, str(row["Nº BMP"]), border=1, align="C")
 
-    def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
-        self.set_font("Arial", size=12)
-        self.ln(5)
-        text = f"""
+            x, y = self.get_x(), self.get_y()
+            self.multi_cell(col_widths[1], 10, text, border=1)
+            self.set_xy(x + col_widths[1], y)  # Reposicionar para a próxima coluna
+
+            self.cell(col_widths[2], row_height, self.fix_text(row["Nº SERIE"]), border=1, align="C")
+            self.cell(col_widths[3], row_height, f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ','), border=1, align="R")
+            self.ln()
+            text = f"""
 Solicitação de Transferência:
 Informo à Senhora Chefe do GAP-LS que os bens especificados estão inservíveis para uso neste setor, classificados como ociosos, recuperáveis, reparados ou novos - aguardando distribuição. Diante disso, solicito autorização para transferir o(s) Bem(ns) Móvel(is) Permanente(s) acima discriminado(s), atualmente sob minha guarda, para a Seção {secao_destino}.
 
@@ -101,8 +100,8 @@ Autorizo a movimentação solicitada e determino:
 LUCIANA DO AMARAL CORREA  Cel Int
 Dirigente Máximo
 """
-        self.multi_cell(0, 8, text)
-
+        self.multi_cell(0, 8, self.fix_text(text))
+            
 @app.route("/", methods=["GET", "POST"])
 def index():
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
@@ -146,7 +145,33 @@ def index():
         "index.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
     )
 
+@app.route("/autocomplete", methods=["POST"])
+def autocomplete():
+    """Rota para preenchimento automático."""
+    data = request.json
+    response = {}
+
+    if "bmp_number" in data:
+        bmp_number = data["bmp_number"]
+        row = df[df["Nº BMP"].astype(str) == str(bmp_number)]
+        if not row.empty:
+            response["secao_destino"] = row.iloc[0]["Seção de Destino"]
+            response["chefia_destino"] = row.iloc[0]["Chefia de Destino"]
+
+    if "secao_origem" in data:
+        secao_origem = data["secao_origem"]
+        row = df[df["Seção de Origem"] == secao_origem]
+        if not row.empty:
+            response["chefia_origem"] = row.iloc[0]["Chefia de Origem"]
+
+    if "secao_destino" in data:
+        secao_destino = data["secao_destino"]
+        row = df[df["Seção de Destino"] == secao_destino]
+        if not row.empty:
+            response["chefia_destino"] = row.iloc[0]["Chefia de Destino"]
+
+    return jsonify(response)
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))  # Lê a variável PORT ou usa 5000 como padrão
     app.run(debug=True, host="0.0.0.0", port=port)
-
