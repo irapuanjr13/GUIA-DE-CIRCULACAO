@@ -133,6 +133,16 @@ def index():
                 secoes_destino=secoes_destino,
                 error="Nenhum BMP encontrado para os números fornecidos.",
             )
+
+	# Verificar se algum item pertence à conta "87 - MATERIAL DE CONSUMO DE USO DURADOURO"
+        if dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
+            return render_template(
+                "index.html",
+                secoes_origem=secoes_origem,
+                secoes_destino=secoes_destino,
+                error="Itens pertencentes à conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO' não podem ser processados.",
+            )
+        
         pdf = PDF()
         pdf.add_page()
         pdf.add_table(dados_bmps)
