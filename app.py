@@ -171,6 +171,19 @@ def autocomplete():
             response["error"] = "Nenhum dado encontrado para o BMP."
 
     return jsonify(response)
+
+@app.route("/get_chefia", methods=["POST"])
+def get_chefia():
+    data = request.json
+    secao = data.get("secao")
+    tipo = data.get("tipo")
+
+    elif tipo == "destino":
+        chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique()
+    else:
+        return jsonify({"error": "Tipo inválido"}), 400
+
+    return jsonify({"chefia": chefia[0] if len(chefia) > 0 else ""})
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))  # Lê a variável PORT ou usa 5000 como padrão
     app.run(host="0.0.0.0", port=port)
