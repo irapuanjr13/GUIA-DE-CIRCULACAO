@@ -181,13 +181,13 @@ def get_chefia():
     tipo = data.get("tipo")
 
     if tipo == "destino":
-       chefia = df[
-    df['Seção de Destino'].str.strip().str.casefold() == secao.strip().casefold()
-]['Chefia de Destino'].dropna().unique()
+        chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique()
+        if chefia:
+            return jsonify({"chefia": chefia[0]})  # Retorna a chefia de destino
+        else:
+            return jsonify({"chefia": ""})  # Caso não haja chefia de destino
     else:
         return jsonify({"error": "Tipo inválido"}), 400
-
-    return jsonify({"chefia": chefia[0] if len(chefia) > 0 else ""})
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))  # Lê a variável PORT ou usa 5000 como padrão
     app.run(host="0.0.0.0", port=port)
