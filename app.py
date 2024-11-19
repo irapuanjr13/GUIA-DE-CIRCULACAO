@@ -151,6 +151,10 @@ def index():
 def autocomplete():
     """Rota para preenchimento automático."""    
     data = request.json
+    
+    # Imprimir os dados recebidos do frontend
+    print("Dados recebidos do frontend:", data)
+    
     response = {}
 
     # Verifica se o número do BMP foi enviado
