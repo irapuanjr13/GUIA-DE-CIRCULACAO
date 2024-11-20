@@ -57,12 +57,21 @@
             color: green;
             font-size: 14px;
         }
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            padding: 10px 0;
+            background-color: #f4f4f9;
+        }
     </style>
+    <!-- Adicionando jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>Guia de Circulação Interna</h1>
-       <form method="POST" action="/" id="guia-form">
+        <form method="POST" action="/" id="guia-form">
             <div class="error">
                 {% if error %}
                     {{ error }}
@@ -99,16 +108,16 @@
         </form>
     </div>
 
-        <div class="observacao" id="observacao">
-            A Guia gerada deve ser encaminhada a Seção de Registro, via SIGADAER.
-            Para gerar o modelo do ofício, <a href="http://www.gapls.intraer/index.php/setores-novo/assessorias/comunicacao-social/category/178-modelos" target="_blank">clique aqui</a>.
-        </div>
-     
-<footer>
+    <div class="observacao" id="observacao">
+        A Guia gerada deve ser encaminhada a Seção de Registro, via SIGADAER.
+        Para gerar o modelo do ofício, <a href="/gerar-oficio">clique aqui</a>.
+    </div>
+
+    <footer>
         Criado por <strong>Cb Irapuan</strong>
     </footer>
 
-<script>
+    <script>
     $(document).ready(function() {
         // Função para atualizar os campos de origem com base no(s) BMP(s)
         $("#bmp_number").on("input", function() {
@@ -169,6 +178,6 @@
             }
         });
     });
-</script>
+    </script>
 </body>
 </html>
