@@ -102,5 +102,71 @@
             Para gerar o modelo do ofício, <a href="http://www.gapls.intraer/index.php/setores-novo/assessorias/comunicacao-social/category/178-modelos" target="_blank">clique aqui</a>.
         </div>
     </div>
+<footer>
+        Criado por <strong>Cb Irapuan</strong>
+    </footer>
+
+<script>
+    $(document).ready(function() {
+        // Função para atualizar os campos de origem com base no(s) BMP(s)
+        $("#bmp_number").on("input", function() {
+            const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
+
+            if (bmpNumbers.length > 0) {
+                console.log("Enviando BMPs: ", bmpNumbers);  // Verifique no console se os BMPs estão sendo enviados corretamente
+
+                $.ajax({
+                    url: "/autocomplete",  // Lógica de preenchimento do campo de seção e chefia de origem
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ "bmp_numbers": bmpNumbers }),  // Passa todos os BMPs, mesmo que seja um só
+                    success: function(response) {
+                        console.log("Resposta do servidor:", response);  // Verifique a resposta do servidor
+                        
+                        // Preencher os campos de seção e chefia de origem para todos os BMPs
+                        bmpNumbers.forEach(function(bmp) {
+                            if (response[bmp]) {
+                                if (response[bmp].secao_origem) {
+                                    $("#secao_origem").val(response[bmp].secao_origem);
+                                }
+                                if (response[bmp].chefia_origem) {
+                                    $("#chefia_origem").val(response[bmp].chefia_origem);
+                                }
+                            }
+                        });
+                    },
+                    error: function() {
+                        console.error("Erro ao buscar os dados dos BMPs!");
+                    }
+                });
+            }
+        });
+
+        // Evento para preencher a chefia de destino quando a seção de destino for selecionada
+        $("#secao_destino").on("change", function() {
+            const secaoDestino = $(this).val();
+            if (secaoDestino) {
+                $.ajax({
+                    url: "/get_chefia",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }), // Envia a seção de destino ao backend
+                    success: function(response) {
+                        if (response.chefia) {
+                            $("#chefia_destino").val(response.chefia);  // Preencher o campo Chefia de Destino
+                        } else {
+                            $("#chefia_destino").val('');  // Limpar se não houver chefia encontrada
+                        }
+                    },
+                    error: function() {
+                        console.error("Erro ao buscar a chefia de destino!");
+                    }
+                });
+            } else {
+                $("#chefia_destino").val('');  // Limpar o campo Chefia de Destino se não houver seção selecionada
+            }
+        });
+    });
+</script>
 </body>
 </html>
