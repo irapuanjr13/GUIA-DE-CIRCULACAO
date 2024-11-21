@@ -75,23 +75,24 @@ class PDF(FPDF):
         )
         row_height = line_height * max_lines
 
-        # Adicionar células alinhadas
-        x, y = self.get_x(), self.get_y()
+        # Salvar posição inicial para alinhar todas as células
+        x_start = self.get_x()
+        y_start = self.get_y()
+
+         # Adicionar as células da linha
         self.multi_cell(col_widths[0], line_height, bmp_text, border=1)
-        self.set_xy(x + col_widths[0], y)
+        self.set_xy(x_start + col_widths[0], y_start)
 
-        x, y = self.get_x(), self.get_y()
         self.multi_cell(col_widths[1], line_height, nomenclatura_text, border=1)
-        self.set_xy(x + col_widths[1], y)
+        self.set_xy(x_start + col_widths[0] + col_widths[1], y_start)
 
-        x, y = self.get_x(), self.get_y()
         self.multi_cell(col_widths[2], line_height, serie_text, border=1)
-        self.set_xy(x + col_widths[2], y)
+        self.set_xy(x_start + col_widths[0] + col_widths[1] + col_widths[2], y_start)
 
-        x, y = self.get_x(), self.get_y()
         self.multi_cell(col_widths[3], line_height, valor_text, border=1, align="R")
-        self.set_xy(x + col_widths[3], y)
+        self.set_xy(x_start + col_widths[0] + col_widths[1] + col_widths[2] + col_widths[3], y_start)
 
+        # Mover para a próxima linha
         self.ln(row_height)
 
     def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
