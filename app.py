@@ -56,22 +56,43 @@ class PDF(FPDF):
         self.ln()
 
         # Adiciona as linhas da tabela
-        self.set_font("Arial", size=10)
+        self.set_font("Arial", size=9)
+        line_height = 6  # Altura da linha
+
         for _, row in dados_bmps.iterrows():
-            # Calcular a altura necessária para a célula "Nomenclatura"
-            text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
-            line_count = self.get_string_width(text) // col_widths[1] + 1
-            row_height = 10 * line_count  # 10 é a altura padrão da célula
-            
-            self.cell(col_widths[0], row_height, str(row["Nº BMP"]), border=1, align="C")
+        # Preparar os dados das colunas
+            bmp_text = str(row["Nº BMP"])
+            nomenclatura_text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
+            serie_text = self.fix_text(row["Nº SERIE"])
+            valor_text = f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ',')
 
-            x, y = self.get_x(), self.get_y()
-            self.multi_cell(col_widths[1], 10, text, border=1)
-            self.set_xy(x + col_widths[1], y)  # Reposicionar para a próxima coluna
+        # Determinar a altura necessária para a linha
+        max_lines = max(
+            len(self.multi_cell(col_widths[0], line_height, bmp_text, border=0, split_only=True)),
+            len(self.multi_cell(col_widths[1], line_height, nomenclatura_text, border=0, split_only=True)),
+            len(self.multi_cell(col_widths[2], line_height, serie_text, border=0, split_only=True)),
+            len(self.multi_cell(col_widths[3], line_height, valor_text, border=0, split_only=True)),
+        )
+        row_height = line_height * max_lines
 
-            self.cell(col_widths[2], row_height, self.fix_text(row["Nº SERIE"]), border=1, align="C")
-            self.cell(col_widths[3], row_height, f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ','), border=1, align="R")
-            self.ln()
+        # Adicionar células alinhadas
+        x, y = self.get_x(), self.get_y()
+        self.multi_cell(col_widths[0], line_height, bmp_text, border=1)
+        self.set_xy(x + col_widths[0], y)
+
+        x, y = self.get_x(), self.get_y()
+        self.multi_cell(col_widths[1], line_height, nomenclatura_text, border=1)
+        self.set_xy(x + col_widths[1], y)
+
+        x, y = self.get_x(), self.get_y()
+        self.multi_cell(col_widths[2], line_height, serie_text, border=1)
+        self.set_xy(x + col_widths[2], y)
+
+        x, y = self.get_x(), self.get_y()
+        self.multi_cell(col_widths[3], line_height, valor_text, border=1, align="R")
+        self.set_xy(x + col_widths[3], y)
+
+        self.ln(row_height)
 
     def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
         text = f"""
