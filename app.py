@@ -95,6 +95,25 @@ class PDF(FPDF):
         # Mover para a próxima linha
         self.ln(row_height)
 
+        # Adicionar células alinhadas
+        x, y = self.get_x(), self.get_y()
+        self.multi_cell(col_widths[0], line_height, bmp_text, border=1)
+        self.set_xy(x + col_widths[0], y)
+
+        x, y = self.get_x(), self.get_y()
+        self.multi_cell(col_widths[1], line_height, nomenclatura_text, border=1)
+        self.set_xy(x + col_widths[1], y)
+
+        x, y = self.get_x(), self.get_y()
+        self.multi_cell(col_widths[2], line_height, serie_text, border=1)
+        self.set_xy(x + col_widths[2], y)
+
+        x, y = self.get_x(), self.get_y()
+        self.multi_cell(col_widths[3], line_height, valor_text, border=1, align="R")
+        self.set_xy(x + col_widths[3], y)
+
+        self.ln(row_height)
+
     def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
         text = f"""
 Solicitação de Transferência:
