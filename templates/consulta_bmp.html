@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BENS MOVEIS PERMANENTES</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #ffffff;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .card {
+            background: #007BFF;
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        .card h3 {
+            margin: 0 0 10px;
+            font-size: 1.5rem;
+        }
+        .card p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Consulta de Bens Móveis Permanentes</h1>
+        <form method="POST" action="/">
+            <input type="text" name="bmp_query" placeholder="Digite o número do BMP" required />
+            <button type="submit">Buscar</button>
+        </form>
+
+        <!-- Exibir os resultados somente se houver consulta -->
+        {% if results is not none and not results.empty %}
+            <div class="cards">
+                {% for _, row in results.iterrows() %}
+                    <div class="card">
+                        <h3>Nº BMP: {{ row['Nº BMP'] }}</h3>
+                        <p><strong>Nomeclatura:</strong> {{ row['NOMECLATURA/COMPONENTE'] }}</p>
+                        <p><strong>Número de Série:</strong> {{ row['Nº SERIE'] }}</p>
+                        <p><strong>Valor Atualizado:</strong> R$ {{ "{:,.2f}".format(row['VL. ATUALIZ.']) }}</p>
+                        <p><strong>Dependência:</strong> {{ row['DEPENDENCIA'] }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% elif results is not none %}
+            <p style="text-align: center; color: #555;">Nenhum resultado encontrado.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
+
