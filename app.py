@@ -24,16 +24,9 @@ df = get_excel_from_google_drive()
 def menu_principal():
     return render_template("index.html")  # Página inicial
 
-# Rota para a consulta de BMP
-@app.route("/consulta_bmp")
-def consulta_bmp():
-    results = []  
-    return render_template("consulta_bmp.html")
-
-@app.route("/", methods=["GET", "POST"])
+@app.route("/consulta_bmp", methods=["GET", "POST"])
 def consulta_bmp():
     results = pd.DataFrame()  # DataFrame vazio para evitar erros na primeira carga
-
     if request.method == "POST":
         search_query = request.form.get("bmp_query", "").strip().lower()  # Pesquisa por BMP
         if search_query:
@@ -41,10 +34,9 @@ def consulta_bmp():
             results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
 
     # Renderiza o template com os resultados
-    return render_template("consulta_bmp", results=results)
+    return render_template("consulta_bmp.html", results=results)
 
-if __name__ == "__main__":
-    
+if __name__ == "__main__":    
 	port = int(os.getenv("PORT", 5000))  # Lê a variável PORT, ou usa 5000 como padrão
 app.run(debug=True, host="0.0.0.0", port=port)
 
@@ -423,6 +415,11 @@ def get_chefia():
         return jsonify({"error": "Tipo inválido!"}), 400
 
     return jsonify({"chefia": chefia.tolist()})
+
+@app.route("/health")
+def health_check():
+    return jsonify({"status": "ok"}), 200
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))  # Lê a variável PORT ou usa 5000 como padrão
     app.run(host="0.0.0.0", port=port)
