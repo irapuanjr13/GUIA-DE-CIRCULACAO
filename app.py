@@ -43,7 +43,15 @@ app.run(debug=True, host="0.0.0.0", port=port)
 # Rota para Guia de Circulação BMP
 @app.route("/guia_bens")
 def guia_bens():
-    return render_template("guia_bens.html")
+    results = pd.DataFrame()  # DataFrame vazio para evitar erros na primeira carga
+    if request.method == "POST":
+        search_query = request.form.get("bmp_query", "").strip().lower()  # Pesquisa por BMP
+        if search_query:
+            # Filtra os resultados com base no BMP fornecido
+            results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
+
+    # Renderiza o template com os resultados
+    return render_template("guia_bens.html", results=results)
 
 class PDF(FPDF):
     def __init__(self):
@@ -229,7 +237,15 @@ if __name__ == "__main__":
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro")
 def guia_duradouro():
-    return render_template("guia_duradouro.html")
+    results = pd.DataFrame()  # DataFrame vazio para evitar erros na primeira carga
+    if request.method == "POST":
+        search_query = request.form.get("bmp_query", "").strip().lower()  # Pesquisa por BMP
+        if search_query:
+            # Filtra os resultados com base no BMP fornecido
+            results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
+
+    # Renderiza o template com os resultados
+    return render_template("guia_duradouro.html", results=results)
 
 class PDF(FPDF):
     def __init__(self):
@@ -415,10 +431,6 @@ def get_chefia():
         return jsonify({"error": "Tipo inválido!"}), 400
 
     return jsonify({"chefia": chefia.tolist()})
-
-@app.route("/health")
-def health_check():
-    return jsonify({"status": "ok"}), 200
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))  # Lê a variável PORT ou usa 5000 como padrão
