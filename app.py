@@ -24,9 +24,10 @@ df = get_excel_from_google_drive()
 def menu_principal():
     return render_template("index.html")  # Página inicial
 
-# Rota para consulta de BMP
+# Rota para a consulta de BMP
 @app.route("/consulta_bmp")
 def consulta_bmp():
+    results = []  
     return render_template("consulta_bmp.html")
 
 @app.route("/", methods=["GET", "POST"])
