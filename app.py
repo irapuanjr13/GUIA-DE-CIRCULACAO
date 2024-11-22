@@ -40,7 +40,6 @@ if __name__ == "__main__":
 	port = int(os.getenv("PORT", 5000))  # Lê a variável PORT, ou usa 5000 como padrão
 app.run(debug=True, host="0.0.0.0", port=port)
 
-# Rota para Guia de Circulação BMP
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
     results = pd.DataFrame()  # DataFrame vazio para evitar erros na primeira carga
@@ -51,7 +50,7 @@ def guia_bens():
             results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
     # Retorna a página com o resultado da pesquisa ou com a página inicial vazia
     return render_template("guia_bens.html", results=results)
-	
+
 class PDF(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'A4')  # Orientação retrato, milímetros, formato A4
