@@ -49,7 +49,7 @@ app.run(debug=True, host="0.0.0.0", port=port)
 
 # Rota para Guia de Circulação BMP
 @app.route("/guia_bens")
-def guia_circulacao_bmp():
+def guia_bens():
     return render_template("guia_bens.html")
 
 class PDF(FPDF):
@@ -235,7 +235,7 @@ if __name__ == "__main__":
 
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro")
-def guia_circulacao_duradouro():
+def guia_duradouro():
     return render_template("guia_duradouro.html")
 
 class PDF(FPDF):
