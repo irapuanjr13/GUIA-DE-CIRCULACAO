@@ -41,7 +41,7 @@ if __name__ == "__main__":
 app.run(debug=True, host="0.0.0.0", port=port)
 
 # Rota para Guia de Circulação BMP
-@app.route("/guia_bens")
+@app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
     results = pd.DataFrame()  # DataFrame vazio para evitar erros na primeira carga
     if request.method == "POST":
@@ -49,10 +49,9 @@ def guia_bens():
         if search_query:
             # Filtra os resultados com base no BMP fornecido
             results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
-
-    # Renderiza o template com os resultados
+    # Retorna a página com o resultado da pesquisa ou com a página inicial vazia
     return render_template("guia_bens.html", results=results)
-
+	
 class PDF(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'A4')  # Orientação retrato, milímetros, formato A4
@@ -235,7 +234,7 @@ if __name__ == "__main__":
     app.run(host="0.0.0.0", port=port)
 
 # Rota para Guia de Circulação de Uso Duradouro
-@app.route("/guia_duradouro")
+@app.route("/guia_duradouro", methods=["GET", "POST"])
 def guia_duradouro():
     results = pd.DataFrame()  # DataFrame vazio para evitar erros na primeira carga
     if request.method == "POST":
@@ -243,8 +242,8 @@ def guia_duradouro():
         if search_query:
             # Filtra os resultados com base no BMP fornecido
             results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
-
-    # Renderiza o template com os resultados
+    
+    # Renderiza o template com os resultados (vazio ou preenchido)
     return render_template("guia_duradouro.html", results=results)
 
 class PDF(FPDF):
