@@ -30,7 +30,7 @@ def consulta_bmp():
     return render_template("consulta_bmp.html")
 
 @app.route("/", methods=["GET", "POST"])
-def consulata_bmp():
+def consulta_bmp():
     results = pd.DataFrame()  # DataFrame vazio para evitar erros na primeira carga
 
     if request.method == "POST":
