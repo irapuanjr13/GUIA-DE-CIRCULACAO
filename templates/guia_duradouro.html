@@ -129,7 +129,7 @@
 
             if (bmpNumbers.length > 0) {
                 $.ajax({
-                    url: "/autocomplete",  // Lógica de preenchimento do campo de seção e chefia de origem
+                    url: "/autocompleti",  // Lógica de preenchimento do campo de seção e chefia de origem
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify({ "bmp_numbers": bmpNumbers }),  // Passa todos os BMPs, mesmo que seja um só
