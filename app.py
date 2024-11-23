@@ -40,13 +40,14 @@ def consulta_bmp():
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
     results = pd.DataFrame()  # DataFrame vazio para evitar erros na primeira carga
+
     if request.method == "POST":
-        search_query = request.form.get("bmp_query", "").strip().lower()  # Pesquisa por BMP
+        search_query = request.form.get("bmp_query", "").strip().lower()
+        print(f"Query recebida: {search_query}")  # Log da pesquisa recebida
         if search_query:
-            # Filtra os resultados com base no BMP fornecido
             results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
-		
-    # Retorna a página com o resultado da pesquisa ou com a página inicial vazia
+            print(f"Resultados encontrados: {len(results)}")  # Log do número de resultados
+    
     return render_template("guia_bens.html", results=results)
 
 class PDF(FPDF):
