@@ -36,9 +36,9 @@ def consulta_bmp():
     # Renderiza o template com os resultados
     return render_template("consulta_bmp.html", results=results)
 
-if __name__ == "__main__":    
-	port = int(os.getenv("PORT", 5000))  # Lê a variável PORT, ou usa 5000 como padrão
-app.run(debug=True, host="0.0.0.0", port=port)
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 5000))  # Lê a variável PORT ou usa 5000 como padrão
+    app.run(debug=True, host="0.0.0.0", port=port)
 
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
@@ -105,7 +105,7 @@ class PDF(FPDF):
             self.cell(col_widths[3], row_height, f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ','), border=1, align="R")
             self.ln()
 
-    def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
+   def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
         text = f"""
 Solicitação de Transferência:
 Informo à Senhora Chefe do GAP-LS que os bens especificados estão inservíveis para uso neste setor, classificados como ociosos, recuperáveis, reparados ou novos - aguardando distribuição. Diante disso, solicito autorização para transferir o(s) Bem(ns) Móvel(is) Permanente(s) acima discriminado(s), atualmente sob minha guarda, para a Seção {secao_destino}.
@@ -228,9 +228,10 @@ def get_chefia():
             return jsonify({"chefia": ""})  # Caso não haja chefia de destino
     else:
         return jsonify({"error": "Tipo inválido"}), 400
+	    
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))  # Lê a variável PORT ou usa 5000 como padrão
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True, host="0.0.0.0", port=port)
 
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
@@ -328,7 +329,7 @@ Autorizo a movimentação solicitada e determino:
 LUCIANA DO AMARAL CORREA  Cel Int
 Dirigente Máximo
 """
-        self.multi_cell(0, 8, self.fix_text(text))
+       self.multi_cell(0, 8, self.fix_text(text))
 
 @app.route("/", methods=["GET", "POST"])
 def guia_duradouro():
@@ -432,4 +433,4 @@ def get_chefia():
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))  # Lê a variável PORT ou usa 5000 como padrão
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True, host="0.0.0.0", port=port)
