@@ -320,7 +320,7 @@ Autorizo a movimentação solicitada e determino:
 LUCIANA DO AMARAL CORREA  Cel Int
 Dirigente Máximo
 """
-       self.multi_cell(0, 8, self.fix_text(text))
+        self.multi_cell(0, 8, self.fix_text(text))
 
 @app.route("/", methods=["GET", "POST"])
 def guia_duradouro():
