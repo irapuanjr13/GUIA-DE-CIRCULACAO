@@ -36,10 +36,6 @@ def consulta_bmp():
     # Renderiza o template com os resultados
     return render_template("consulta_bmp.html", results=results)
 
-if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))  # Lê a variável PORT ou usa 5000 como padrão
-    app.run(debug=True, host="0.0.0.0", port=port)
-
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
     results = pd.DataFrame()  # DataFrame vazio para evitar erros na primeira carga
@@ -229,10 +225,6 @@ def get_chefia():
     else:
         return jsonify({"error": "Tipo inválido"}), 400
 	    
-if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))  # Lê a variável PORT ou usa 5000 como padrão
-    app.run(debug=True, host="0.0.0.0", port=port)
-
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
 def guia_duradouro():
@@ -298,7 +290,6 @@ class PDF(FPDF):
             self.cell(col_widths[2], row_height, self.fix_text(row["Nº SERIE"]), border=1, align="C")
             self.cell(col_widths[3], row_height, f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ','), border=1, align="R")
             self.ln()
-
 
     def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
         text = f"""
