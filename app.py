@@ -385,8 +385,8 @@ def guia_duradouro_form():
         "guia_duradouro.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
     )
 
-@app.route("/autocomplete", methods=["POST"])
-def autocomplete():
+@app.route("/autocompleti", methods=["POST"])
+def autocompleti():
     data = request.get_json()
     bmp_numbers = data.get("bmp_numbers", [])
 
