@@ -36,6 +36,7 @@ def consulta_bmp():
     # Renderiza o template com os resultados
     return render_template("consulta_bmp.html", results=results)
 
+# Rota para Guia de Circulação BMP
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
     results = pd.DataFrame()  # DataFrame vazio para evitar erros na primeira carga
