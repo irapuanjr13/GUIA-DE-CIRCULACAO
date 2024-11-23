@@ -45,6 +45,7 @@ def guia_bens():
         if search_query:
             # Filtra os resultados com base no BMP fornecido
             results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
+		
     # Retorna a página com o resultado da pesquisa ou com a página inicial vazia
     return render_template("guia_bens.html", results=results)
 
