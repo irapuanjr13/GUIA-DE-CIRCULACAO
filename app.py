@@ -324,7 +324,7 @@ Dirigente Máximo
         self.multi_cell(0, 8, self.fix_text(text))
 
 @app.route("/", methods=["GET", "POST"])
-def guia_duradouro():
+def guia_form():
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
     secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
 
