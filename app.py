@@ -34,7 +34,7 @@ def consulta_bmp():
             results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
 
     # Renderiza o template com os resultados
-    return render_template("consulta_bmp.html", results=results)
+    return render_template("consulta_bmp.html",css_file='guia_bens.css')
 
 # Rota para Guia de Circulação BMP
 @app.route("/guia_bens", methods=["GET", "POST"])
@@ -238,7 +238,7 @@ def guia_duradouro():
             results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
     
     # Renderiza o template com os resultados (vazio ou preenchido)
-    return render_template("guia_duradouro.html", results=results)
+    return render_template("guia_duradouro.html", css_file='guia_duradouro.css')
 
 class PDF(FPDF):
     def __init__(self):
