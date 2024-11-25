@@ -19,6 +19,11 @@ def get_excel_from_google_drive():
 # Carregar a planilha no início do programa
 df = get_excel_from_google_drive()
 
+# 1. Função auxiliar
+def get_unique_secoes_destino():
+    """Retorna uma lista de seções de destino únicas, excluindo valores nulos."""
+    return df['Seção de Destino'].dropna().unique().tolist()
+
 # Rota para o menu principal
 @app.route("/")
 def menu_principal():
@@ -141,7 +146,8 @@ def guia_bens_form():
 
     # Carregar dados para preencher o formulário
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
-    secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
+    secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
+    secoes_destino = get_unique_secoes_destino()
     print(f"Seções carregadas: {secoes_destino}")  # Deve exibir uma lista de seções disponíveis
 
     if request.method == "POST":
@@ -332,7 +338,8 @@ Dirigente Máximo
 @app.route("/", methods=["GET", "POST"])
 def guia_duradouro_form():
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
-    secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
+    secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
+    secoes_destino = get_unique_secoes_destino()
 
     if request.method == "POST":
         bmp_numbers = request.form.get("bmp_numbers")
