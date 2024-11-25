@@ -47,7 +47,8 @@ def guia_bens():
         if search_query:
             results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
             print(f"Resultados encontrados: {len(results)}")  # Log do número de resultados
-    
+
+    # Renderiza o template com os resultados
     return render_template("guia_bens.html", results=results)
 
 class PDF(FPDF):
@@ -136,7 +137,7 @@ Dirigente Máximo
         self.multi_cell(0, 8, self.fix_text(text))
             
 @app.route("/", methods=["GET", "POST"])
-def guia_bens():
+def guia_bens_form():
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
     secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
 
@@ -326,7 +327,7 @@ Dirigente Máximo
         self.multi_cell(0, 8, self.fix_text(text))
 
 @app.route("/", methods=["GET", "POST"])
-def guia_duradouro():
+def guia_duradouro_form():
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
     secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
 
