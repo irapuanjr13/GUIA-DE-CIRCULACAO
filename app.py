@@ -136,8 +136,13 @@ Dirigente Máximo
             
 @app.route("/", methods=["GET", "POST"])
 def guia_bens_form():
+    print(f"Requisição recebida: {request.method}")  # Mostra se é GET ou POST
+    print(f"Dados do formulário: {request.form}")  # Exibe dados enviados pelo cliente
+
+    # Carregar dados para preencher o formulário
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
     secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
+    print(f"Seções carregadas: {secoes_destino}")  # Deve exibir uma lista de seções disponíveis
 
     if request.method == "POST":
         bmp_numbers = request.form.get("bmp_numbers")
