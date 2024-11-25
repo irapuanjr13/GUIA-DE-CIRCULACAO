@@ -353,30 +353,19 @@ def guia_duradouro_form():
                 quantidades_movimentadas[bmp_key] = float(value) if value.strip() else 0
 
         if not (bmp_numbers and secao_origem and secao_destino and chefia_origem and chefia_destino):
-            return render_template(
-                "guia_duradouro.html",
-                secoes_origem=secoes_origem,
-                secoes_destino=secoes_destino,
-                error="Preencha todos os campos!",
-            )
+            return render_template("guia_bens.html", secoes_destino=secoes_destino)
 
         bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",")]
         dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
         if dados_bmps.empty:
-            return render_template(
-                "guia_duradouro.html",
-                secoes_origem=secoes_origem,
-                secoes_destino=secoes_destino,
-                error="Nenhum BMP encontrado para os números fornecidos.",
-            )
+            return render_template("guia_duradouro.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino, 
+		error="Nenhum BMP encontrado para os números fornecidos."
+	)
 
         if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").all():
-            return render_template(
-                "guia_duradouro.html",
-                secoes_origem=secoes_origem,
-                secoes_destino=secoes_destino,
+            return render_template("guia_duradouro.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino,
                 error="Estes itens não pertencem à conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO'."
-            )
+        )
 
         dados_bmps["Qtde a Movimentar"] = dados_bmps["Nº BMP"].astype(str).map(quantidades_movimentadas).fillna(0)
         dados_bmps["Valor a Movimentar"] = dados_bmps.apply(
