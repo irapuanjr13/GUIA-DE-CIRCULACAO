@@ -146,7 +146,6 @@ def guia_bens_form():
 
     # Carregar dados para preencher o formulário
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
-    secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
     secoes_destino = get_unique_secoes_destino()
     print(f"Seções carregadas: {secoes_destino}")  # Deve exibir uma lista de seções disponíveis
 
@@ -337,7 +336,6 @@ Dirigente Máximo
 
 @app.route("/", methods=["GET", "POST"])
 def guia_duradouro_form():
-    secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
     secoes_destino = get_unique_secoes_destino()
 
