@@ -353,7 +353,7 @@ def guia_duradouro_form():
                 quantidades_movimentadas[bmp_key] = float(value) if value.strip() else 0
 
         if not (bmp_numbers and secao_origem and secao_destino and chefia_origem and chefia_destino):
-            return render_template("guia_bens.html", secoes_destino=secoes_destino)
+            return render_template("guia_duradouro.html", secoes_destino=secoes_destino)
 
         bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",")]
         dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
