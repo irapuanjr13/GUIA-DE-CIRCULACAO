@@ -34,7 +34,7 @@ def consulta_bmp():
             results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
 
     # Renderiza o template com os resultados
-    return render_template("consulta_bmp.html",css_file='consulta_bmp.css')
+    return render_template("consulta_bmp.html", results=results)
 
 # Rota para Guia de Circulação BMP
 @app.route("/guia_bens", methods=["GET", "POST"])
@@ -155,7 +155,7 @@ def guia_bens_form():
             )
 
         bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",")]
-        dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
+        dados_bmps = df[df["Nº BMP"].astype(str).str.strip().isin(bmp_list)]
         if dados_bmps.empty:
             return render_template(
                 "guia_bens.html",
