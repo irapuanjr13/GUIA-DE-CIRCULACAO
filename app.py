@@ -262,38 +262,34 @@ def get_chefia():
 
 @app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
-    data = request.json
-    bmp_numbers = data.get(
-    data = request.json
-   
-"bmp_numbers", [])
-    secao_origem = data.get("secao_origem", "")
-    chefia_origem = data.get("chefia_origem", "")
-    secao_destino = data.get("secao_destino", "")
-    chefia_destino = data.get("chefia_destino", "")
+    try:
+        data = request.json
+        bmp_numbers = data.get("bmp_numbers", [])
+        secao_origem = data.get("secao_origem", "")
+        chefia_origem = data.get("chefia_origem", "")
+        secao_destino = data.get("secao_destino", "")
+        chefia_destino = data.get("chefia_destino", "")
 
-    # Verificar se todos os dados necessários foram fornecidos
-    if not bmp_numbers or not secao_origem or not chefia_origem or not secao_destino or not chefia_destino:
-        return jsonify({"success": False, "error": "Dados insuficientes para gerar a guia."}), 400
+        if not (bmp_numbers and secao_origem and chefia_origem and secao_destino and chefia_destino):
+            return jsonify({"error": "Todos os campos são obrigatórios!"}), 400
 
-    # Criar diretório para salvar os PDFs, se necessário
-    pdf_dir = "pdfs"
-    os.makedirs(pdf_dir, exist_ok=True)
+        bmp_list = [bmp.strip() for bmp in bmp_numbers]
+        dados_bmps = df[df["Nº BMP"].astype(str).str.strip().isin(bmp_list)]
 
-    # Caminho do arquivo PDF
-    pdf_file = os.path.join(pdf_dir, "guia.pdf")
+        if dados_bmps.empty:
+            return jsonify({"error": "Nenhum BMP encontrado para os números fornecidos!"}), 404
 
-    # Geração do PDF (exemplo simples, substitua pelo seu gerador)
-    with open(pdf_file, "w") as f:
-        f.write("Este é um exemplo de guia gerada.")  # Substituir pelo conteúdo do PDF gerado.
+        pdf = PDF()
+        pdf.add_page()
+        pdf.add_table(dados_bmps)
+        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
-    # Retornar o link para o PDF
-    return jsonify({"success": True, "link_download": f"/download/guia.pdf"})
+        output_path = "static/guia_circulacao_interna.pdf"
+        pdf.output(output_path)
 
-@app.route('/download/<filename>')
-def download_file(filename):
-    pdf_dir = "pdfs"  # Diretório onde os PDFs são salvos
-    return send_from_directory(pdf_dir, filename, as_attachment=True)
+        return jsonify({"success": True, "pdf_url": output_path}), 200
+    except Exception as e:
+        return jsonify({"error": f"Erro ao gerar o PDF: {str(e)}"}), 500
 
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
