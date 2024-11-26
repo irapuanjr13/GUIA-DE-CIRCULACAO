@@ -421,7 +421,7 @@ def get_chefinha():
     else:
         return jsonify({"error": "Tipo inválido!"}), 400
 
-    return jsonify({"chefinha": chefinha.tolist()})
+    return jsonify({"Chefia": Chefia.tolist()})
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))  # Lê a variável PORT ou usa 5000 como padrão
