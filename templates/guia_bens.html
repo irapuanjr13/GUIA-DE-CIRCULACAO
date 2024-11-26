@@ -197,18 +197,29 @@ if (secaoDestino) {
             $("#chefia_destino").val('');  // Limpar o campo em caso de erro
         }
     });
-} else {
-    $("#chefia_destino").val('');  // Limpar o campo Chefia de Destino se não houver seção selecionada
-}
-function gerarGuia() {
-    const secaoOrigem = $("#secao_origem").val();
-    const secaoDestino = $("#secao_destino").val();
-    const chefiaDestino = $("#chefia_destino").val();
+ } else {
+                $("#chefia_destino").val('');  // Limpar o campo Chefia de Destino se não houver seção selecionada
+            }
+        });
 
-    if (!secaoOrigem || !secaoDestino || !chefiaDestino) {
-        alert("Preencha todos os campos antes de gerar a guia.");
-        return;
-    }
+        // Prevenir o envio do formulário tradicional
+        $("#guia_form").on("submit", function(event) {
+            event.preventDefault();  // Previne o comportamento padrão de envio do formulário
+
+            // Chama a função para gerar a guia
+            gerarGuia();
+    });
+
+    // Função para gerar a guia
+    function gerarGuia() {
+        const secaoOrigem = $("#secao_origem").val();
+        const secaoDestino = $("#secao_destino").val();
+        const chefiaDestino = $("#chefia_destino").val();
+
+        if (!secaoOrigem || !secaoDestino || !chefiaDestino) {
+            alert("Preencha todos os campos antes de gerar a guia.");
+            return;
+        }
 
     $.ajax({
         url: "/gerar_guia",
