@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -221,7 +220,7 @@ function gerarGuia() {
             if (response.link_download) {
                 // Exibir link para baixar o PDF
                 $("#link_download").html(
-                    `<a href="${response.link_download}" target="_blank">Baixe a guia aqui</a>`
+                    <a href="${response.link_download}" target="_blank">Baixe a guia aqui</a>
                 );
             } else {
                 alert("Erro ao gerar a guia. Tente novamente.");
