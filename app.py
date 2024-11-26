@@ -183,9 +183,6 @@ def guia_bens_form():
                 error="Itens pertencentes à conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO' não podem ser processados.",
             )
         
-        pdf = PDF()
-        pdf.add_page()
-        
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
     data = request.get_json()
@@ -252,7 +249,9 @@ def get_chefia():
 
 @app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
-    try:
+
+        pdf = PDF()
+        pdf.add_page()
         pdf.add_table(dados_bmps)
         pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
@@ -398,19 +397,6 @@ def guia_duradouro_form():
         dados_bmps["Valor a Movimentar"] = dados_bmps.apply(
             lambda row: (row["VL. ATUALIZ."] / row["QTD"] * row["Qtde a Movimentar"]) if row["QTD"] > 0 else 0, axis=1
         )
-
-        pdf = PDF()
-        pdf.add_page()
-        pdf.add_table(dados_bmps)
-        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
-
-        output_path = "static/guia_circulacao_interna.pdf"
-        pdf.output(output_path)
-        return send_file(output_path, as_attachment=True)
-
-    return render_template(
-        "guia_duradouro.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
-    )
 
 @app.route("/autocompleti", methods=["POST"])
 def autocompleti():
