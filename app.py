@@ -224,30 +224,38 @@ def autocomplete():
 
 @app.route("/get_chefia", methods=["POST"])
 def get_chefia():
-    data = request.json
-    secao = data.get("secao")
-    tipo = data.get("tipo")
+    try:
+        # Captura os dados enviados no corpo da requisição.
+        data = request.json
+        if not data:
+            return jsonify({"error": "Requisição inválida ou sem dados JSON."}), 400
 
-    if not secao or not tipo:
-        return jsonify({"error": "Os campos 'secao' e 'tipo' são obrigatórios."}), 400	
+        # Extrai os valores de 'secao' e 'tipo'.
+        secao = data.get("secao")
+        tipo = data.get("tipo")
 
-    if tipo == "destino":
-        chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique()
-    elif tipo == "origem":
-        chefia = df[df['Seção de Origem'] == secao]['Chefia de Origem'].dropna().unique()
-    else:
-        return jsonify({"error": "Tipo inválido!"}), 400
+        # Valida se os campos necessários estão presentes.
+        if not secao or not tipo:
+            return jsonify({"error": "Os campos 'secao' e 'tipo' são obrigatórios."}), 400
 
-    # Retorna um erro caso a chefia não seja encontrada.
-    if chefia.size == 0:
-        return jsonify({"error": "Chefia não encontrada para a seção especificada."}), 404
+        # Lógica para buscar os dados no DataFrame.
+        if tipo == "destino":
+            chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique()
+        elif tipo == "origem":
+            chefia = df[df['Seção de Origem'] == secao]['Chefia de Origem'].dropna().unique()
+        else:
+            return jsonify({"error": "Tipo inválido!"}), 400
 
-    # Converte a chefia para uma lista e retorna como JSON.
-    return jsonify({"chefia": chefia.tolist()})
+        # Retorna um erro caso a chefia não seja encontrada.
+        if chefia.size == 0:
+            return jsonify({"error": "Chefia não encontrada para a seção especificada."}), 404
 
-except Exception as e:
-    # Tratamento de erro geral.
-    return jsonify({"error": f"Erro interno do servidor: {str(e)}"}), 500 
+        # Converte a chefia para uma lista e retorna como JSON.
+        return jsonify({"chefia": chefia.tolist()})
+
+    except Exception as e:
+        # Tratamento de erro geral.
+        return jsonify({"error": f"Erro interno do servidor: {str(e)}"}), 500
 
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
