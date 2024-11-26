@@ -246,26 +246,6 @@ def get_chefia():
 
     return jsonify({"chefia": chefia.tolist()})
 
-@app.route("/gerar_guia", methods=["POST"])
-def gerar_guia():
-    try:
-        data = request.json
-        secao_origem = data.get("secao_origem")
-        secao_destino = data.get("secao_destino")
-        chefia_destino = data.get("chefia_destino")
-
-        if not secao_origem or not secao_destino or not chefia_destino:
-            return jsonify({"error": "Campos obrigatórios estão ausentes."}), 400
-
-        # Lógica para gerar o PDF da guia
-        # Supondo que o caminho do PDF seja retornado como link_download
-        link_download = "/downloads/guia_circulação.pdf"
-
-        return jsonify({"link_download": link_download})
-
-    except Exception as e:
-        return jsonify({"error": f"Erro interno: {str(e)}"}), 500
-
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
 def guia_duradouro():
