@@ -263,33 +263,17 @@ def get_chefia():
 @app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
     try:
-        data = request.json
-        bmp_numbers = data.get("bmp_numbers", [])
-        secao_origem = data.get("secao_origem", "")
-        chefia_origem = data.get("chefia_origem", "")
-        secao_destino = data.get("secao_destino", "")
-        chefia_destino = data.get("chefia_destino", "")
+    pdf = PDF()
+    pdf.add_page()
+    pdf.add_table(dados_bmps)
+    pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+    pdf.output(output_path)
+except Exception as e:
+    print(f"Erro ao gerar o PDF: {e}")
+    return jsonify({"error": "Erro ao gerar o PDF!"}), 500
 
-        if not (bmp_numbers and secao_origem and chefia_origem and secao_destino and chefia_destino):
-            return jsonify({"error": "Todos os campos são obrigatórios!"}), 400
-
-        bmp_list = [bmp.strip() for bmp in bmp_numbers]
-        dados_bmps = df[df["Nº BMP"].astype(str).str.strip().isin(bmp_list)]
-
-        if dados_bmps.empty:
-            return jsonify({"error": "Nenhum BMP encontrado para os números fornecidos!"}), 404
-
-        pdf = PDF()
-        pdf.add_page()
-        pdf.add_table(dados_bmps)
-        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
-
-        output_path = "static/guia_circulacao_interna.pdf"
-        pdf.output(output_path)
-
-        return jsonify({"success": True, "pdf_url": output_path}), 200
-    except Exception as e:
-        return jsonify({"error": f"Erro ao gerar o PDF: {str(e)}"}), 500
+if not (bmp_numbers and secao_origem and secao_destino and chefia_origem and chefia_destino):
+    return jsonify({"error": "Campos obrigatórios ausentes!"}), 400
 
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
