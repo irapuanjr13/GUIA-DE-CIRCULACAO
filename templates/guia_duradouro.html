@@ -155,13 +155,13 @@
             const secaoDestino = $(this).val();
             if (secaoDestino) {
                 $.ajax({
-                    url: "/get_chefinha",
+                    url: "/get_chefia1",
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }),
                     success: function(response) {
-                        if (response.chefinha) {
-                            $("#chefia_destino").val(response.chefinha);
+                        if (response.chefia) {
+                            $("#chefia_destino").val(response.chefia);
                         } else {
                             $("#chefia_destino").val('');
                         }
