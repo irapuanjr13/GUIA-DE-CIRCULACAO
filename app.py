@@ -224,18 +224,22 @@ def autocomplete():
 
 @app.route("/get_chefia", methods=["POST"])
 def get_chefia():
-    data = request.json
+    data = request.get_json()
     secao = data.get("secao")
-    tipo = data.get("tipo")
+    tipo = data.get("tipo")  # Aqui "tipo" será "destino"
 
-    if tipo == "destino":
-        chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique()
-        if chefia:
-            return jsonify({"chefia": chefia[0]})  # Retorna a chefia de destino
+     # Lógica para buscar a chefia com base na seção
+        if tipo == "destino":
+            chefia = df[df["Seção de Destino"] == secao]["Chefia de Destino"].dropna().iloc[0]
+        elif tipo == "origem":
+            chefia = df[df["Seção de Origem"] == secao]["Chefia de Origem"].dropna().iloc[0]
         else:
-            return jsonify({"chefia": ""})  # Caso não haja chefia de destino
-    else:
-        return jsonify({"error": "Tipo inválido"}), 400
+            chefia = None
+
+        # Retorna a chefia encontrada
+        return jsonify({"success": True, "chefia": chefia})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
 	    
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
