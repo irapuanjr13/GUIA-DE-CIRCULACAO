@@ -249,19 +249,14 @@ def get_chefia():
 
 @app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
+    pdf = PDF()
+    pdf.add_page()
+    pdf.add_table(dados_bmps)
+    pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
-        pdf = PDF()
-        pdf.add_page()
-        pdf.add_table(dados_bmps)
-        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
-
-        output_path = "static/guia_circulacao_interna.pdf"
-        pdf.output(output_path)
-        return send_file(output_path, as_attachment=True)
-
-    return render_template(
-        "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
-    )
+    output_path = "static/guia_circulacao_interna.pdf"
+    pdf.output(output_path)
+    return send_file(output_path, as_attachment=True)
 
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
