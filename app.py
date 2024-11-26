@@ -224,12 +224,13 @@ def autocomplete():
 
 @app.route("/get_chefia", methods=["POST"])
 def get_chefia():
-    data = request.get_json()
-    secao = data.get("secao")
-    tipo = data.get("tipo")  # Aqui "tipo" será "destino"
+    try:  # Certifique-se de encapsular todo o bloco no try
+        data = request.get_json()
+        secao = data.get("secao")
+        tipo = data.get("tipo")  # Aqui "tipo" será "destino"
 
-     # Lógica para buscar a chefia com base na seção
-    if tipo == "destino":
+        # Lógica para buscar a chefia com base na seção
+        if tipo == "destino":
             chefia = df[df["Seção de Destino"] == secao]["Chefia de Destino"].dropna().iloc[0]
         elif tipo == "origem":
             chefia = df[df["Seção de Origem"] == secao]["Chefia de Origem"].dropna().iloc[0]
