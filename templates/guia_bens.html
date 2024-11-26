@@ -159,7 +159,17 @@
                     type: "GET",
                     success: function(response) {
                         const secoesDestino = response.secoes_destino;
-        
+
+                        // Preenche a lista de Seção de Destino com as opções recebidas
+                        secoesDestino.forEach(function(secao) {
+                            $("#secao_destino").append(new Option(secao, secao));
+            });
+        },
+        error: function() {
+            console.error("Erro ao buscar as seções de destino!");
+        }
+    });
+
         // Evento para preencher a chefia de destino quando a seção de destino for selecionada
         $("#secao_destino").on("change", function() {
             const secaoDestino = $(this).val();
