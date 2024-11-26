@@ -224,23 +224,33 @@ def autocomplete():
 
 @app.route("/get_chefia", methods=["POST"])
 def get_chefia():
-    try:  # Certifique-se de encapsular todo o bloco no try
-        data = request.get_json()
-        secao = data.get("secao")
-        tipo = data.get("tipo")  # Aqui "tipo" será "destino"
+    try:
+        data = request.get_json()  # Recebe os dados enviados na requisição
+        secao = data.get("secao")  # Obtém a seção enviada
+        tipo = data.get("tipo")    # Obtém o tipo ("origem" ou "destino")
 
-        # Lógica para buscar a chefia com base na seção
+        # Verifica se as informações foram enviadas
+        if not secao or not tipo:
+            return jsonify({"success": False, "error": "Dados insuficientes na requisição"}), 400
+
+        # Busca a chefia com base no tipo
         if tipo == "destino":
             chefia = df[df["Seção de Destino"] == secao]["Chefia de Destino"].dropna().iloc[0]
         elif tipo == "origem":
             chefia = df[df["Seção de Origem"] == secao]["Chefia de Origem"].dropna().iloc[0]
         else:
-            chefia = None
+            return jsonify({"success": False, "error": "Tipo inválido"}), 400
 
         # Retorna a chefia encontrada
         return jsonify({"success": True, "chefia": chefia})
+
+    except IndexError:
+        # Caso não encontre a chefia
+        return jsonify({"success": False, "error": "Chefia não encontrada"}), 404
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
+        # Caso ocorra algum erro inesperado
+        return jsonify({"success": False, "error": str(e)}), 500
+
 	    
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
