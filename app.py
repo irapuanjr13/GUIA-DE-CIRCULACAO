@@ -206,9 +206,11 @@ def autocomplete():
 
     response = {}
     for bmp in bmp_numbers:
-        # Aqui você deve implementar a lógica para buscar a seção e chefia para o BMP
-        # Supondo que você tenha um DataFrame df com essas informações:
-        filtro_bmp = df[df["Nº BMP"].astype(str) == bmp]
+        # Garantir que o número do BMP esteja limpo de espaços
+        bmp = bmp.strip()
+
+        # Lógica para buscar a seção e chefia para o BMP
+        filtro_bmp = df[df["Nº BMP"].astype(str).str.strip() == bmp]
 
         if not filtro_bmp.empty:
             secao_origem = filtro_bmp["Seção de Origem"].values[0]
