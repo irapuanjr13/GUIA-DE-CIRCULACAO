@@ -263,15 +263,14 @@ def get_chefia():
 @app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
     try:
-   	 pdf = PDF()
-   	 pdf.add_page()
-   	 pdf.add_table(dados_bmps)
-  	 pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
-  	 pdf.output(output_path)
-      except Exception as e:
-   	 print(f"Erro ao gerar o PDF: {e}")
-    # O return só é permitido dentro de uma função Flask
-    return jsonify({"error": "Erro ao gerar o PDF!"}), 500
+        pdf = PDF()
+        pdf.add_page()
+        pdf.add_table(dados_bmps)
+        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+        pdf.output(output_path)
+    except Exception as e:
+        print(f"Erro ao gerar o PDF: {e}")
+        return jsonify({"error": "Erro ao gerar o PDF!"}), 500
 
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
