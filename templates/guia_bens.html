@@ -157,18 +157,17 @@
         // Evento para preencher a chefia de destino quando a seção de destino for selecionada
         $("#secao_destino").on("change", function() {
             const secaoDestino = $(this).val();
-            if (secaoDestino) {
-                console.log("Enviando seção de destino para o backend:", secaoDestino); // Log da seção enviada
+            console.log("Seção de Destino selecionada:", secaoDestino);  // Verifique se a seção está sendo capturada
                 
+            if (secaoDestino) {   
                 $.ajax({
                     url: "/get_chefia",
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }), // Envia a seção de destino ao backend
                     success: function(response) {
-                        console.log("Resposta de chefia:", response); // Log da resposta da chefia
-                        
-                        if (response.chefia) {
+                         console.log("Resposta do servidor:", response);  // Verifique a resposta do servidor
+                        if (response.success && response.chefia) {
                             $("#chefia_destino").val(response.chefia);  // Preencher o campo Chefia de Destino
                         } else {
                             $("#chefia_destino").val('');  // Limpar se não houver chefia encontrada
