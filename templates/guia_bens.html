@@ -105,8 +105,11 @@
             </div>
             <div class="form-group">
                 <button type="submit">Gerar Guia</button>
+          
+            <div id="link_download" style="text-align: center; margin-top: 20px;">
+                <!-- O link para download será inserido aqui -->
             </div>
-        </form>
+         </form>
     </div>
 
     <div class="observacao" id="observacao">
@@ -226,10 +229,6 @@ function gerarGuia() {
             } else {
                 alert("Erro ao gerar a guia. Tente novamente.");
             }
-        },
-        error: function (xhr, status, error) {
-            console.error("Erro ao gerar a guia:", error);
-            alert("Erro ao gerar a guia.");
         },
     });
 }
