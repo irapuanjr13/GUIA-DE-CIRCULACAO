@@ -417,8 +417,8 @@ def autocompleti():
 
     return jsonify(response)
 
-@app.route("/get_chefinha", methods=["POST"])
-def get_chefinha():
+@app.route("/get_chefia1", methods=["POST"])
+def get_chefia1():
     data = request.json
     secao = data.get("secao")
     tipo = data.get("tipo")
@@ -430,7 +430,7 @@ def get_chefinha():
     else:
         return jsonify({"error": "Tipo inválido!"}), 400
 
-    return jsonify({"Chefia": Chefia.tolist()})
+    return jsonify({"chefia1": Chefia.tolist()})
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))  # Lê a variável PORT ou usa 5000 como padrão
