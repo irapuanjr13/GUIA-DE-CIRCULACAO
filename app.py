@@ -263,9 +263,37 @@ def get_chefia():
 @app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
     data = request.json
-    # Aqui você faria a geração da guia com os dados recebidos
-    # Retornando o link para download
-    return jsonify({"success": True, "link_download": "/path/to/generated/guia.pdf"})
+    bmp_numbers = data.get(
+    data = request.json
+   
+"bmp_numbers", [])
+    secao_origem = data.get("secao_origem", "")
+    chefia_origem = data.get("chefia_origem", "")
+    secao_destino = data.get("secao_destino", "")
+    chefia_destino = data.get("chefia_destino", "")
+
+    # Verificar se todos os dados necessários foram fornecidos
+    if not bmp_numbers or not secao_origem or not chefia_origem or not secao_destino or not chefia_destino:
+        return jsonify({"success": False, "error": "Dados insuficientes para gerar a guia."}), 400
+
+    # Criar diretório para salvar os PDFs, se necessário
+    pdf_dir = "pdfs"
+    os.makedirs(pdf_dir, exist_ok=True)
+
+    # Caminho do arquivo PDF
+    pdf_file = os.path.join(pdf_dir, "guia.pdf")
+
+    # Geração do PDF (exemplo simples, substitua pelo seu gerador)
+    with open(pdf_file, "w") as f:
+        f.write("Este é um exemplo de guia gerada.")  # Substituir pelo conteúdo do PDF gerado.
+
+    # Retornar o link para o PDF
+    return jsonify({"success": True, "link_download": f"/download/guia.pdf"})
+
+@app.route('/download/<filename>')
+def download_file(filename):
+    pdf_dir = "pdfs"  # Diretório onde os PDFs são salvos
+    return send_from_directory(pdf_dir, filename, as_attachment=True)
 
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
