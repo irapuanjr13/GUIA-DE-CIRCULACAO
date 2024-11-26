@@ -238,12 +238,16 @@ def get_chefia():
     else:
         return jsonify({"error": "Tipo inválido!"}), 400
 
-    if chefia.size == 0:  # Se nenhum valor for encontrado
+    # Retorna um erro caso a chefia não seja encontrada.
+    if chefia.size == 0:
         return jsonify({"error": "Chefia não encontrada para a seção especificada."}), 404
 
+    # Converte a chefia para uma lista e retorna como JSON.
     return jsonify({"chefia": chefia.tolist()})
+
 except Exception as e:
-    return jsonify({"error": f"Erro interno do servidor: {str(e)}"}), 500   
+    # Tratamento de erro geral.
+    return jsonify({"error": f"Erro interno do servidor: {str(e)}"}), 500 
 
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
