@@ -175,27 +175,28 @@
             const secaoDestino = $(this).val();
             console.log("Seção de Destino selecionada:", secaoDestino);  // Verifique se a seção está sendo capturada
                 
-            if (secaoDestino) {   
-                $.ajax({
-                    url: "/get_chefia",
-                    type: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }), // Envia a seção de destino ao backend
-                    success: function(response) {
-                         console.log("Resposta do servidor:", response);  // Verifique a resposta do servidor
-                        if (response.success && response.chefia) {
-                            $("#chefia_destino").val(response.chefia);  // Preencher o campo Chefia de Destino
-                        } else {
-                            $("#chefia_destino").val('');  // Limpar se não houver chefia encontrada
-                        }
-                    },
-                    error: function() {
-                        console.error("Erro ao buscar a chefia de destino!");
-                    }
-                });
+if (secaoDestino) {   
+    $.ajax({
+        url: "/get_chefia",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }), // Envia a seção de destino ao backend
+        success: function(response) {
+            console.log("Resposta do servidor:", response);  // Verifique a resposta do servidor
+            if (response.chefia) {
+                $("#chefia_destino").val(response.chefia[0]);  // Preencher o campo Chefia de Destino com o primeiro valor
             } else {
-                $("#chefia_destino").val('');  // Limpar o campo Chefia de Destino se não houver seção selecionada
+                $("#chefia_destino").val('');  // Limpar se não houver chefia encontrada
             }
+        },
+        error: function(xhr, status, error) {
+            console.error("Erro ao buscar a chefia de destino!", error);
+            $("#chefia_destino").val('');  // Limpar o campo em caso de erro
+        }
+    });
+} else {
+    $("#chefia_destino").val('');  // Limpar o campo Chefia de Destino se não houver seção selecionada
+}
         });
     });
     </script>
