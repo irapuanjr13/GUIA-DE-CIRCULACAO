@@ -154,6 +154,12 @@
             }
         });
 
+                $.ajax({
+                    url: "/get_secoes_destino",  // Rota para buscar as seções de destino
+                    type: "GET",
+                    success: function(response) {
+                        const secoesDestino = response.secoes_destino;
+        
         // Evento para preencher a chefia de destino quando a seção de destino for selecionada
         $("#secao_destino").on("change", function() {
             const secaoDestino = $(this).val();
