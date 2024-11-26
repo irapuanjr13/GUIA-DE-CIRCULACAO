@@ -417,6 +417,15 @@ def autocompleti():
 
     return jsonify(response)
 
+@app.route("/get_secoes_destino1", methods=["GET"])
+def get_secoes_destino1():
+    try:
+        # Extrai as seções de destino do seu DataFrame
+        secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
+        return jsonify({"secoes_destino": secoes_destino})  # Retorna as seções em formato JSON
+    except Exception as e:
+        return jsonify({"error": f"Erro interno do servidor: {str(e)}"}), 500
+
 @app.route("/get_chefia1", methods=["POST"])
 def get_chefia1():
     data = request.json
