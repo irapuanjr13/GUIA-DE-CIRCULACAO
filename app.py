@@ -265,7 +265,7 @@ def gerar_guia():
     data = request.json
     # Aqui você faria a geração da guia com os dados recebidos
     # Retornando o link para download
-    return jsonify({"success": True, "link_download": "static/guia_circulacao_interna.pdf"})
+    return jsonify({"success": True, "link_download": "/path/to/generated/guia.pdf"})
 
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
