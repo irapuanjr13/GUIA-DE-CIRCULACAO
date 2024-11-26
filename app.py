@@ -229,7 +229,7 @@ def get_chefia():
     tipo = data.get("tipo")  # Aqui "tipo" será "destino"
 
      # Lógica para buscar a chefia com base na seção
-        if tipo == "destino":
+    if tipo == "destino":
             chefia = df[df["Seção de Destino"] == secao]["Chefia de Destino"].dropna().iloc[0]
         elif tipo == "origem":
             chefia = df[df["Seção de Origem"] == secao]["Chefia de Origem"].dropna().iloc[0]
