@@ -150,13 +150,12 @@ def guia_bens_form():
     print(f"Seções carregadas: {secoes_destino}")  # Deve exibir uma lista de seções disponíveis
 
     if request.method == "POST":
-        # Captura os campos do formulário
-        bmp_numbers = request.form.get("bmp_numbers", "").strip()
-        secao_origem = request.form.get("secao_origem", "").strip()
-        secao_destino = request.form.get("secao_destino", "").strip()
-        chefia_origem = request.form.get("chefia_origem", "").strip()
-        chefia_destino = request.form.get("chefia_destino", "").strip()
-	    
+        bmp_numbers = request.form.get("bmp_numbers")
+        secao_origem = request.form.get("secao_origem")
+        secao_destino = request.form.get("secao_destino")
+        chefia_origem = request.form.get("chefia_origem")
+        chefia_destino = request.form.get("chefia_destino")
+
         if not (bmp_numbers and secao_origem and secao_destino and chefia_origem and chefia_destino):
             return render_template(
                 "guia_bens.html",
@@ -167,7 +166,6 @@ def guia_bens_form():
 
         bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",")]
         dados_bmps = df[df["Nº BMP"].astype(str).str.strip().isin(bmp_list)]
-	    
         if dados_bmps.empty:
             return render_template(
                 "guia_bens.html",
@@ -192,16 +190,12 @@ def guia_bens_form():
 
         output_path = "static/guia_circulacao_interna.pdf"
         pdf.output(output_path)
-       
+        return send_file(output_path, as_attachment=True)
+
     return render_template(
-            "guia_bens.html",
-            secoes_origem=secoes_origem,
-            secoes_destino=secoes_destino,
-            success="Guia gerada com sucesso! Baixe o PDF abaixo.",
-            pdf_link=f"/{output_path}"
-        )
-    return render_template("guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino)
-	
+        "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
+    )
+
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
     data = request.get_json()
@@ -213,7 +207,7 @@ def autocomplete():
     response = {}
     for bmp in bmp_numbers:
         # Aqui você deve implementar a lógica para buscar a seção e chefia para o BMP
-        # Supondo que você tenha um DataFrame `df` com essas informações:
+        # Supondo que você tenha um DataFrame df com essas informações:
         filtro_bmp = df[df["Nº BMP"].astype(str) == bmp]
 
         if not filtro_bmp.empty:
