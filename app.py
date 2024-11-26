@@ -227,8 +227,8 @@ def autocomplete():
 @app.route("/get_secoes_destino", methods=["GET"])
 def get_secoes_destino():
     try:
-        # Extrai as seções de destino do seu DataFrame
-        secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
+        # Extrai as seções de destino do seu DataFrame, limpando espaços em branco extras
+        secoes_destino = df['Seção de Destino'].dropna().str.strip().unique().tolist()
         return jsonify({"secoes_destino": secoes_destino})  # Retorna as seções em formato JSON
     except Exception as e:
         return jsonify({"error": f"Erro interno do servidor: {str(e)}"}), 500
@@ -239,9 +239,21 @@ def get_chefia():
     secao = data.get("secao")
     tipo = data.get("tipo")
 
+    if not secao or not tipo:
+        return jsonify({"error": "Seção ou tipo não fornecido!"}), 400
+
+    # Limpar espaços extras da seção fornecida
+    secao = secao.strip()
+
     if tipo == "destino":
+        # Verifica se a seção de destino existe
+        if secao not in df['Seção de Destino'].unique():
+            return jsonify({"error": "Seção de destino não encontrada!"}), 404
         chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique()
     elif tipo == "origem":
+        # Verifica se a seção de origem existe
+        if secao not in df['Seção de Origem'].unique():
+            return jsonify({"error": "Seção de origem não encontrada!"}), 404
         chefia = df[df['Seção de Origem'] == secao]['Chefia de Origem'].dropna().unique()
     else:
         return jsonify({"error": "Tipo inválido!"}), 400
