@@ -228,6 +228,9 @@ def get_chefia():
     secao = data.get("secao")
     tipo = data.get("tipo")
 
+    if not secao or not tipo:
+        return jsonify({"error": "Os campos 'secao' e 'tipo' são obrigatórios."}), 400	
+
     if tipo == "destino":
         chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique()
     elif tipo == "origem":
@@ -235,8 +238,13 @@ def get_chefia():
     else:
         return jsonify({"error": "Tipo inválido!"}), 400
 
+    if chefia.size == 0:  # Se nenhum valor for encontrado
+        return jsonify({"error": "Chefia não encontrada para a seção especificada."}), 404
+
     return jsonify({"chefia": chefia.tolist()})
-	    
+except Exception as e:
+    return jsonify({"error": f"Erro interno do servidor: {str(e)}"}), 500   
+
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
 def guia_duradouro():
