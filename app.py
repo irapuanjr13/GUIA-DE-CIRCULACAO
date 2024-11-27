@@ -138,6 +138,9 @@ LUCIANA DO AMARAL CORREA  Cel Int
 Dirigente Máximo
 """
         self.multi_cell(0, 8, self.fix_text(text))
+
+ def output(self, path):
+        print(f"PDF salvo em: {path}")
             
 @app.route("/", methods=["GET", "POST"])
 def guia_bens_form():
