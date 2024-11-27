@@ -221,16 +221,18 @@
     const chefiaOrigem = $("#chefia_origem").val();
     const secaoDestino = $("#secao_destino").val();
     const chefiaDestino = $("#chefia_destino").val();
-const data = {
-    dados_bmps: [
-        { bmp: "12345", nomenclatura: "Monitor", n_serie: "ABC123", valor: 200.00 },
-        { bmp: "67890", nomenclatura: "Teclado", n_serie: "DEF456", valor: 50.00 }
+            
+    const data = {
+        dados_bmps: [
+            { bmp: "12345", nomenclatura: "Monitor", n_serie: "ABC123", valor: 200.00 },
+            { bmp: "67890", nomenclatura: "Teclado", n_serie: "DEF456", valor: 50.00 }
     ],
     secao_destino: "Seção B",
     chefia_origem: "Chefe A",
     secao_origem: "Seção A",
     chefia_destino: "Chefe B"
 };
+            
 console.log("JSON enviado:", JSON.stringify(data));
 fetch("/gerar_guia", {
     method: "POST",
