@@ -189,8 +189,6 @@
             // Evento para preencher a chefia de destino quando a seção de destino for selecionada
             $("#secao_destino").on("change", function() {
                 const secaoDestino = $(this).val();
-                console.log("Seção de Destino selecionada:", secaoDestino);  // Verifique se a seção está sendo capturada
-
                 if (secaoDestino) {
                     $.ajax({
                         url: "/get_chefia",
