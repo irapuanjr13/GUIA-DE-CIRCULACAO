@@ -110,7 +110,8 @@ def index():
 
     return render_template(
         "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
-
+ )
+	
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
     data = request.get_json()
