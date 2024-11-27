@@ -248,23 +248,20 @@ def get_chefia():
     return jsonify({"chefia": chefia.tolist()})
 
 @app.route('/gerar_guia', methods=['POST'])
-def gerar_guia():
-    data = request.get_json()
-    bmp_numbers = data['bmp_numbers']
-    secao_origem = data['secao_origem']
-    chefia_origem = data['chefia_origem']
-    secao_destino = data['secao_destino']
-    chefia_destino = data['chefia_destino']
-
+try:
     pdf = PDF()
     pdf.add_page()
-    pdf.add_table(bmp_numbers)  # Passe os BMPs para o método da tabela
-    pdf.add_details(secao_origem, chefia_origem, secao_destino, chefia_destino)
+    print("Página adicionada com sucesso.")
+    pdf.add_table([{"campo1": "Teste", "campo2": "Valor"}])
+    print("Tabela adicionada com sucesso.")
+    pdf.add_details("Destino", "Origem", "Seção Origem", "Seção Destino")
+    print("Detalhes adicionados com sucesso.")
+    pdf.output("teste.pdf")
+    print("PDF gerado com sucesso.")
+except Exception as e:
+    print(f"Erro: {e}")
 
-    output_path = "static/guia_circulacao_interna.pdf"
-    pdf.output(output_path)
-
-    return jsonify({'download_url': output_path})
+return send_file(output_path, as_attachment=True)
 
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
