@@ -193,6 +193,19 @@ def gerar_guia():
             if not dados_bmps or not secao_destino or not chefia_origem:
                 return jsonify({"error": "Dados obrigatórios ausentes no corpo da requisição!"}), 400
 
+            pdf = PDF()
+            pdf.add_page()
+            pdf.add_table(dados_bmps)
+            pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+
+            output_path = "static/guia_circulacao_interna.pdf"
+            pdf.output(output_path)
+            return send_file(output_path, as_attachment=True)
+
+    except Exception as e:
+        print(f"Erro ao gerar a guia: {e}")
+        return jsonify({"error": f"Erro ao gerar a guia: {str(e)}"}), 500
+
 class PDF(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'A4')  # Orientação retrato, milímetros, formato A4
@@ -277,14 +290,6 @@ LUCIANA DO AMARAL CORREA  Cel Int
 Dirigente Máximo
 """
        self.multi_cell(0, 8, self.fix_text(text))
-
-  output_path = "static/guia_circulacao_interna.pdf"
-        pdf.output(output_path)
-        return send_file(output_path, as_attachment=True)
-
-    except Exception as e:
-        print(f"Erro ao gerar a guia: {e}")
-        return jsonify({"error": f"Erro ao gerar a guia: {e.__str__()}"}), 500
 
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
