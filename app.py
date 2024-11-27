@@ -107,8 +107,8 @@ def index():
         output_path = "static/guia_circulacao_interna.pdf"
         pdf.output(output_path)
         return send_file(output_path, as_attachment=True)
-	    
-	return render_template(
+
+    return render_template(
         "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
 
 @app.route("/autocomplete", methods=["POST"])
