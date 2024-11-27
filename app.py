@@ -197,7 +197,6 @@ def gerar_guia():
 
     # Converte a lista para um DataFrame
     df = pd.DataFrame(data)
-
     
 class PDF(FPDF):
     def __init__(self):
