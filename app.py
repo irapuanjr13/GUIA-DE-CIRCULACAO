@@ -162,21 +162,9 @@ def get_chefia():
 
     return jsonify({"chefia": chefia.tolist()})
 
-@app.route('/gerar_guia', methods=['GET', 'POST'])
+@app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
-    try:
-        if request.method == 'GET':
-            return jsonify({
-                "message": "Rota disponível para gerar guia via POST. Envie os dados no formato JSON.",
-                "exemplo": {
-                    "dados_bmps": [{"campo1": "valor1", "campo2": "valor2"}],
-                    "secao_destino": "Seção Destino",
-                    "chefia_origem": "Chefia Origem",
-                    "secao_origem": "Seção Origem",
-                    "chefia_destino": "Chefia Destino"
-                }
-            }), 200
-
+    try:       
         if request.method == 'POST':
             if not request.is_json:
                 return jsonify({"error": "Conteúdo não é JSON. Verifique o cabeçalho 'Content-Type'."}), 415
