@@ -185,25 +185,6 @@ def gerar_guia():
             if not dados_bmps or not secao_destino or not chefia_origem:
                 return jsonify({"error": "Dados obrigatórios ausentes no corpo da requisição!"}), 400
 
-            # Geração do PDF
-            pdf = PDF()
-            pdf.add_page()
-            pdf.add_table(dados_bmps)
-            pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
-
-            output_path = "static/guia_circulacao_interna.pdf"
-            pdf.output(output_path)
-
-            # Retorna o arquivo gerado
-            return send_file(output_path, as_attachment=True)
-
-        # Caso o método seja GET
-        return jsonify({"message": "Use o método POST para enviar os dados!"}), 405
-
-    except Exception as e:
-        print(f"Erro ao gerar a guia: {e}")
-        return jsonify({"error": f"Erro ao gerar a guia: {str(e)}"}), 500
-
 class PDF(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'A4')  # Orientação retrato, milímetros, formato A4
@@ -229,6 +210,12 @@ class PDF(FPDF):
             text = text.replace(old, new)
         return text
 
+		# Exemplo de uma lista de dicionários
+		data = [{'coluna1': 'valor1', 'coluna2': 'valor2'}, {'coluna1': 'valor3', 'coluna2': 'valor4'}]
+
+		# Converte a lista para um DataFrame
+		df = pd.DataFrame(data)
+			
     def add_table(self, dados_bmps):
         # Define largura das colunas e título da tabela
         col_widths = [25, 70, 55, 35]
@@ -386,6 +373,26 @@ Dirigente Máximo
 """
         self.multi_cell(0, 8, self.fix_text(text))
 
+		# Geração do PDF
+        pdf = PDF()
+        pdf.add_page()
+		pdf.add_table(dados_bmps)
+        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+
+        output_path = "static/guia_circulacao_interna.pdf"
+        pdf.output(output_path)
+
+        # Retorna o arquivo gerado
+        return send_file(output_path, as_attachment=True)
+
+        # Caso o método seja GET
+        return jsonify({"message": "Use o método POST para enviar os dados!"}), 405
+
+    except Exception as e:
+        print(f"Erro ao gerar a guia: {e}")
+        return jsonify({"error": f"Erro ao gerar a guia: {str(e)}"}), 500
+
+# Rota para Guia de Circulação de Uso Duradouro
 @app.route("/", methods=["GET", "POST"])
 def guia_duradouro_form():
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
