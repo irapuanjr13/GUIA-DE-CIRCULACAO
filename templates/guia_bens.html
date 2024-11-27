@@ -226,20 +226,20 @@
         url: "/gerar_guia", // Rota correta para gerar o PDF
         type: "POST",
         data: JSON.stringify({
-            bmp_numbers: bmpNumbers,
-            secao_origem: secaoOrigem,
-            chefia_origem: chefiaOrigem,
-            secao_destino: secaoDestino,
-            chefia_destino: chefiaDestino
+        // Dados a serem enviados
+        bmp_numbers: $("#bmp_number").val(),
+        secao_origem: $("#secao_origem").val(),
+        chefia_origem: $("#chefia_origem").val(),
+        secao_destino: $("#secao_destino").val(),
+        chefia_destino: $("#chefia_destino").val()
         }),
-        contentType: "application/json",
-        success: function(response) {
-            window.location.href = response.download_url;  // Força o download do PDF
-        },
-        error: function() {
-            alert("Erro ao gerar a guia.");
-        }
-    });
+           contentType: "application/json", 
+    success: function(response) {
+        console.log("PDF gerado com sucesso!");
+    },
+    error: function(err) {
+        console.error("Erro ao gerar o PDF", err);
+    }
 });
     </script>
 </body>
