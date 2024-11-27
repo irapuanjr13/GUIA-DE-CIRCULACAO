@@ -223,22 +223,24 @@
     const chefiaDestino = $("#chefia_destino").val();
 
     $.ajax({
-        url: "/gerar_guia", // Rota correta para gerar o PDF
-        type: "POST",
+        url: "/gerar_guia",  // Rota correta para gerar o PDF
+        type: "POST",  // Método POST
         data: JSON.stringify({
-        // Dados a serem enviados
-        bmp_numbers: $("#bmp_number").val(),
-        secao_origem: $("#secao_origem").val(),
-        chefia_origem: $("#chefia_origem").val(),
-        secao_destino: $("#secao_destino").val(),
-        chefia_destino: $("#chefia_destino").val()
+            // Dados a serem enviados
+            bmp_numbers: bmpNumbers,
+            secao_origem: secaoOrigem,
+            chefia_origem: chefiaOrigem,
+            secao_destino: secaoDestino,
+            chefia_destino: chefiaDestino
         }),
-           contentType: "application/json", 
-    success: function(response) {
-        console.log("PDF gerado com sucesso!");
-    },
-    error: function(err) {
-        console.error("Erro ao gerar o PDF", err);
+        contentType: "application/json",  // Envia os dados no formato JSON
+        success: function(response) {
+            console.log("PDF gerado com sucesso!");
+            // Adicione aqui o comportamento desejado, como o download ou exibição do link
+        },
+        error: function(err) {
+            console.error("Erro ao gerar o PDF", err);
+            // Adicione aqui qualquer comportamento de erro, como exibir uma mensagem ao usuário
         }
     });
 });
