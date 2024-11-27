@@ -249,6 +249,7 @@ def get_chefia():
 
 @app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
+    print(f"Método recebido: {request.method}")  # Mostra o método usado na requisição
     try:
         print("Recebendo dados para geração da guia...")
         dados = request.json  # Verifica se o POST contém JSON válido
