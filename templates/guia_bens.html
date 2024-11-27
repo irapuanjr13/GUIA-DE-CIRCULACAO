@@ -216,24 +216,15 @@
             });
         });
         $("#gerar_guia").on("click", function () {
-    // Colete os dados do formulário
     const bmpNumbers = $("#bmp_number").val();
     const secaoOrigem = $("#secao_origem").val();
     const chefiaOrigem = $("#chefia_origem").val();
     const secaoDestino = $("#secao_destino").val();
     const chefiaDestino = $("#chefia_destino").val();
 
-    // Validação básica
-    if (!bmpNumbers || !secaoDestino) {
-        alert("Por favor, preencha todos os campos obrigatórios!");
-        return;
-    }
-
-    // Enviar os dados via AJAX
     $.ajax({
-        url: "/gerar_guia",
+        url: "/gerar_guia", // Rota correta para gerar o PDF
         type: "POST",
-        contentType: "application/json",
         data: JSON.stringify({
             bmp_numbers: bmpNumbers,
             secao_origem: secaoOrigem,
@@ -241,12 +232,12 @@
             secao_destino: secaoDestino,
             chefia_destino: chefiaDestino
         }),
-        success: function () {
-            // Redireciona para o PDF gerado
-            window.location.href = "/static/guia_circulacao_interna.pdf";
+        contentType: "application/json",
+        success: function(response) {
+            window.location.href = response.download_url;  // Força o download do PDF
         },
-        error: function () {
-            alert("Erro ao gerar a guia. Tente novamente.");
+        error: function() {
+            alert("Erro ao gerar a guia.");
         }
     });
 });
