@@ -121,12 +121,7 @@ def autocomplete():
 
     response = {}
     for bmp in bmp_numbers:
-        # Garantir que o número do BMP esteja limpo de espaços
-        bmp = bmp.strip()
-
-        # Lógica para buscar a seção e chefia para o BMP
-        filtro_bmp = df[df["Nº BMP"].astype(str).str.strip() == bmp]
-
+        filtro_bmp = df[df["Nº BMP"].astype(str) == bmp]
         if not filtro_bmp.empty:
             secao_origem = filtro_bmp["Seção de Origem"].values[0]
             chefia_origem = filtro_bmp["Chefia de Origem"].values[0]
@@ -145,15 +140,14 @@ def get_chefia():
     secao = data.get("secao")
     tipo = data.get("tipo")
 
-	if tipo == "destino":
-        chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique(
-
-	elif tipo == "origem":
+    if tipo == "destino":
+        chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique()
+    elif tipo == "origem":
         chefia = df[df['Seção de Origem'] == secao]['Chefia de Origem'].dropna().unique()
     else:
         return jsonify({"error": "Tipo inválido!"}), 400
 
-    return jsonify({"chefia": chefia.tolist()})		
+    return jsonify({"chefia": chefia.tolist()})	
    
 @app.route('/gerar_guia', methods=['GET', 'POST'])
 def gerar_guia():
