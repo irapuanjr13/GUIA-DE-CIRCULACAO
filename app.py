@@ -164,23 +164,28 @@ def get_chefia():
 
 @app.route('/gerar_guia', methods=['GET', 'POST'])
 def gerar_guia():
-    try:       
+    try:
+        # Verifica se o método é POST
         if request.method == 'POST':
+            # Verifica se o conteúdo é JSON
             if not request.is_json:
                 return jsonify({"error": "Conteúdo não é JSON. Verifique o cabeçalho 'Content-Type'."}), 415
             
             dados = request.json
             print(f"Dados recebidos: {dados}")
 
+            # Obtendo os dados do JSON
             dados_bmps = dados.get("dados_bmps")
             secao_destino = dados.get("secao_destino")
             chefia_origem = dados.get("chefia_origem")
             secao_origem = dados.get("secao_origem", "N/A")
             chefia_destino = dados.get("chefia_destino", "N/A")
             
+            # Verifica campos obrigatórios
             if not dados_bmps or not secao_destino or not chefia_origem:
                 return jsonify({"error": "Dados obrigatórios ausentes no corpo da requisição!"}), 400
 
+            # Geração do PDF
             pdf = PDF()
             pdf.add_page()
             pdf.add_table(dados_bmps)
@@ -188,7 +193,12 @@ def gerar_guia():
 
             output_path = "static/guia_circulacao_interna.pdf"
             pdf.output(output_path)
+
+            # Retorna o arquivo gerado
             return send_file(output_path, as_attachment=True)
+
+        # Caso o método seja GET
+        return jsonify({"message": "Use o método POST para enviar os dados!"}), 405
 
     except Exception as e:
         print(f"Erro ao gerar a guia: {e}")
