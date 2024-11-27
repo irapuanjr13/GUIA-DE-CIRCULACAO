@@ -129,48 +129,34 @@
 
     <script>
         $(document).ready(function() {
-            // Função para atualizar os campos de origem com base no(s) BMP(s)
-            $("#bmp_number").on("input", function() {
-                const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
+        // Função para atualizar os campos de origem com base no(s) BMP(s)
+        $("#bmp_number").on("input", function() {
+            const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
 
-                if (bmpNumbers.length > 0) {
-                    console.log("Enviando BMPs: ", bmpNumbers);  // Verifique no console se os BMPs estão sendo enviados corretamente
-
-                    $.ajax({
-                        url: "/autocomplete",  // Lógica de preenchimento do campo de seção e chefia de origem
-                        type: "POST",
-                        contentType: "application/json",
-                        data: JSON.stringify({ "bmp_numbers": bmpNumbers }),  // Passa todos os BMPs, mesmo que seja um só
-                        success: function(response) {
-                            console.log("Resposta do servidor:", response);  // Verifique a resposta do servidor
-
-                            // Certifique-se de que a resposta está no formato esperado
-                            if (response) {
-                                // Verifique se existe a chave para o BMP e preencha os campos
-                                bmpNumbers.forEach(function(bmp) {
-                                    if (response[bmp]) {
-                                        const secaoOrigem = response[bmp].secao_origem;
-                                        const chefiaOrigem = response[bmp].chefia_origem;
-
-                                        // Preencher os campos de seção e chefia de origem
-                                        if (secaoOrigem) {
-                                            $("#secao_origem").val(secaoOrigem);
-                                        }
-                                        if (chefiaOrigem) {
-                                            $("#chefia_origem").val(chefiaOrigem);
-                                        }
-                                    }
-                                });
+            if (bmpNumbers.length > 0) {
+                $.ajax({
+                    url: "/autocomplete",  // Lógica de preenchimento do campo de seção e chefia de origem
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ "bmp_numbers": bmpNumbers }),  // Passa todos os BMPs, mesmo que seja um só
+                    success: function(response) {
+                        if (response) {
+                            // Atualizar campos de seção e chefia de origem com base no primeiro BMP
+                            const firstBmp = bmpNumbers[0];
+                            if (response[firstBmp]) {
+                                $("#secao_origem").val(response[firstBmp].secao_origem || "");
+                                $("#chefia_origem").val(response[firstBmp].chefia_origem || "");
                             }
-                        },
-                        error: function() {
-                            console.error("Erro ao buscar os dados dos BMPs!");
                         }
-                    });
-                }
-            });
+                    },
+                    error: function() {
+                        console.error("Erro ao buscar os dados dos BMPs!");
+                    }
+                });
+            }
+        });
 
-            // Evento para preencher a chefia de destino quando a seção de destino for selecionada
+        // Evento para preencher a chefia de destino quando a seção de destino for selecionada
         $("#secao_destino").on("change", function() {
             const secaoDestino = $(this).val();
             if (secaoDestino) {
@@ -194,6 +180,7 @@
                 $("#chefia_destino").val('');
             }
         });
+
         $("#gerar_guia").on("click", function () {
     const bmpNumbers = $("#bmp_number").val();
     const secaoOrigem = $("#secao_origem").val();
