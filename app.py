@@ -251,8 +251,11 @@ def get_chefia():
 def gerar_guia():
     print(f"Método recebido: {request.method}")  # Mostra o método usado na requisição
     try:
+	if not request.is_json:  # Verifica se o conteúdo não é JSON
+            return jsonify({"error": "Conteúdo não é JSON. Verifique o cabeçalho 'Content-Type'."}), 415
+
+	dados = request.json  # Verifica se o POST contém JSON válido 
         print("Recebendo dados para geração da guia...")
-        dados = request.json  # Verifica se o POST contém JSON válido
         print(f"Dados recebidos: {dados}")
         
         dados_bmps = dados.get("dados_bmps", [])
