@@ -55,14 +55,16 @@ def guia_bens():
     return render_template("guia_bens.html",css_file='guia_bens.css')
            
 @app.route("/", methods=["GET", "POST"])
-def guia_form():
-    print(f"Requisição recebida: {request.method}")  # Mostra se é GET ou POST
-    print(f"Dados do formulário: {request.form}")  # Exibe dados enviados pelo cliente
-
-    # Carregar dados para preencher o formulário
+def index():
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
-    secoes_destino = get_unique_secoes_destino()
-    print(f"Seções carregadas: {secoes_destino}")  # Deve exibir uma lista de seções disponíveis
+    secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
+
+    if request.method == "POST":
+        bmp_numbers = request.form.get("bmp_numbers")
+        secao_origem = request.form.get("secao_origem")
+        secao_destino = request.form.get("secao_destino")
+        chefia_origem = request.form.get("chefia_origem")
+        chefia_destino = request.form.get("chefia_destino")
 
     if request.method == "POST":
         bmp_numbers = request.form.get("bmp_numbers")
@@ -97,7 +99,18 @@ def guia_form():
                 secoes_destino=secoes_destino,
                 error="Itens pertencentes à conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO' não podem ser processados.",
             )
-        
+       	pdf = PDF()
+        pdf.add_page()
+        pdf.add_table(dados_bmps)
+        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+
+        output_path = "static/guia_circulacao_interna.pdf"
+        pdf.output(output_path)
+        return send_file(output_path, as_attachment=True)
+
+ 	return render_template(
+        "index.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
+
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
     data = request.get_json()
@@ -126,42 +139,22 @@ def autocomplete():
 
     return jsonify(response)
 
-@app.route("/get_secoes_destino", methods=["GET"])
-def get_secoes_destino():
-    try:
-        # Extrai as seções de destino do seu DataFrame, limpando espaços em branco extras
-        secoes_destino = df['Seção de Destino'].dropna().str.strip().unique().tolist()
-        return jsonify({"secoes_destino": secoes_destino})  # Retorna as seções em formato JSON
-    except Exception as e:
-        return jsonify({"error": f"Erro interno do servidor: {str(e)}"}), 500
-
 @app.route("/get_chefia", methods=["POST"])
 def get_chefia():
     data = request.json
     secao = data.get("secao")
     tipo = data.get("tipo")
 
-    if not secao or not tipo:
-        return jsonify({"error": "Seção ou tipo não fornecido!"}), 400
+	if tipo == "destino":
+        chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique(
 
-    # Limpar espaços extras da seção fornecida
-    secao = secao.strip()
-
-    if tipo == "destino":
-        # Verifica se a seção de destino existe
-        if secao not in df['Seção de Destino'].unique():
-            return jsonify({"error": "Seção de destino não encontrada!"}), 404
-        chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique()
-    elif tipo == "origem":
-        # Verifica se a seção de origem existe
-        if secao not in df['Seção de Origem'].unique():
-            return jsonify({"error": "Seção de origem não encontrada!"}), 404
+	elif tipo == "origem":
         chefia = df[df['Seção de Origem'] == secao]['Chefia de Origem'].dropna().unique()
     else:
         return jsonify({"error": "Tipo inválido!"}), 400
 
-    return jsonify({"chefia": chefia.tolist()})
-
+    return jsonify({"chefia": chefia.tolist()})		
+   
 @app.route('/gerar_guia', methods=['GET', 'POST'])
 def gerar_guia():
     try:
