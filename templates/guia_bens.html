@@ -217,7 +217,6 @@
 
             // Quando o formulário for enviado
             $("#guia_form").on("submit", function(event) {
-            $("#guia_form").on("submit", function(event) {
     event.preventDefault(); // Impede o envio tradicional do formulário
 
     // Obtém os valores dos campos
@@ -236,6 +235,36 @@
     // Exibe o status de carregamento
     $("#loading").show();
     $("#observacao").hide();
+
+    // Faz a requisição para gerar a guia
+    $.ajax({
+        url: "/gerar_guia",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+            bmp_numbers: bmpNumbers,
+            secao_origem: secaoOrigem,
+            chefia_origem: chefiaOrigem,
+            secao_destino: secaoDestino,
+            chefia_destino: chefiaDestino
+        }),
+        success: function(response) {
+            $("#loading").hide(); // Oculta o carregamento
+            if (response.success) {
+                $("#observacao").html(
+                    `Clique <a href='${response.link_download}' target='_blank'>aqui</a> para baixar a guia gerada.`
+                ).show();
+            } else {
+                alert("Erro ao gerar a guia. Tente novamente.");
+            }
+        },
+        error: function(xhr, status, error) {
+            $("#loading").hide(); // Oculta o carregamento
+            console.error("Erro ao gerar a guia:", error);
+            alert("Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente.");
+        }
+    });
+});
 
     // Faz a requisição para gerar a guia
     $.ajax({
