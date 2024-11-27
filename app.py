@@ -272,7 +272,7 @@ def gerar_guia():
         pdf.add_table(dados_bmps)
         pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
- 	output_dir = "static"
+        output_dir = "static"
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
