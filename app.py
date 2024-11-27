@@ -185,6 +185,12 @@ def gerar_guia():
             if not dados_bmps or not secao_destino or not chefia_origem:
                 return jsonify({"error": "Dados obrigatórios ausentes no corpo da requisição!"}), 400
 
+			# Exemplo de uma lista de dicionários
+			data = [{'coluna1': 'valor1', 'coluna2': 'valor2'}, {'coluna1': 'valor3', 'coluna2': 'valor4'}]
+
+			# Converte a lista para um DataFrame
+			df = pd.DataFrame(data)
+
 class PDF(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'A4')  # Orientação retrato, milímetros, formato A4
@@ -209,12 +215,6 @@ class PDF(FPDF):
         for old, new in replacements.items():
             text = text.replace(old, new)
         return text
-
-		# Exemplo de uma lista de dicionários
-		data = [{'coluna1': 'valor1', 'coluna2': 'valor2'}, {'coluna1': 'valor3', 'coluna2': 'valor4'}]
-
-		# Converte a lista para um DataFrame
-		df = pd.DataFrame(data)
 			
     def add_table(self, dados_bmps):
         # Define largura das colunas e título da tabela
