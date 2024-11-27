@@ -55,7 +55,7 @@ def guia_bens():
     return render_template("guia_bens.html",css_file='guia_bens.css')
            
 @app.route("/", methods=["GET", "POST"])
-def guia_bens.html():
+def guia_form():
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
     secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
 
