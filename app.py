@@ -276,7 +276,8 @@ def gerar_guia():
         pdf.output(output_path)
         print(f"PDF gerado em {output_path}")
         
-        return jsonify({"success": True, "file_path": output_path}), 200
+        # Retornar o arquivo para download
+        return send_file(output_path, as_attachment=True)
     except Exception as e:
         print(f"Erro ao gerar a guia: {e}")
         return jsonify({"error": f"Erro ao gerar a guia: {e}"}), 500
