@@ -247,12 +247,18 @@ def get_chefia():
 
     return jsonify({"chefia": chefia.tolist()})
 
-@app.route('/gerar_guia', methods=['POST'])
+@app.route('/gerar_guia', methods=['GET', 'POST'])
 def gerar_guia():
     try:
-        if not request.is_json:  # Verifica se o conteúdo não é JSON
-            return jsonify({"error": "Conteúdo não é JSON. Verifique o cabeçalho 'Content-Type'."}), 415
-        
+        # Tratamento para requisições GET
+        if request.method == 'GET':
+            return jsonify({"message": "Rota disponível para gerar guia via POST. Envie os dados no formato JSON."}), 200
+
+        # Tratamento para requisições POST
+        if request.method == 'POST':
+            if not request.is_json:  # Verifica se o conteúdo não é JSON
+                return jsonify({"error": "Conteúdo não é JSON. Verifique o cabeçalho 'Content-Type'."}), 415
+		    
         dados = request.json
         print(f"Dados recebidos: {dados}")
         
@@ -284,6 +290,7 @@ def gerar_guia():
         
         # Retornar o arquivo para download
         return send_file(output_path, as_attachment=True)
+	    
     except Exception as e:
         print(f"Erro ao gerar a guia: {e}")
         return jsonify({"error": f"Erro ao gerar a guia: {e}"}), 500
