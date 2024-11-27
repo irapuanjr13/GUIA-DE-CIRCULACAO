@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guia de Circulação BMP</title>
     <style>
-        /* Estilos simplificados */
+        /* Estilos para a página */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
@@ -22,6 +22,7 @@
         }
         h1 {
             text-align: center;
+            color: #333;
         }
         .form-group {
             margin-bottom: 15px;
@@ -29,25 +30,44 @@
         label {
             display: block;
             margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
         }
         select, input[type="text"], button {
             width: 100%;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
+            font-size: 14px;
         }
         button {
             background-color: #007bff;
             color: #fff;
             border: none;
+            cursor: pointer;
         }
         button:hover {
             background-color: #0056b3;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+        }
+        .success {
+            color: green;
+            font-size: 14px;
         }
         .loading {
             display: none;
             text-align: center;
             padding: 20px;
+        }
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            padding: 10px 0;
+            background-color: #f4f4f9;
         }
     </style>
     <!-- Adicionando jQuery -->
@@ -56,130 +76,143 @@
 <body>
     <div class="container">
         <h1>Guia de Circulação BMP</h1>
-        <form id="guia_form">
+        <form method="POST" action="/guia_bens" id="guia_form">
+            <div class="error">
+                {% if error %}
+                    {{ error }}
+                {% endif %}
+            </div>
             <div class="form-group">
                 <label for="bmp_number">Números de BMP (separados por vírgula):</label>
                 <input type="text" id="bmp_number" name="bmp_numbers" placeholder="Ex.: 123, 456, 789">
             </div>
             <div class="form-group">
                 <label for="secao_origem">Seção de Origem:</label>
-                <input type="text" id="secao_origem" readonly>
+                <input type="text" id="secao_origem" name="secao_origem" readonly>
             </div>
             <div class="form-group">
                 <label for="chefia_origem">Chefia de Origem:</label>
-                <input type="text" id="chefia_origem" readonly>
+                <input type="text" id="chefia_origem" name="chefia_origem" readonly>
             </div>
             <div class="form-group">
                 <label for="secao_destino">Seção de Destino:</label>
-                <select id="secao_destino">
+                <select id="secao_destino" name="secao_destino">
                     <option value="" disabled selected>Selecione uma seção</option>
+                    {% for secao in secoes_destino %}
+                        <option value="{{ secao }}">{{ secao }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="form-group">
                 <label for="chefia_destino">Chefia de Destino:</label>
-                <input type="text" id="chefia_destino" readonly>
+                <input type="text" id="chefia_destino" name="chefia_destino" placeholder="Chefia de Destino" readonly>
             </div>
-            <button type="submit">Gerar Guia</button>
+            <div class="form-group">
+                <button type="submit" id="gerar_guia">Gerar Guia</button>
+            </div>
         </form>
-        <div class="loading" id="loading">Carregando...</div>
-        <div id="observacao" style="display:none;">Guia gerada com sucesso!</div>
+
+        <!-- Área para mostrar o status de carregamento -->
+        <div class="loading" id="loading">
+            <p>Carregando...</p>
+        </div>
     </div>
 
-    <script>
-        $(document).ready(function () {
-            // Preencher seções de destino
-            $.ajax({
-                url: "/get_secoes_destino",
-                type: "GET",
-                success: function (response) {
-                    const secoes = response.secoes_destino;
-                    secoes.forEach(secao => {
-                        $("#secao_destino").append(new Option(secao, secao));
-                    });
-                },
-                error: function () {
-                    console.error("Erro ao carregar seções de destino.");
-                }
-            });
+    <div class="observacao" id="observacao">
+        A Guia gerada deve ser encaminhada a Seção de Registro, via SIGADAER.
+        Para gerar o modelo do ofício, <a href="http://www.gapls.intraer/index.php/setores-novo/assessorias/comunicacao-social/category/178-modelos" target="_blank">clique aqui</a>.
+    </div>
 
-            // Preenchimento automático com base nos BMPs
-            $("#bmp_number").on("input", function () {
+    <footer>
+        Criado por <strong>Cb Irapuan</strong>
+    </footer>
+
+    <script>
+        $(document).ready(function() {
+            // Função para atualizar os campos de origem com base no(s) BMP(s)
+            $("#bmp_number").on("input", function() {
                 const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
+
                 if (bmpNumbers.length > 0) {
+                    console.log("Enviando BMPs: ", bmpNumbers);  // Verifique no console se os BMPs estão sendo enviados corretamente
+
                     $.ajax({
-                        url: "/autocomplete",
+                        url: "/autocomplete",  // Lógica de preenchimento do campo de seção e chefia de origem
                         type: "POST",
                         contentType: "application/json",
-                        data: JSON.stringify({ bmp_numbers: bmpNumbers }),
-                        success: function (response) {
+                        data: JSON.stringify({ "bmp_numbers": bmpNumbers }),  // Passa todos os BMPs, mesmo que seja um só
+                        success: function(response) {
+                            console.log("Resposta do servidor:", response);  // Verifique a resposta do servidor
+
+                            // Certifique-se de que a resposta está no formato esperado
                             if (response) {
-                                $("#secao_origem").val(response.secao_origem || "");
-                                $("#chefia_origem").val(response.chefia_origem || "");
+                                // Verifique se existe a chave para o BMP e preencha os campos
+                                bmpNumbers.forEach(function(bmp) {
+                                    if (response[bmp]) {
+                                        const secaoOrigem = response[bmp].secao_origem;
+                                        const chefiaOrigem = response[bmp].chefia_origem;
+
+                                        // Preencher os campos de seção e chefia de origem
+                                        if (secaoOrigem) {
+                                            $("#secao_origem").val(secaoOrigem);
+                                        }
+                                        if (chefiaOrigem) {
+                                            $("#chefia_origem").val(chefiaOrigem);
+                                        }
+                                    }
+                                });
                             }
                         },
-                        error: function () {
-                            console.error("Erro ao buscar dados dos BMPs.");
+                        error: function() {
+                            console.error("Erro ao buscar os dados dos BMPs!");
                         }
                     });
                 }
             });
 
-            // Preenchimento da chefia de destino ao selecionar seção
-            $("#secao_destino").on("change", function () {
-                const secao = $(this).val();
-                if (secao) {
+            $.ajax({
+                url: "/get_secoes_destino",  // Rota para buscar as seções de destino
+                type: "GET",
+                success: function(response) {
+                    const secoesDestino = response.secoes_destino;
+
+                    // Preenche a lista de Seção de Destino com as opções recebidas
+                    secoesDestino.forEach(function(secao) {
+                        $("#secao_destino").append(new Option(secao, secao));
+                    });
+                },
+                error: function() {
+                    console.error("Erro ao buscar as seções de destino!");
+                }
+            });
+
+            // Evento para preencher a chefia de destino quando a seção de destino for selecionada
+            $("#secao_destino").on("change", function() {
+                const secaoDestino = $(this).val();
+                console.log("Seção de Destino selecionada:", secaoDestino);  // Verifique se a seção está sendo capturada
+
+                if (secaoDestino) {
                     $.ajax({
                         url: "/get_chefia",
                         type: "POST",
                         contentType: "application/json",
-                        data: JSON.stringify({ secao: secao }),
-                        success: function (response) {
-                            $("#chefia_destino").val(response.chefia || "");
+                        data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }), // Envia a seção de destino ao backend
+                        success: function(response) {
+                            console.log("Resposta do servidor:", response);  // Verifique a resposta do servidor
+                            if (response.chefia) {
+                                $("#chefia_destino").val(response.chefia[0]);  // Preencher o campo Chefia de Destino com o primeiro valor
+                            } else {
+                                $("#chefia_destino").val('');  // Limpar se não houver chefia encontrada
+                            }
                         },
-                        error: function () {
-                            console.error("Erro ao buscar chefia de destino.");
+                        error: function(xhr, status, error) {
+                            console.error("Erro ao buscar a chefia de destino!", error);
+                            $("#chefia_destino").val('');  // Limpar caso ocorra erro
                         }
                     });
+                } else {
+                    $("#chefia_destino").val('');  // Limpar caso a seção não seja selecionada
                 }
-            });
-
-            // Submissão do formulário
-            $("#guia_form").on("submit", function (e) {
-                e.preventDefault();
-                const dados = {
-                    bmp_numbers: $("#bmp_number").val().split(",").map(bmp => bmp.trim()),
-                    secao_origem: $("#secao_origem").val(),
-                    chefia_origem: $("#chefia_origem").val(),
-                    secao_destino: $("#secao_destino").val(),
-                    chefia_destino: $("#chefia_destino").val()
-                };
-
-                if (!dados.secao_origem || !dados.chefia_origem || !dados.secao_destino || !dados.chefia_destino) {
-                    alert("Preencha todos os campos.");
-                    return;
-                }
-
-                $("#loading").show();
-                $.ajax({
-                    url: "/gerar_guia",
-                    type: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify(dados),
-                    success: function (response) {
-                        $("#loading").hide();
-                        if (response.success) {
-                            $("#observacao").html(
-                                `Guia gerada! <a href="${response.link_download}" target="_blank">Baixe aqui</a>`
-                            ).show();
-                        } else {
-                            alert("Erro ao gerar a guia.");
-                        }
-                    },
-                    error: function () {
-                        $("#loading").hide();
-                        alert("Erro ao processar a solicitação.");
-                    }
-                });
             });
         });
     </script>
