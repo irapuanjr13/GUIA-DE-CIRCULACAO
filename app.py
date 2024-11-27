@@ -227,9 +227,9 @@ class PDF(FPDF):
             "”": '"',  # Substituir aspas fechadas por aspas duplas
             "’": "'",  # Substituir apóstrofo por aspas simples
         }
-    for old, new in replacements.items():
-        text = text.replace(old, new)
-    return text
+        for old, new in replacements.items():
+            text = text.replace(old, new)
+        return text
 
     def add_table(self, dados_bmps):
         # Define largura das colunas e título da tabela
