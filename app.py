@@ -247,7 +247,7 @@ def get_chefia():
 
     return jsonify({"chefia": chefia.tolist()})
 
-@app.route('/gerar_guia', methods=['POST'])
+@app.route('/gerar_guia', methods=['GET', 'POST'])
 def gerar_guia():
     print(f"Método recebido: {request.method}")  # Mostra o método usado na requisição
     try:
