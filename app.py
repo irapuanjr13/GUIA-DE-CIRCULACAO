@@ -250,50 +250,54 @@ def get_chefia():
 @app.route('/gerar_guia', methods=['GET', 'POST'])
 def gerar_guia():
     try:
-        # Tratamento para requisições GET
         if request.method == 'GET':
-            return jsonify({"message": "Rota disponível para gerar guia via POST. Envie os dados no formato JSON."}), 200
+            return jsonify({
+                "message": "Rota disponível para gerar guia via POST. Envie os dados no formato JSON.",
+                "exemplo": {
+                    "dados_bmps": [{"campo1": "valor1", "campo2": "valor2"}],
+                    "secao_destino": "Seção Destino",
+                    "chefia_origem": "Chefia Origem",
+                    "secao_origem": "Seção Origem",
+                    "chefia_destino": "Chefia Destino"
+                }
+            }), 200
 
-        # Tratamento para requisições POST
         if request.method == 'POST':
-            if not request.is_json:  # Verifica se o conteúdo não é JSON
+            if not request.is_json:
                 return jsonify({"error": "Conteúdo não é JSON. Verifique o cabeçalho 'Content-Type'."}), 415
-		    
-        dados = request.json
-        print(f"Dados recebidos: {dados}")
-        
-        dados_bmps = dados.get("dados_bmps", [])
-        secao_destino = dados.get("secao_destino")
-        chefia_origem = dados.get("chefia_origem")
-        secao_origem = dados.get("secao_origem")
-        chefia_destino = dados.get("chefia_destino")
-        
-        print(f"Secao destino: {secao_destino}, Chefia origem: {chefia_origem}")
-        print(f"Dados BMPs: {dados_bmps}")
+            
+            dados = request.json
+            print(f"Dados recebidos: {dados}")
 
-        if not dados_bmps or not secao_destino or not chefia_origem:
-            raise ValueError("Dados obrigatórios ausentes no corpo da requisição!")
+            dados_bmps = dados.get("dados_bmps")
+            secao_destino = dados.get("secao_destino")
+            chefia_origem = dados.get("chefia_origem")
+            secao_origem = dados.get("secao_origem", "N/A")
+            chefia_destino = dados.get("chefia_destino", "N/A")
+            
+            if not dados_bmps or not secao_destino or not chefia_origem:
+                return jsonify({"error": "Dados obrigatórios ausentes no corpo da requisição!"}), 400
 
-        print("Criando PDF...")
-        pdf = PDF()
-        pdf.add_page()
-        pdf.add_table(dados_bmps)
-        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+            print("Criando PDF...")
+            pdf = PDF()
+            pdf.add_page()
+            pdf.add_table(dados_bmps)
+            pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
-        output_dir = "generated_pdfs"
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+            output_dir = "generated_pdfs"
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
 
-        output_path = "generated_pdfs/guia_circulacao_interna.pdf"
-        pdf.output(output_path)
-        print(f"PDF gerado em {output_path}")
-        
-        # Retornar o arquivo para download
-        return send_file(output_path, as_attachment=True)
-	    
+            filename = f"guia_circulacao_{int(time.time())}.pdf"
+            output_path = os.path.join(output_dir, filename)
+            pdf.output(output_path)
+            print(f"PDF gerado em {output_path}")
+            
+            return send_file(output_path, as_attachment=True)
+
     except Exception as e:
         print(f"Erro ao gerar a guia: {e}")
-        return jsonify({"error": f"Erro ao gerar a guia: {e}"}), 500
+        return jsonify({"error": f"Erro ao gerar a guia: {e.__str__()}"}), 500
 
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
