@@ -248,20 +248,38 @@ def get_chefia():
     return jsonify({"chefia": chefia.tolist()})
 
 @app.route('/gerar_guia', methods=['POST'])
-try:
-    pdf = PDF()
-    pdf.add_page()
-    print("Página adicionada com sucesso.")
-    pdf.add_table([{"campo1": "Teste", "campo2": "Valor"}])
-    print("Tabela adicionada com sucesso.")
-    pdf.add_details("Destino", "Origem", "Seção Origem", "Seção Destino")
-    print("Detalhes adicionados com sucesso.")
-    pdf.output("teste.pdf")
-    print("PDF gerado com sucesso.")
-except Exception as e:
-    print(f"Erro: {e}")
+def gerar_guia():
+    try:
+        print("Recebendo dados para geração da guia...")
+        dados = request.json  # Verifica se o POST contém JSON válido
+        print(f"Dados recebidos: {dados}")
+        
+        dados_bmps = dados.get("dados_bmps", [])
+        secao_destino = dados.get("secao_destino")
+        chefia_origem = dados.get("chefia_origem")
+        secao_origem = dados.get("secao_origem")
+        chefia_destino = dados.get("chefia_destino")
+        
+        print(f"Secao destino: {secao_destino}, Chefia origem: {chefia_origem}")
+        print(f"Dados BMPs: {dados_bmps}")
 
-return send_file(output_path, as_attachment=True)
+        if not dados_bmps or not secao_destino or not chefia_origem:
+            raise ValueError("Dados obrigatórios ausentes no corpo da requisição!")
+
+        print("Criando PDF...")
+        pdf = PDF()
+        pdf.add_page()
+        pdf.add_table(dados_bmps)
+        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+        
+        output_path = "guia_circulacao.pdf"
+        pdf.output(output_path)
+        print(f"PDF gerado em {output_path}")
+        
+        return jsonify({"success": True, "file_path": output_path}), 200
+    except Exception as e:
+        print(f"Erro ao gerar a guia: {e}")
+        return jsonify({"error": f"Erro ao gerar a guia: {e}"}), 500
 
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
