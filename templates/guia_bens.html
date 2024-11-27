@@ -217,37 +217,37 @@
         });
         $("#gerar_guia").on("click", function () {
     // Colete os dados do formulário
-    const formData = {
-        bmp_numbers: $("#bmp_number").val(),
-        secao_origem: $("#secao_origem").val(),
-        chefia_origem: $("#chefia_origem").val(),
-        secao_destino: $("#secao_destino").val(),
-        chefia_destino: $("#chefia_destino").val(),
-    };
+    const bmpNumbers = $("#bmp_number").val();
+    const secaoOrigem = $("#secao_origem").val();
+    const chefiaOrigem = $("#chefia_origem").val();
+    const secaoDestino = $("#secao_destino").val();
+    const chefiaDestino = $("#chefia_destino").val();
 
-    // Validação básica antes de enviar
-    if (!formData.bmp_numbers || !formData.secao_destino) {
+    // Validação básica
+    if (!bmpNumbers || !secaoDestino) {
         alert("Por favor, preencha todos os campos obrigatórios!");
         return;
     }
 
-    // Enviar os dados para a rota de geração de PDF
+    // Enviar os dados via AJAX
     $.ajax({
-        url: "/gerar_guia", // Ajuste para a rota correta do seu backend
+        url: "/gerar_guia",
         type: "POST",
         contentType: "application/json",
-        data: JSON.stringify(formData),
-        success: function (response) {
-            if (response.success) {
-                // Redirecionar para o PDF ou baixar automaticamente
-                window.location.href = response.pdf_url;
-            } else {
-                alert("Erro ao gerar o PDF: " + response.message);
-            }
+        data: JSON.stringify({
+            bmp_numbers: bmpNumbers,
+            secao_origem: secaoOrigem,
+            chefia_origem: chefiaOrigem,
+            secao_destino: secaoDestino,
+            chefia_destino: chefiaDestino
+        }),
+        success: function () {
+            // Redireciona para o PDF gerado
+            window.location.href = "/static/guia_circulacao_interna.pdf";
         },
         error: function () {
-            alert("Houve um erro ao processar a solicitação. Tente novamente.");
-        },
+            alert("Erro ao gerar a guia. Tente novamente.");
+        }
     });
 });
     </script>
