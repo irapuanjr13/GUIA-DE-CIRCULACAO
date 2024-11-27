@@ -249,14 +249,22 @@ def get_chefia():
 
 @app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
+    data = request.get_json()
+    bmp_numbers = data['bmp_numbers']
+    secao_origem = data['secao_origem']
+    chefia_origem = data['chefia_origem']
+    secao_destino = data['secao_destino']
+    chefia_destino = data['chefia_destino']
+
     pdf = PDF()
     pdf.add_page()
-    pdf.add_table(dados_bmps)
-    pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+    pdf.add_table(bmp_numbers)  # Passe os BMPs para o método da tabela
+    pdf.add_details(secao_origem, chefia_origem, secao_destino, chefia_destino)
 
     output_path = "static/guia_circulacao_interna.pdf"
     pdf.output(output_path)
-    return send_file(output_path, as_attachment=True)
+
+    return jsonify({'download_url': output_path})
 
 # Rota para Guia de Circulação de Uso Duradouro
 @app.route("/guia_duradouro", methods=["GET", "POST"])
