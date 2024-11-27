@@ -252,9 +252,8 @@ def gerar_guia():
     try:
         if not request.is_json:  # Verifica se o conteúdo não é JSON
             return jsonify({"error": "Conteúdo não é JSON. Verifique o cabeçalho 'Content-Type'."}), 415
-		
-	dados = request.json  # Verifica se o POST contém JSON válido 
-        print("Recebendo dados para geração da guia...")
+        
+        dados = request.json
         print(f"Dados recebidos: {dados}")
         
         dados_bmps = dados.get("dados_bmps", [])
