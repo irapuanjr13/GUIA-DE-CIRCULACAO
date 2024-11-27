@@ -111,7 +111,7 @@
         // Função para exibir/esconder o menu suspenso
         function toggleDropdown(dropdownId) {
             const dropdown = document.getElementById(dropdownId);
-            dropdown.style.display = dropdown.style.display === 'none' || dropdown.style.display === '' ? 'block' : 'none';
+            dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
         }
 
         // Função para navegar para a página selecionada no dropdown
