@@ -170,48 +170,29 @@
                 }
             });
 
-            $.ajax({
-                url: "/",  // Rota para buscar as seções de destino
-                type: "GET",
-                success: function(response) {
-                    const secoesDestino = response.secoes_destino;
-
-                    // Preenche a lista de Seção de Destino com as opções recebidas
-                    secoesDestino.forEach(function(secao) {
-                        $("#secao_destino").append(new Option(secao, secao));
-                    });
-                },
-                error: function() {
-                    console.error("Erro ao buscar as seções de destino!");
-                }
-            });
-
             // Evento para preencher a chefia de destino quando a seção de destino for selecionada
-            $("#secao_destino").on("change", function() {
-                const secaoDestino = $(this).val();
-                if (secaoDestino) {
-                    $.ajax({
-                        url: "/get_chefia",
-                        type: "POST",
-                        contentType: "application/json",
-                        data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }), // Envia a seção de destino ao backend
-                        success: function(response) {
-                            console.log("Resposta do servidor:", response);  // Verifique a resposta do servidor
-                            if (response.chefia) {
-                                $("#chefia_destino").val(response.chefia[0]);  // Preencher o campo Chefia de Destino com o primeiro valor
-                            } else {
-                                $("#chefia_destino").val('');  // Limpar se não houver chefia encontrada
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            console.error("Erro ao buscar a chefia de destino!", error);
-                            $("#chefia_destino").val('');  // Limpar caso ocorra erro
+        $("#secao_destino").on("change", function() {
+            const secaoDestino = $(this).val();
+            if (secaoDestino) {
+                $.ajax({
+                    url: "/get_chefia",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }),
+                    success: function(response) {
+                        if (response.chefia) {
+                            $("#chefia_destino").val(response.chefia);
+                        } else {
+                            $("#chefia_destino").val('');
                         }
-                    });
-                } else {
-                    $("#chefia_destino").val('');  // Limpar caso a seção não seja selecionada
-                }
-            });
+                    },
+                    error: function() {
+                        console.error("Erro ao buscar a chefia de destino!");
+                    }
+                });
+            } else {
+                $("#chefia_destino").val('');
+            }
         });
         $("#gerar_guia").on("click", function () {
     const bmpNumbers = $("#bmp_number").val();
