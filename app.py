@@ -193,7 +193,7 @@ def gerar_guia():
             if not dados_bmps or not secao_destino or not chefia_origem:
                 return jsonify({"error": "Dados obrigatórios ausentes no corpo da requisição!"}), 400
 
-            class PDF(FPDF):
+class PDF(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'A4')  # Orientação retrato, milímetros, formato A4
 
@@ -214,9 +214,9 @@ def gerar_guia():
             "”": '"',  # Substituir aspas fechadas por aspas duplas
             "’": "'",  # Substituir apóstrofo por aspas simples
         }
-        for old, new in replacements.items():
-            text = text.replace(old, new)
-        return text
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+    return text
 
     def add_table(self, dados_bmps):
         # Define largura das colunas e título da tabela
@@ -246,8 +246,8 @@ def gerar_guia():
             self.cell(col_widths[2], row_height, self.fix_text(row["Nº SERIE"]), border=1, align="C")
             self.cell(col_widths[3], row_height, f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ','), border=1, align="R")
             self.ln()
-
-def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
+		
+	def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
         text = f"""
 Solicitação de Transferência:
 Informo à Senhora Chefe do GAP-LS que os bens especificados estão inservíveis para uso neste setor, classificados como ociosos, recuperáveis, reparados ou novos - aguardando distribuição. Diante disso, solicito autorização para transferir o(s) Bem(ns) Móvel(is) Permanente(s) acima discriminado(s), atualmente sob minha guarda, para a Seção {secao_destino}.
@@ -276,7 +276,7 @@ Autorizo a movimentação solicitada e determino:
 LUCIANA DO AMARAL CORREA  Cel Int
 Dirigente Máximo
 """
-        self.multi_cell(0, 8, self.fix_text(text))
+       self.multi_cell(0, 8, self.fix_text(text))
 
   output_path = "static/guia_circulacao_interna.pdf"
         pdf.output(output_path)
