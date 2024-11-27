@@ -129,54 +129,66 @@
         Criado por <strong>Cb Irapuan</strong>
     </footer>
 
-    <script>
-        $(document).ready(function () {
-            // Atualizar campos de origem
-            $("#bmp_number").on("input", function () {
-                const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
+<script>
+    $(document).ready(function() {
+        // Função para preencher os campos de origem com base no número de BMP
+        $("#bmp_number").on("input", function() {
+            const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
 
-                if (bmpNumbers.length > 0) {
-                    $.ajax({
-                        url: "/autocomplete",
-                        type: "POST",
-                        contentType: "application/json",
-                        data: JSON.stringify({ "bmp_numbers": bmpNumbers }),
-                        success: function (response) {
-                            if (response) {
-                                const firstBmp = bmpNumbers[0];
-                                if (response[firstBmp]) {
-                                    $("#secao_origem").val(response[firstBmp].secao_origem || "");
-                                    $("#chefia_origem").val(response[firstBmp].chefia_origem || "");
-                                }
+            if (bmpNumbers.length > 0) {
+                $.ajax({
+                    url: "/autocomplete",  // Rota para buscar dados do BMP
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ "bmp_numbers": bmpNumbers }),  // Passa todos os BMPs
+                    success: function(response) {
+                        console.log("Resposta do servidor:", response);
+                        if (response) {
+                            // Preenche apenas o primeiro BMP retornado
+                            const firstBmp = bmpNumbers[0];
+                            if (response[firstBmp]) {
+                                $("#secao_origem").val(response[firstBmp].secao_origem || "");
+                                $("#chefia_origem").val(response[firstBmp].chefia_origem || "");
+                            } else {
+                                console.error("Nenhum dado encontrado para o BMP informado.");
                             }
-                        },
-                        error: function () {
-                            console.error("Erro ao buscar os dados dos BMPs!");
                         }
-                    });
-                }
-            });
+                    },
+                    error: function(err) {
+                        console.error("Erro ao buscar os dados dos BMPs:", err);
+                    }
+                });
+            }
+        });
 
-            // Atualizar chefia de destino
-            $("#secao_destino").on("change", function () {
-                const secaoDestino = $(this).val();
-                if (secaoDestino) {
-                    $.ajax({
-                        url: "/get_chefia",
-                        type: "POST",
-                        contentType: "application/json",
-                        data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }),
-                        success: function (response) {
-                            $("#chefia_destino").val(response.chefia || "");
-                        },
-                        error: function () {
-                            console.error("Erro ao buscar a chefia de destino!");
+        // Preenche a chefia de destino com base na seção selecionada
+        $("#secao_destino").on("change", function() {
+            const secaoDestino = $(this).val();
+            if (secaoDestino) {
+                $.ajax({
+                    url: "/get_chefia",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ "secao": secaoDestino }),
+                    success: function(response) {
+                        console.log("Resposta do servidor (chefia de destino):", response);
+                        if (response.chefia) {
+                            $("#chefia_destino").val(response.chefia);
+                        } else {
+                            $("#chefia_destino").val('');
+                            console.error("Chefia de destino não encontrada.");
                         }
-                    });
-                } else {
-                    $("#chefia_destino").val('');
-                }
-            });
+                    },
+                    error: function(err) {
+                        console.error("Erro ao buscar a chefia de destino:", err);
+                    }
+                });
+            } else {
+                $("#chefia_destino").val('');
+            }
+        });
+    });
+</script>
 
             // Gerar guia
             $("#gerar_guia").on("click", function () {
