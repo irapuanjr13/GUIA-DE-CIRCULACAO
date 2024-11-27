@@ -55,7 +55,7 @@ def guia_bens():
     return render_template("guia_bens.html",css_file='guia_bens.css')
            
 @app.route("/", methods=["GET", "POST"])
-def guia_bens_form():
+def guia_bens():
     print(f"Requisição recebida: {request.method}")  # Mostra se é GET ou POST
     print(f"Dados do formulário: {request.form}")  # Exibe dados enviados pelo cliente
 
