@@ -56,20 +56,20 @@ class PDF(FPDF):
             self.ln()
 
     # Adicionar as linhas da tabela
-    self.set_font("Arial", size=10)
-    for _, row in dados_bmps.iterrows():
-        # Calcular a altura necessária para a célula "Nomenclatura"
-        text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
-        line_count = self.get_string_width(text) // col_widths[1] + 1
-        row_height = 10 * line_count  # 10 é a altura padrão da célula
+        self.set_font("Arial", size=10)
+        for _, row in dados_bmps.iterrows():
+            # Calcular a altura necessária para a célula "Nomenclatura"
+            text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
+            line_count = self.get_string_width(text) // col_widths[1] + 1
+            row_height = 10 * line_count  # 10 é a altura padrão da célula
 
-        self.cell(col_widths[0], row_height, str(row["Nº BMP"]), border=1, align="C")
+            self.cell(col_widths[0], row_height, str(row["Nº BMP"]), border=1, align="C")
 
-        x, y = self.get_x(), self.get_y()
-        self.multi_cell(col_widths[1], 10, text, border=1)
-        self.set_xy(x + col_widths[1], y)  # Reposicionar para a próxima coluna
+            x, y = self.get_x(), self.get_y()
+            self.multi_cell(col_widths[1], 10, text, border=1)
+            self.set_xy(x + col_widths[1], y)  # Reposicionar para a próxima coluna
 
-        self.cell(col_widths[2], row_height, self.fix_text(str(row["Nº SERIE"])), border=1, align="C")
+            self.cell(col_widths[2], row_height, self.fix_text(str(row["Nº SERIE"])), border=1, align="C")
 
     # Tratar valores numéricos
     if pd.isnull(row['VL. ATUALIZ.']):
