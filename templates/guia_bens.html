@@ -79,7 +79,7 @@
 <body>
     <div class="container">
         <h1>Guia de Circulação BMP</h1>
-        <form method="POST" action="/guia_bens" id="guia-form">        
+        <form method="POST" action="/" id="guia-form">        
             <div class="error">
                 {% if error %}
                     {{ error }}
@@ -111,13 +111,9 @@
                 <input type="text" id="chefia_destino" name="chefia_destino" readonly>
             </div>
             <div class="form-group">
-                <button type="button" id="gerar_guia">Gerar Guia</button>
+                <button type="submit">Gerar Guia</button>
             </div>
         </form>
-
-        <div class="loading" id="loading">
-            <p>Carregando...</p>
-        </div>
     </div>
 
     <div class="observacao" id="observacao">
@@ -129,39 +125,36 @@
         Criado por <strong>Cb Irapuan</strong>
     </footer>
 
-<script>
+    <script>
     $(document).ready(function() {
-        // Função para preencher os campos de origem com base no número de BMP
+        // Função para atualizar os campos de origem com base no(s) BMP(s)
         $("#bmp_number").on("input", function() {
             const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
 
             if (bmpNumbers.length > 0) {
                 $.ajax({
-                    url: "/autocomplete",  // Rota para buscar dados do BMP
+                    url: "/autocomplete",  // Lógica de preenchimento do campo de seção e chefia de origem
                     type: "POST",
                     contentType: "application/json",
-                    data: JSON.stringify({ "bmp_numbers": bmpNumbers }),  // Passa todos os BMPs
+                    data: JSON.stringify({ "bmp_numbers": bmpNumbers }),  // Passa todos os BMPs, mesmo que seja um só
                     success: function(response) {
-                        console.log("Resposta do servidor:", response);
                         if (response) {
-                            // Preenche apenas o primeiro BMP retornado
+                            // Atualizar campos de seção e chefia de origem com base no primeiro BMP
                             const firstBmp = bmpNumbers[0];
                             if (response[firstBmp]) {
-                                $("secao_origem").val(response[firstBmp].secao_origem || "");
-                                $("chefia_origem").val(response[firstBmp].chefia_origem || "");
-                            } else {
-                                console.error("Nenhum dado encontrado para o BMP informado.");
+                                $("#secao_origem").val(response[firstBmp].secao_origem || "");
+                                $("#chefia_origem").val(response[firstBmp].chefia_origem || "");
                             }
                         }
                     },
-                    error: function(err) {
-                        console.error("Erro ao buscar os dados dos BMPs:", err);
+                    error: function() {
+                        console.error("Erro ao buscar os dados dos BMPs!");
                     }
                 });
             }
         });
 
-        // Preenche a chefia de destino com base na seção selecionada
+        // Evento para preencher a chefia de destino quando a seção de destino for selecionada
         $("#secao_destino").on("change", function() {
             const secaoDestino = $(this).val();
             if (secaoDestino) {
@@ -171,10 +164,10 @@
                     contentType: "application/json",
                     data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }),
                     success: function(response) {
-                       if (response.chefia) {
-                            $("chefia_destino").val(response.chefia);
+                        if (response.chefia) {
+                            $("#chefia_destino").val(response.chefia);
                         } else {
-                            $("chefia_destino").val('');
+                            $("#chefia_destino").val('');
                         }
                     },
                     error: function() {
@@ -184,25 +177,6 @@
             } else {
                 $("#chefia_destino").val('');
             }
-        });
-
-                $.ajax({
-                    url: "/gerar_guia",
-                    type: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify(data),
-                    success: function () {
-                        alert("Guia gerada com sucesso!");
-                    },
-                    error: function () {
-                        alert("Erro ao gerar a guia. Tente novamente.");
-                    },
-                    complete: function () {
-                        $("#loading").hide();
-                        $("#gerar_guia").prop("disabled", false);
-                    }
-                });
-            });
         });
     </script>
 </body>
