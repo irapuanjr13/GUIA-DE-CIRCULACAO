@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file, jsonify
+from flask import Flask, render_template, request, send_file, jsonify, BytesIO
 import pandas as pd
 import gdown
 from fpdf import FPDF
@@ -130,22 +130,22 @@ def gerar_pdf_geral():
     chefia_origem = request.form.get('chefia_origem')
     chefia_destino = request.form.get('chefia_destino')
 
-    # Gera o PDF
-    output_path = gerar_pdf(dados_bmps, secao_destino, chefia_origem, secao_origem, chefia_destino)
-
-    # Retorna o caminho relativo ao cliente
-    pdf_url = f"/static/{output_path.split('/')[-1]}"  # Caminho público
-    return jsonify({'pdf_url': pdf_url})
-
-def gerar_pdf(dados_bmps, secao_destino, chefia_origem, secao_origem, chefia_destino):
+    # Gera o PDF e salva em memória
+    pdf_output = BytesIO()  # Salvar o PDF diretamente na memória
     pdf = PDF()
     pdf.add_page()
     pdf.add_table(dados_bmps)
     pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+    pdf.output(pdf_output)
+    pdf_output.seek(0)  # Retorna para o início do arquivo em memória
 
-    output_path = "static/guia_circulacao_interna.pdf"
-    pdf.output(output_path)
-    return output_path
+    # Retorna o PDF diretamente para o cliente
+    return send_file(
+        pdf_output,
+        as_attachment=True,
+        download_name="guia_circulacao_interna.pdf",
+        mimetype='application/pdf'
+    )
     
 class PDF(FPDF):
     def header(self):
