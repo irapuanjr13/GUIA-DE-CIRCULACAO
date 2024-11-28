@@ -125,36 +125,45 @@ def get_chefia():
 
 @app.route("/gerar_pdf", methods=["POST"])
 def gerar_pdf_geral():
-    
-        # Obtendo dados do formulário
-        secao_origem = request.form.get('secao_origem')
-        secao_destino = request.form.get('secao_destino')
-        chefia_origem = request.form.get('chefia_origem')
-        chefia_destino = request.form.get('chefia_destino')
+    # Obtendo dados do formulário
+    secao_origem = request.form.get('secao_origem')
+    secao_destino = request.form.get('secao_destino')
+    chefia_origem = request.form.get('chefia_origem')
+    chefia_destino = request.form.get('chefia_destino')
 
-        print(f"Origem: {secao_origem}, Destino: {secao_destino}")
+    bmps_input = request.form.get('bmps')  # Recebe BMPs como string (ex: "123,456,789")
+    if not bmps_input:
+        return jsonify({"error": "Nenhum BMP fornecido!"}), 400
 
-        # Obtém os BMPs do formulário e converte para uma lista
-        bmps_input = request.form.get('bmps')  # "123,456,789"
-    
-    if not dados_bmps:
-        raise ValueError("Nenhum BMP fornecido!")
-        # Verifique a variável 'dados_bmps'
-        bmps_input.split(",") if bmps_input else []  # ['123', '456', '789']
+    bmp_list = [bmp.strip() for bmp in bmps_input.split(",")]
 
-        # Gera o PDF e salva em memória
-        pdf = PDF()
-        pdf.add_page()
-        pdf.add_table(dados_bmps)
-        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
-        pdf.output(pdf_output)
-       
-        # Retorna o PDF diretamente para o cliente
-        return send_file(
-            pdf_output,
-            as_attachment=True,
-            download_name="guia_circulacao_interna.pdf"            
-        )
+    # Filtra os dados dos BMPs no DataFrame
+    dados_bmps = df[df["Nº BMP"].astype(str).str.strip().isin(bmp_list)]
+    if dados_bmps.empty:
+        return jsonify({"error": "Nenhum BMP encontrado!"}), 404
+
+    # Verifica se há itens proibidos
+    if dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
+        return jsonify({"error": "Itens proibidos encontrados!"}), 403
+
+    # Gera o PDF em memória
+    pdf = PDF()
+    pdf.add_page()
+    pdf.add_table(dados_bmps)
+    pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+
+    # Salva o PDF temporariamente para envio
+    pdf_output = BytesIO()
+    pdf.output(pdf_output)
+    pdf_output.seek(0)
+
+    # Envia o arquivo para download
+    return send_file(
+        pdf_output,
+        as_attachment=True,
+        download_name="guia_circulacao_interna.pdf",
+        mimetype="application/pdf"
+    )
     
 class PDF(FPDF):
     def header(self):
