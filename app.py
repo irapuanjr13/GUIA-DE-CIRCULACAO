@@ -146,6 +146,9 @@ def gerar_pdf(dados_bmps, secao_destino, chefia_origem, secao_origem, chefia_des
     output_path = "static/guia_circulacao_interna.pdf"
     pdf.output(output_path)
     return output_path
+
+    # Envia o arquivo PDF gerado diretamente para download
+    return send_file(output_path, as_attachment=True)
     
 class PDF(FPDF):
     def header(self):
