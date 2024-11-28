@@ -182,25 +182,32 @@
         });
      });
         // Enviar formulário para gerar PDF
-       $("#guia_form").on("submit", function(e) {
+      $("#guia_form").on("submit", function(e) {
     e.preventDefault();
     const formData = $(this).serialize();
 
-    $.ajax({
-        url: "/gerar_pdf",
-        type: "POST",
-        data: formData,
-        success: function(response) {
-            const pdfUrl = response.pdf_url;
-            $("#resultado").html(`
-                <a href="${pdfUrl}" target="_blank" download>
-                    Clique aqui para baixar o PDF gerado
-                </a>
-            `);
+    fetch("/gerar_pdf", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
         },
-        error: function() {
-            alert("Erro ao gerar PDF. Tente novamente.");
-        }
+        body: formData,
+    })
+    .then(response => {
+        if (!response.ok) throw new Error("Erro ao gerar PDF.");
+        return response.blob(); // Recebe o PDF como blob
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "guia_circulacao_interna.pdf"; // Nome do arquivo baixado
+        a.click();
+        window.URL.revokeObjectURL(url); // Libera o objeto de memória
+    })
+    .catch(error => {
+        console.error("Erro:", error);
+        alert("Erro ao gerar PDF. Tente novamente.");
     });
 });
     </script>
