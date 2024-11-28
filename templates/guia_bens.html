@@ -87,7 +87,7 @@
             </div>
             <div class="form-group">
                 <label for="bmp_number">Números de BMP (separados por vírgula):</label>
-                <input type="text" id="bmp_number" name="bmp_numbers" placeholder="Ex.: 123, 456
+                <input type="text" id="bmp_number" name="bmp_numbers" placeholder="Ex.: 123, 456">
             </div>
             <div id="bmp_fields"></div>
             <div class="form-group">
@@ -182,31 +182,34 @@
         });
      });
         // Enviar formulário para gerar PDF
-   $("#guia_bens_form").on("submit", function(e) {
-    if ($("#bmp_number").val() === "" || $("#secao_destino").val() === "") {
-        alert("Por favor, preencha todos os campos obrigatórios!");
-        e.preventDefault();
-    }
-});
+   $("#guia_bens_form").on("submit", function (e) {
+        e.preventDefault(); // Impede o envio tradicional do formulário
+
+        if ($("#bmp_number").val() === "" || $("#secao_destino").val() === "") {
+            alert("Por favor, preencha todos os campos obrigatórios!");
+            return;
+        }
+        const formData = $(this).serialize(); // Captura os dados do formulário     
+       
     $.ajax({
-        url: "/gerar_pdf",
-        type: "POST",
-        data: formData,
-        success: function (response) {
-            console.log("Resposta do servidor:", response);
-            success: function(response) {
-    const blob = new Blob([response], { type: "application/pdf" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "guia_circulacao_interna.pdf";
-    link.click();
-    URL.revokeObjectURL(url);
-}
-        error: function (xhr) {
-            console.error("Erro na requisição:", xhr.responseText);
-            alert("Erro ao gerar PDF. Verifique os logs.");
-        },
+            url: "/gerar_pdf",
+            type: "POST",
+            data: formData,
+            xhrFields: {
+                responseType: "blob", // Indica que o retorno é um arquivo binário
+            },
+            success: function (blob) {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = "guia_circulacao_interna.pdf";
+                link.click();
+                URL.revokeObjectURL(url);
+            },
+            error: function () {
+                alert("Erro ao gerar o PDF. Verifique os logs do servidor.");
+            },
+        });
     });
 });
     </script>
