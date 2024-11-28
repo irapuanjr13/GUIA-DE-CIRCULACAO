@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guia de Circulação BMP</title>
     <style>
-        /* Estilos para a página */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
@@ -49,10 +48,6 @@
         button:hover {
             background-color: #0056b3;
         }
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
         .error {
             color: red;
             font-size: 14px;
@@ -61,35 +56,17 @@
             color: green;
             font-size: 14px;
         }
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-        footer {
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-            padding: 10px 0;
-            background-color: #f4f4f9;
-        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>Guia de Circulação BMP</h1>
-        <form method="POST" action="/guia_bens" id="guia_bens_form">        
-            <div class="error">
-                {% if error %}
-                    {{ error }}
-                {% endif %}
-            </div>
+        <form id="guia_bens_form">        
             <div class="form-group">
                 <label for="bmp_number">Números de BMP (separados por vírgula):</label>
                 <input type="text" id="bmp_number" name="bmp_numbers" placeholder="Ex.: 123, 456">
             </div>
-            <div id="bmp_fields"></div>
             <div class="form-group">
                 <label for="secao_origem">Seção de Origem:</label>
                 <input type="text" id="secao_origem" name="secao_origem" readonly>
@@ -102,9 +79,6 @@
                 <label for="secao_destino">Seção de Destino:</label>
                 <select id="secao_destino" name="secao_destino">
                     <option value="" disabled selected>Selecione uma seção</option>
-                    {% for secao in secoes_destino %}
-                        <option value="{{ secao }}">{{ secao }}</option>
-                    {% endfor %}
                 </select>
             </div>
             <div class="form-group">
@@ -118,99 +92,71 @@
         <div id="resultado" class="success"></div>
     </div>
 
-    <div class="observacao" id="observacao">
-        A Guia gerada deve ser encaminhada a Seção de Registro, via SIGADAER.
-        Para gerar o modelo do ofício, <a href="http://www.gapls.intraer/index.php/setores-novo/assessorias/comunicacao-social/category/178-modelos" target="_blank">clique aqui</a>.
-    </div>
-
-    <footer>
-        Criado por <strong>Cb Irapuan</strong>
-    </footer>
-
     <script>
-    $(document).ready(function() {
-        // Função para atualizar os campos de origem com base no(s) BMP(s)
-        $("#bmp_number").on("input", function() {
-            const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
-
-            if (bmpNumbers.length > 0) {
-                $.ajax({
-                    url: "/autocomplete",  // Lógica de preenchimento do campo de seção e chefia de origem
-                    type: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify({ "bmp_numbers": bmpNumbers }),  // Passa todos os BMPs, mesmo que seja um só
-                    success: function(response) {
-                        if (response) {
-                            // Atualizar campos de seção e chefia de origem com base no primeiro BMP
-                            const firstBmp = bmpNumbers[0];
-                            if (response[firstBmp]) {
-                                $("#secao_origem").val(response[firstBmp].secao_origem || "");
-                                $("#chefia_origem").val(response[firstBmp].chefia_origem || "");
+        $(document).ready(function() {
+            // Preencher campos de origem com base nos BMPs
+            $("#bmp_number").on("input", function() {
+                const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
+                if (bmpNumbers.length > 0) {
+                    $.ajax({
+                        url: "/autocomplete",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({ "bmp_numbers": bmpNumbers }),
+                        success: function(response) {
+                            if (response && bmpNumbers[0] in response) {
+                                $("#secao_origem").val(response[bmpNumbers[0]].secao_origem || "");
+                                $("#chefia_origem").val(response[bmpNumbers[0]].chefia_origem || "");
                             }
+                        },
+                        error: function() {
+                            alert("Erro ao buscar os dados de origem.");
                         }
-                    },
-                    error: function() {
-                        console.error("Erro ao buscar os dados dos BMPs!");
-                    }
-                });
-            }
-        });
+                    });
+                }
+            });
 
-        // Evento para preencher a chefia de destino quando a seção de destino for selecionada
-        $("#secao_destino").on("change", function() {
-            const secaoDestino = $(this).val();
-            if (secaoDestino) {
+            // Preencher chefia de destino com base na seção
+            $("#secao_destino").on("change", function() {
+                const secao = $(this).val();
+                if (secao) {
+                    $.ajax({
+                        url: "/get_chefia",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({ "secao": secao }),
+                        success: function(response) {
+                            $("#chefia_destino").val(response.chefia || "");
+                        },
+                        error: function() {
+                            alert("Erro ao buscar a chefia de destino.");
+                        }
+                    });
+                }
+            });
+
+            // Gerar PDF
+            $("#guia_bens_form").on("submit", function(e) {
+                e.preventDefault();
                 $.ajax({
-                    url: "/get_chefia",
+                    url: "/gerar_pdf",
                     type: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }),
-                    success: function(response) {
-                        if (response.chefia) {
-                            $("#chefia_destino").val(response.chefia);
-                        } else {
-                            $("#chefia_destino").val('');
-                        }
+                    data: $(this).serialize(),
+                    xhrFields: { responseType: "blob" },
+                    success: function(blob) {
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement("a");
+                        link.href = url;
+                        link.download = "guia_circulacao_interna.pdf";
+                        link.click();
+                        URL.revokeObjectURL(url);
                     },
                     error: function() {
-                        console.error("Erro ao buscar a chefia de destino!");
+                        alert("Erro ao gerar o PDF.");
                     }
                 });
-            } else {
-                $("#chefia_destino").val('');
-            }
+            });
         });
-     });
-        // Enviar formulário para gerar PDF
-   $("#guia_bens_form").on("submit", function (e) {
-        e.preventDefault(); // Impede o envio tradicional do formulário
-
-        if ($("#bmp_number").val() === "" || $("#secao_destino").val() === "") {
-            alert("Por favor, preencha todos os campos obrigatórios!");
-            return;
-        }
-        const formData = $(this).serialize(); // Captura os dados do formulário     
-       
-    $.ajax({
-            url: "/gerar_pdf",
-            type: "POST",
-            data: formData,
-            xhrFields: {
-                responseType: "blob", // Indica que o retorno é um arquivo binário
-            },
-            success: function (blob) {
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement("a");
-                link.href = url;
-                link.download = "guia_circulacao_interna.pdf";
-                link.click();
-                URL.revokeObjectURL(url);
-            },
-            error: function () {
-                alert("Erro ao gerar o PDF. Verifique os logs do servidor.");
-            },
-        });
-    });
     </script>
 </body>
 </html>
