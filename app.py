@@ -122,7 +122,7 @@ def get_chefia():
 
     return jsonify({"chefia": chefia.tolist()})
 
-@app.route("/gerar_pdf", methods=["POST"])
+@app.route("/gerar_pdf", methods=["POST"]) 
 def gerar_pdf_geral():
     # Obtendo dados do formulário
     secao_origem = request.form.get('secao_origem')
@@ -130,14 +130,14 @@ def gerar_pdf_geral():
     chefia_origem = request.form.get('chefia_origem')
     chefia_destino = request.form.get('chefia_destino')
 
-    # Chama a função que gera o PDF
+    # Gera o PDF
     output_path = gerar_pdf(dados_bmps, secao_destino, chefia_origem, secao_origem, chefia_destino)
-    
-    # Retorna a URL do PDF gerado
-    return jsonify({'pdf_url': output_path})
+
+    # Retorna o caminho relativo ao cliente
+    pdf_url = f"/static/{output_path.split('/')[-1]}"  # Caminho público
+    return jsonify({'pdf_url': pdf_url})
 
 def gerar_pdf(dados_bmps, secao_destino, chefia_origem, secao_origem, chefia_destino):
-    # Código de geração do PDF
     pdf = PDF()
     pdf.add_page()
     pdf.add_table(dados_bmps)
@@ -146,9 +146,6 @@ def gerar_pdf(dados_bmps, secao_destino, chefia_origem, secao_origem, chefia_des
     output_path = "static/guia_circulacao_interna.pdf"
     pdf.output(output_path)
     return output_path
-
-    # Envia o arquivo PDF gerado diretamente para download
-    return send_file(output_path, as_attachment=True)
     
 class PDF(FPDF):
     def header(self):
