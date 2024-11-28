@@ -74,6 +74,44 @@ def guia_bens():
                 error="Itens da conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO' não podem ser processados."
             )
 
+@app.route("/autocomplete", methods=["POST"])
+def autocomplete():
+    data = request.get_json()
+    bmp_numbers = data.get("bmp_numbers", [])
+
+    if not bmp_numbers:
+        return jsonify({"error": "Nenhum BMP fornecido!"}), 400
+
+    response = {}
+    for bmp in bmp_numbers:
+        filtro_bmp = df[df["Nº BMP"].astype(str) == bmp]
+        if not filtro_bmp.empty:
+            secao_origem = filtro_bmp["Seção de Origem"].values[0]
+            chefia_origem = filtro_bmp["Chefia de Origem"].values[0]
+            response[bmp] = {
+                "secao_origem": secao_origem,
+                "chefia_origem": chefia_origem
+            }
+        else:
+            response[bmp] = {"secao_origem": "", "chefia_origem": ""}
+
+    return jsonify(response)
+
+@app.route('/get_chefia', methods=['POST'])
+def get_chefia():
+    data = request.json
+    secao = data.get("secao")
+    tipo = data.get("tipo")
+
+    if tipo == "destino":
+        chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique()
+    elif tipo == "origem":
+        chefia = df[df['Seção de Origem'] == secao]['Chefia de Origem'].dropna().unique()
+    else:
+        return jsonify({"error": "Tipo inválido!"}), 400
+
+    return jsonify({"chefia": chefia.tolist()})
+              
         # Gerar o PDF
         output_path = gerar_pdf(dados_bmps, secao_destino, chefia_origem, secao_origem, chefia_destino)
         return send_file(output_path, as_attachment=True)
@@ -124,18 +162,33 @@ class PDF(FPDF):
     def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
         text = f"""
 Solicitação de Transferência:
-Solicito a transferência dos Bens Móveis Permanentes para a Seção {secao_destino}.
+Informo à Senhora Chefe do GAP-LS que os bens especificados estão inservíveis para uso neste setor, classificados como ociosos, recuperáveis, reparados ou novos - aguardando distribuição. Diante disso, solicito autorização para transferir o(s) Bem(ns) Móvel(is) Permanente(s) acima discriminado(s), atualmente sob minha guarda, para a Seção {secao_destino}.
 
 {chefia_origem}
 {secao_origem}
 
 Confirmação da Seção de Destino:
-Confirmo o recebimento.
+Estou ciente da movimentação informada acima e, devido à necessidade do setor, solicito à Senhora Dirigente Máximo autorização para manter sob minha guarda os Bens Móveis Permanentes especificados.
 
 {chefia_destino}
 {secao_destino}
+
+DO AGENTE DE CONTROLE INTERNO AO DIRIGENTE MÁXIMO
+Informo à Senhora que, após conferência, foi verificado que esta guia cumpre o disposto no Módulo D do RADA-e e, conforme a alínea "d" do item 5.3 da ICA 179-1, encaminho para apreciação e se for o caso, autorização.
+
+KARINA RAQUEL VALIMAREANU  Maj Int
+Chefe da ACI
+
+DESPACHO DA AGENTE DIRETOR
+Autorizo a movimentação solicitada e determino:
+1. Que a Seção de Registro realize a movimentação no SILOMS.
+2. Que a Seção de Registro publique a movimentação no próximo aditamento a ser confeccionado, conforme o item 2.14.2, Módulo do RADA-e.
+3. Que os detentores realizem a movimentação física do(s) bem(ns).
+
+LUCIANA DO AMARAL CORREA  Cel Int
+Dirigente Máximo
 """
-        self.multi_cell(0, 8, text)
+        self.multi_cell(0, 8, self.fix_text(text))
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
