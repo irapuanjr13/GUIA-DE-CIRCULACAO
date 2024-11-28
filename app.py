@@ -133,25 +133,28 @@ def gerar_pdf_geral():
         chefia_destino = request.form.get('chefia_destino')
 
         print(f"Origem: {secao_origem}, Destino: {secao_destino}")
-        
+
+        # Obtém os BMPs do formulário e converte para uma lista
+        bmps_input = request.form.get('bmps')  # "123,456,789"
+       C
+
+if not dados_bmps:
+    raise ValueError("Nenhum BMP fornecido!")
         # Verifique a variável 'dados_bmps'
-        dados_bmps = []  # Exemplo de dado. Substitua pelo real.
+        bmps_input.split(",") if bmps_input else []  # ['123', '456', '789']
 
         # Gera o PDF e salva em memória
-        pdf_output = BytesIO()
         pdf = PDF()
         pdf.add_page()
         pdf.add_table(dados_bmps)
         pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
         pdf.output(pdf_output)
-        pdf_output.seek(0)
-
+       
         # Retorna o PDF diretamente para o cliente
         return send_file(
             pdf_output,
             as_attachment=True,
-            download_name="guia_circulacao_interna.pdf",
-            mimetype='application/pdf'
+            download_name="guia_circulacao_interna.pdf"            
         )
     except Exception as e:
         print(f"Erro ao gerar PDF: {e}")
