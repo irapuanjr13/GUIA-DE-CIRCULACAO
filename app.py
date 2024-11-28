@@ -142,6 +142,10 @@ def gerar_pdf_geral():
         # Verifique a variável 'dados_bmps'
         bmps_input.split(",") if bmps_input else []  # ['123', '456', '789']
 
+    except Exception as e:
+        print(f"Erro ao gerar PDF: {e}")
+        return "Erro ao gerar PDF", 500
+
         # Gera o PDF e salva em memória
         pdf = PDF()
         pdf.add_page()
@@ -155,9 +159,6 @@ def gerar_pdf_geral():
             as_attachment=True,
             download_name="guia_circulacao_interna.pdf"            
         )
-except Exception as e:
-        print(f"Erro ao gerar PDF: {e}")
-        return "Erro ao gerar PDF", 500
     
 class PDF(FPDF):
     def header(self):
