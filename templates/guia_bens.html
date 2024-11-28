@@ -115,6 +115,7 @@
                 <button type="submit">Gerar Guia</button>
             </div>
         </form>
+        <div id="resultado" class="success"></div>
     </div>
 
     <div class="observacao" id="observacao">
@@ -180,6 +181,24 @@
             }
         });
      });
+        // Enviar formulário para gerar PDF
+        $("#guia_form").on("submit", function(e) {
+            e.preventDefault();
+            const formData = $(this).serialize();
+            $.ajax({
+                url: "/gerar_pdf",
+                type: "POST",
+                data: formData,
+                success: function(response) {
+                    const pdfUrl = response.pdf_url;
+                    $("#resultado").html(`<a href="${pdfUrl}" download>Baixe aqui o PDF gerado</a>`);
+                },
+                error: function() {
+                    alert("Erro ao gerar PDF. Tente novamente.");
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>
