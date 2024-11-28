@@ -56,7 +56,11 @@ def guia_bens():
         bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",")]
         dados_bmps = df[df["Nº BMP"].astype(str).str.strip().isin(bmp_list)]
         if dados_bmps.empty:
-             return render_template("guia_bens.html", results=results)
+             return render_template(
+                "guia_bens.html",
+                secoes_origem=secoes_origem,
+                secoes_destino=secoes_destino,
+                error="Nenhum BMP encontrado para os números fornecidos.",
 
         # Verificar se os BMPs existem
         if dados_bmps.empty:
@@ -75,7 +79,7 @@ def guia_bens():
                 secoes_destino=secoes_destino,
                 error="Itens da conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO' não podem ser processados."
             )
-
+            return render_template("guia_bens.html", results=results)
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
     data = request.get_json()
