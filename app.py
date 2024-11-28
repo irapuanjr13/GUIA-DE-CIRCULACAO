@@ -72,13 +72,13 @@ class PDF(FPDF):
             self.cell(col_widths[2], row_height, self.fix_text(str(row["Nº SERIE"])), border=1, align="C")
 
     # Tratar valores numéricos
-    if pd.isnull(row['VL. ATUALIZ.']):
-        valor_atualizado = "N/A"
-    else:
-        valor_atualizado = f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ',')
-    self.cell(col_widths[3], row_height, valor_atualizado, border=1, align="R")
+        if pd.isnull(row['VL. ATUALIZ.']):
+            valor_atualizado = "N/A"
+        else:
+            valor_atualizado = f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ',')
+        self.cell(col_widths[3], row_height, valor_atualizado, border=1, align="R")
 
-    self.ln()
+        self.ln()
 
     def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
         text = f"""
