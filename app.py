@@ -24,7 +24,7 @@ class PDF(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'A4')  # Orientação retrato, milímetros, formato A4
         
-     def header(self):
+    def header(self):
         # Cabeçalho centralizado
         self.set_font("Arial", "B", 12)
         self.cell(0, 6, "MINISTÉRIO DA DEFESA", ln=True, align="C")
@@ -33,7 +33,7 @@ class PDF(FPDF):
         self.cell(0, 8, "GUIA DE MOVIMENTAÇÃO DE BEM MÓVEL PERMANENTE ENTRE AS SEÇÕES DO GAPLS", ln=True, align="C")
         self.ln(10)
 
- def fix_text(self, text):
+    def fix_text(self, text):
         """Corrige caracteres incompatíveis com a codificação latin-1."""
         replacements = {
             "–": "-",  # Substituir travessão por hífen
@@ -116,19 +116,19 @@ def guia_bens():
         chefia_origem = request.form.get("chefia_origem")
         chefia_destino = request.form.get("chefia_destino")
 
- if not (bmp_numbers and secao_origem and secao_destino and chefia_origem and chefia_destino):
+if not (bmp_numbers and secao_origem and secao_destino and chefia_origem and chefia_destino):
             return render_template(
-                "index.html",
+                "guia_bens.html",
                 secoes_origem=secoes_origem,
                 secoes_destino=secoes_destino,
                 error="Preencha todos os campos!",
             )
 
- bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",")]
+bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",")]
         dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
         if dados_bmps.empty:
             return render_template(
-                "index.html",
+                "guia_bens.html",
                 secoes_origem=secoes_origem,
                 secoes_destino=secoes_destino,
                 error="Nenhum BMP encontrado para os números fornecidos.",
@@ -142,7 +142,7 @@ def guia_bens():
                 error="Itens da conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO' não podem ser processados."
             )
 
-  pdf = PDF()
+        pdf = PDF()
         pdf.add_page()
         pdf.add_table(dados_bmps)
         pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
