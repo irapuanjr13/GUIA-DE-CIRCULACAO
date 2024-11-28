@@ -112,11 +112,11 @@ def get_chefia():
 
     return jsonify({"chefia": chefia.tolist()})
               
-        # Gerar o PDF
-        output_path = gerar_pdf(dados_bmps, secao_destino, chefia_origem, secao_origem, chefia_destino)
+    # Gerar o PDF
+    output_path = gerar_pdf(dados_bmps, secao_destino, chefia_origem, secao_origem, chefia_destino)
         return send_file(output_path, as_attachment=True)
 
-    return render_template(
+return render_template(
         "guia_bens.html",
         secoes_origem=secoes_origem,
         secoes_destino=secoes_destino
