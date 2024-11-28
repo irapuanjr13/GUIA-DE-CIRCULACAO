@@ -79,7 +79,8 @@ def guia_bens():
                 secoes_destino=secoes_destino,
                 error="Itens da conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO' não podem ser processados."
             )
-            return render_template("guia_bens.html", results=results)
+    return render_template("guia_bens.html", results=results)
+    
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
     data = request.get_json()
