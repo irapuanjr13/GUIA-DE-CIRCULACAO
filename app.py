@@ -33,7 +33,7 @@ def consulta_bmp():
     return render_template("consulta_bmp.html", results=results)
 
 @app.route(guia_bens_form, methods=["GET", "POST"])
-def guia_bens_form():
+def guia_bens():
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
     secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
     results = None  # Inicializar 'results' como None
