@@ -156,7 +156,7 @@
             const secaoDestino = $(this).val();
             if (secaoDestino) {
                 $.ajax({
-                    url: "/get_chefia1",
+                    url: "/get_chefia",
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }),
