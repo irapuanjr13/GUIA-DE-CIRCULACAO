@@ -183,18 +183,27 @@
         });
      });
         // Enviar formulário para gerar PDF
-   $("#guia_form").on("submit", function (e) {
-    e.preventDefault();
-    const formData = $(this).serialize();
+   $("#guia_bens_form").on("submit", function(e) {
+    if ($("#bmp_number").val() === "" || $("#secao_destino").val() === "") {
+        alert("Por favor, preencha todos os campos obrigatórios!");
+        e.preventDefault();
+    }
+});
     $.ajax({
         url: "/gerar_pdf",
         type: "POST",
         data: formData,
         success: function (response) {
             console.log("Resposta do servidor:", response);
-            // Força o download do PDF diretamente
-            window.location.href = "/gerar_pdf";
-        },
+            success: function(response) {
+    const blob = new Blob([response], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "guia_circulacao_interna.pdf";
+    link.click();
+    URL.revokeObjectURL(url);
+}
         error: function (xhr) {
             console.error("Erro na requisição:", xhr.responseText);
             alert("Erro ao gerar PDF. Verifique os logs.");
