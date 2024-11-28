@@ -155,7 +155,7 @@ def gerar_pdf_geral():
             as_attachment=True,
             download_name="guia_circulacao_interna.pdf"            
         )
-    except Exception as e:
+except Exception as e:
         print(f"Erro ao gerar PDF: {e}")
         return "Erro ao gerar PDF", 500
     
