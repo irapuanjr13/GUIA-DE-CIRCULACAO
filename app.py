@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, send_file, jsonify, BytesIO
+from flask import Flask, render_template, request, send_file, jsonify
+from io import BytesIO
 import pandas as pd
 import gdown
 from fpdf import FPDF
