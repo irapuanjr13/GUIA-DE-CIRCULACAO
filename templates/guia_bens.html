@@ -113,6 +113,7 @@
             </div>
             <div class="form-group">
                 <button type="submit">Gerar Guia</button>
+                <a href="/gerar_pdf" target="_blank">Baixar PDF</a>
             </div>
         </form>
         <div id="resultado" class="success"></div>
@@ -182,35 +183,22 @@
         });
      });
         // Enviar formulário para gerar PDF
-    $("#guia_form").on("submit", function(e) {
+   $("#guia_form").on("submit", function (e) {
     e.preventDefault();
     const formData = $(this).serialize();
-    console.log("Enviando formulário:", formData);
-
-    fetch("/gerar_pdf", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+    $.ajax({
+        url: "/gerar_pdf",
+        type: "POST",
+        data: formData,
+        success: function (response) {
+            console.log("Resposta do servidor:", response);
+            // Força o download do PDF diretamente
+            window.location.href = "/gerar_pdf";
         },
-        body: formData,
-    })
-    .then(response => {
-        console.log("Resposta recebida:", response);
-        if (!response.ok) throw new Error("Erro ao gerar PDF.");
-        return response.blob();
-    })
-    .then(blob => {
-        console.log("Blob recebido:", blob);
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "guia_circulacao_interna.pdf";
-        a.click();
-        window.URL.revokeObjectURL(url);
-    })
-    .catch(error => {
-        console.error("Erro:", error);
-        alert("Erro ao gerar PDF. Tente novamente.");
+        error: function (xhr) {
+            console.error("Erro na requisição:", xhr.responseText);
+            alert("Erro ao gerar PDF. Verifique os logs.");
+        },
     });
 });
     </script>
