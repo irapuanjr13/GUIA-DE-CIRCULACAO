@@ -182,9 +182,10 @@
         });
      });
         // Enviar formulário para gerar PDF
-      $("#guia_form").on("submit", function(e) {
+    $("#guia_form").on("submit", function(e) {
     e.preventDefault();
     const formData = $(this).serialize();
+    console.log("Enviando formulário:", formData);
 
     fetch("/gerar_pdf", {
         method: "POST",
@@ -194,16 +195,18 @@
         body: formData,
     })
     .then(response => {
+        console.log("Resposta recebida:", response);
         if (!response.ok) throw new Error("Erro ao gerar PDF.");
-        return response.blob(); // Recebe o PDF como blob
+        return response.blob();
     })
     .then(blob => {
+        console.log("Blob recebido:", blob);
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "guia_circulacao_interna.pdf"; // Nome do arquivo baixado
+        a.download = "guia_circulacao_interna.pdf";
         a.click();
-        window.URL.revokeObjectURL(url); // Libera o objeto de memória
+        window.URL.revokeObjectURL(url);
     })
     .catch(error => {
         console.error("Erro:", error);
