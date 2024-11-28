@@ -136,8 +136,7 @@ def gerar_pdf_geral():
 
         # Obtém os BMPs do formulário e converte para uma lista
         bmps_input = request.form.get('bmps')  # "123,456,789"
-       C
-
+    
 if not dados_bmps:
     raise ValueError("Nenhum BMP fornecido!")
         # Verifique a variável 'dados_bmps'
