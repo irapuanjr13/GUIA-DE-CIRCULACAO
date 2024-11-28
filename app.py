@@ -32,7 +32,7 @@ def consulta_bmp():
             results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
     return render_template("consulta_bmp.html", results=results)
 
-@app.route(guia_bens, methods=["GET", "POST"])
+@app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
     secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
