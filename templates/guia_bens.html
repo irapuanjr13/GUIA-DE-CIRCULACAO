@@ -85,7 +85,11 @@
                     {{ error }}
                 {% endif %}
             </div>
-           <div id="bmp_fields"></div>
+            <div class="form-group">
+                <label for="bmp_number">Números de BMP (separados por vírgula):</label>
+                <input type="text" id="bmp_number" name="bmp_numbers" placeholder="Ex.: 123, 456
+            </div>
+            <div id="bmp_fields"></div>
             <div class="form-group">
                 <label for="secao_origem">Seção de Origem:</label>
                 <input type="text" id="secao_origem" name="secao_origem" readonly>
