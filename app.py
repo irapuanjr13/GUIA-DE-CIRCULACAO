@@ -123,30 +123,39 @@ def get_chefia():
 
     return jsonify({"chefia": chefia.tolist()})
 
-@app.route("/gerar_pdf", methods=["POST"]) 
+@app.route("/gerar_pdf", methods=["POST"])
 def gerar_pdf_geral():
-    # Obtendo dados do formulário
-    secao_origem = request.form.get('secao_origem')
-    secao_destino = request.form.get('secao_destino')
-    chefia_origem = request.form.get('chefia_origem')
-    chefia_destino = request.form.get('chefia_destino')
+    try:
+        # Obtendo dados do formulário
+        secao_origem = request.form.get('secao_origem')
+        secao_destino = request.form.get('secao_destino')
+        chefia_origem = request.form.get('chefia_origem')
+        chefia_destino = request.form.get('chefia_destino')
 
-    # Gera o PDF e salva em memória
-    pdf_output = BytesIO()  # Salvar o PDF diretamente na memória
-    pdf = PDF()
-    pdf.add_page()
-    pdf.add_table(dados_bmps)
-    pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
-    pdf.output(pdf_output)
-    pdf_output.seek(0)  # Retorna para o início do arquivo em memória
+        print(f"Origem: {secao_origem}, Destino: {secao_destino}")
+        
+        # Verifique a variável 'dados_bmps'
+        dados_bmps = []  # Exemplo de dado. Substitua pelo real.
 
-    # Retorna o PDF diretamente para o cliente
-    return send_file(
-        pdf_output,
-        as_attachment=True,
-        download_name="guia_circulacao_interna.pdf",
-        mimetype='application/pdf'
-    )
+        # Gera o PDF e salva em memória
+        pdf_output = BytesIO()
+        pdf = PDF()
+        pdf.add_page()
+        pdf.add_table(dados_bmps)
+        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+        pdf.output(pdf_output)
+        pdf_output.seek(0)
+
+        # Retorna o PDF diretamente para o cliente
+        return send_file(
+            pdf_output,
+            as_attachment=True,
+            download_name="guia_circulacao_interna.pdf",
+            mimetype='application/pdf'
+        )
+    except Exception as e:
+        print(f"Erro ao gerar PDF: {e}")
+        return "Erro ao gerar PDF", 500
     
 class PDF(FPDF):
     def header(self):
