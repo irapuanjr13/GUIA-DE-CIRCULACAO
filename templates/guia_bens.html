@@ -147,8 +147,8 @@
                             // Preenche apenas o primeiro BMP retornado
                             const firstBmp = bmpNumbers[0];
                             if (response[firstBmp]) {
-                                $("#secao_origem").val(response[firstBmp].secao_origem || "");
-                                $("#chefia_origem").val(response[firstBmp].chefia_origem || "");
+                                $("secao_origem").val(response[firstBmp].secao_origem || "");
+                                $("chefia_origem").val(response[firstBmp].chefia_origem || "");
                             } else {
                                 console.error("Nenhum dado encontrado para o BMP informado.");
                             }
@@ -172,9 +172,9 @@
                     data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }),
                     success: function(response) {
                        if (response.chefia) {
-                            $("#chefia_destino").val(response.chefia);
+                            $("chefia_destino").val(response.chefia);
                         } else {
-                            $("#chefia_destino").val('');
+                            $("chefia_destino").val('');
                         }
                     },
                     error: function() {
@@ -185,26 +185,6 @@
                 $("#chefia_destino").val('');
             }
         });
-</script>
-
-            url: "/gerar_guia",
-            $("#gerar_guia").on("click", function () {
-                $("#loading").show();
-                $(this).prop("disabled", true);
-
-                const bmpNumbers = $("#bmp_number").val().split(",").map(bmp => bmp.trim());
-                const secaoOrigem = $("#secao_origem").val();
-                const chefiaOrigem = $("#chefia_origem").val();
-                const secaoDestino = $("#secao_destino").val();
-                const chefiaDestino = $("#chefia_destino").val();
-
-                const data = {
-                    dados_bmps: bmpNumbers.map(bmp => ({ bmp })),
-                    secao_origem: secaoOrigem,
-                    chefia_origem: chefiaOrigem,
-                    secao_destino: secaoDestino,
-                    chefia_destino: chefiaDestino
-                };
 
                 $.ajax({
                     url: "/gerar_guia",
