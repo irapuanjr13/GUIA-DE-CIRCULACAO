@@ -121,19 +121,23 @@ def get_chefia():
         return jsonify({"error": "Tipo inválido!"}), 400
 
     return jsonify({"chefia": chefia.tolist()})
-              
-    # Gerar o PDF
-    output_path = gerar_pdf(dados_bmps, secao_destino, chefia_origem, secao_origem, chefia_destino)
-    return send_file(output_path, as_attachment=True)
 
-    return render_template(
-        "guia_bens.html",
-        secoes_origem=secoes_origem,
-        secoes_destino=secoes_destino
-)
+@app.route("/gerar_pdf", methods=["POST"])
+def gerar_pdf_geral():
+    # Obtendo dados do formulário
+    secao_origem = request.form.get('secao_origem')
+    secao_destino = request.form.get('secao_destino')
+    chefia_origem = request.form.get('chefia_origem')
+    chefia_destino = request.form.get('chefia_destino')
+
+    # Chama a função que gera o PDF
+    output_path = gerar_pdf(dados_bmps, secao_destino, chefia_origem, secao_origem, chefia_destino)
+    
+    # Retorna a URL do PDF gerado
+    return jsonify({'pdf_url': output_path})
 
 def gerar_pdf(dados_bmps, secao_destino, chefia_origem, secao_origem, chefia_destino):
-    """Gera o PDF da guia de movimentação."""
+    # Código de geração do PDF
     pdf = PDF()
     pdf.add_page()
     pdf.add_table(dados_bmps)
@@ -142,7 +146,7 @@ def gerar_pdf(dados_bmps, secao_destino, chefia_origem, secao_origem, chefia_des
     output_path = "static/guia_circulacao_interna.pdf"
     pdf.output(output_path)
     return output_path
-
+    
 class PDF(FPDF):
     def header(self):
         self.set_font("Arial", "B", 12)
