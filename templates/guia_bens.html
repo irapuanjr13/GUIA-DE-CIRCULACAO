@@ -169,25 +169,22 @@
                     url: "/get_chefia",
                     type: "POST",
                     contentType: "application/json",
-                    data: JSON.stringify({ "secao": secaoDestino }),
+                    data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }),
                     success: function(response) {
-                        console.log("Resposta do servidor (chefia de destino):", response);
-                        if (response.chefia && response.chefia.length > 0) {
-                            $("#chefia_destino").val(response.chefia[0]);
+                       if (response.chefia) {
+                            $("#chefia_destino").val(response.chefia);
                         } else {
                             $("#chefia_destino").val('');
-                            console.error("Chefia de destino não encontrada.");
                         }
                     },
-                    error: function(err) {
-                        console.error("Erro ao buscar a chefia de destino:", err);
+                    error: function() {
+                        console.error("Erro ao buscar a chefia de destino!");
                     }
                 });
             } else {
                 $("#chefia_destino").val('');
             }
         });
-    });
 </script>
 
             url: "/gerar_guia",
