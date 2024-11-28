@@ -61,7 +61,7 @@ def guia_bens():
                 secoes_origem=secoes_origem,
                 secoes_destino=secoes_destino,
                 error="Nenhum BMP encontrado para os números fornecidos.",
-
+            )
         # Verificar se os BMPs existem
         if dados_bmps.empty:
             return render_template(
