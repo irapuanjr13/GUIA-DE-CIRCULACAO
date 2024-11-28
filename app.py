@@ -56,9 +56,9 @@ class PDF(FPDF):
             self.ln()
 
     # Adicionar as linhas da tabela
-        self.set_font("Arial", size=10)
-        for _, row in dados_bmps.iterrows():
-    # Calcular a altura necessária para a célula "Nomenclatura"
+    self.set_font("Arial", size=10)
+    for _, row in dados_bmps.iterrows():
+        # Calcular a altura necessária para a célula "Nomenclatura"
         text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
         line_count = self.get_string_width(text) // col_widths[1] + 1
         row_height = 10 * line_count  # 10 é a altura padrão da célula
