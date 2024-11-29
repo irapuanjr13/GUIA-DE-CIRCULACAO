@@ -137,11 +137,8 @@ def guia_bens():
                 secoes_origem=secoes_origem,
                 secoes_destino=secoes_destino,
                 error="Itens da conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO' não podem ser processados."
-           
-            results = dados_bmps
             )
         
-    
         pdf = PDF()
         pdf.add_page()
         pdf.add_table(dados_bmps)
