@@ -1,6 +1,9 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, render_template, request, send_file, jsonify
+from io import BytesIO
+import pandas as pd
+import gdown
+from fpdf import FPDF
 import os
-import time
 
 app = Flask(__name__)
 
@@ -79,5 +82,6 @@ def gerar_guia():
         return jsonify({"error": f"Erro ao gerar a guia: {str(e)}"}), 500
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 5000))
+    app.run(debug=True, host="0.0.0.0", port=port)
