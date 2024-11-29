@@ -135,7 +135,7 @@ def guia_bens():
                 error="Itens da conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO' não podem ser processados."
             )
 
-         results = dados_bmps
+                 results = dados_bmps
 
         return render_template(
         "guia_bens.html",
