@@ -1,11 +1,10 @@
 from flask import Flask, render_template, request, send_file, jsonify
-from io import BytesIO
 import pandas as pd
 import gdown
 from fpdf import FPDF
 import os
 
-app = Flask(__name__, static_folder='static')
+app = Flask(__name__)
 
 # ID do arquivo no Google Drive
 GOOGLE_DRIVE_FILE_ID = "1mPYlc_uC3SfJnNQ_ToG6eVmn2ZYMhPCX"
@@ -13,32 +12,19 @@ GOOGLE_DRIVE_FILE_ID = "1mPYlc_uC3SfJnNQ_ToG6eVmn2ZYMhPCX"
 def get_excel_from_google_drive():
     """Baixa a planilha do Google Drive e retorna o DataFrame."""
     url = f"https://drive.google.com/uc?id={GOOGLE_DRIVE_FILE_ID}"
-    output_file = "patrimonio.xlsx"
-    if not os.path.exists(output_file):
-        gdown.download(url, output_file, quiet=False)
+    output_file = "patrimonio.xlsx"  # Nome temporário do arquivo baixado
+    gdown.download(url, output_file, quiet=False)
     return pd.read_excel(output_file)
 
 # Carregar a planilha no início do programa
 df = get_excel_from_google_drive()
 
-    pdf = PDF()
-    pdf.add_page()
-    pdf.add_table(dados_bmps)
-    pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
-
-    output_path = "static/guia_circulacao_interna.pdf"
-    pdf.output(output_path)
-    return send_file(output_path, as_attachment=True)
-
-return render_template(
-        "index.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
-    )
-
 class PDF(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'A4')  # Orientação retrato, milímetros, formato A4
-        
+
     def header(self):
+        # Cabeçalho centralizado
         self.set_font("Arial", "B", 12)
         self.cell(0, 6, "MINISTÉRIO DA DEFESA", ln=True, align="C")
         self.cell(0, 6, "COMANDO DA AERONÁUTICA", ln=True, align="C")
@@ -47,8 +33,12 @@ class PDF(FPDF):
         self.ln(10)
 
     def fix_text(self, text):
+        """Corrige caracteres incompatíveis com a codificação latin-1."""
         replacements = {
-            "–": "-", "“": '"', "”": '"', "’": "'"
+            "–": "-",  # Substituir travessão por hífen
+            "“": '"',  # Substituir aspas abertas por aspas duplas
+            "”": '"',  # Substituir aspas fechadas por aspas duplas
+            "’": "'",  # Substituir apóstrofo por aspas simples
         }
         for old, new in replacements.items():
             text = text.replace(old, new)
@@ -79,7 +69,7 @@ class PDF(FPDF):
             self.cell(col_widths[3], row_height, valor_atualizado, border=1, align="R")
             self.ln()
 
-    def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
+   def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
         text = f"""
 Solicitação de Transferência:
 Informo à Senhora Chefe do GAP-LS que os bens especificados estão inservíveis para uso neste setor, classificados como ociosos, recuperáveis, reparados ou novos - aguardando distribuição. Diante disso, solicito autorização para transferir o(s) Bem(ns) Móvel(is) Permanente(s) acima discriminado(s), atualmente sob minha guarda, para a Seção {secao_destino}.
@@ -150,11 +140,17 @@ def guia_bens():
             )
         results = dados_bmps
     
+        pdf = PDF()
+        pdf.add_page()
+        pdf.add_table(dados_bmps)
+        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+
+        output_path = "static/guia_circulacao_interna.pdf"
+        pdf.output(output_path)
+        return send_file(output_path, as_attachment=True)
+
     return render_template(
-        "guia_bens.html",
-        secoes_origem=secoes_origem,
-        secoes_destino=secoes_destino,
-        results=results
+        "index.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
     )
 
 @app.route("/")
