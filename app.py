@@ -5,7 +5,7 @@ import gdown
 from fpdf import FPDF
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
 # ID do arquivo no Google Drive
 GOOGLE_DRIVE_FILE_ID = "1mPYlc_uC3SfJnNQ_ToG6eVmn2ZYMhPCX"
