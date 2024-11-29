@@ -144,7 +144,7 @@ def guia_bens():
         results=results
     )
 
-        pdf = PDF()
+    pdf = PDF()
         pdf.add_page()
         pdf.add_table(dados_bmps)
         pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
