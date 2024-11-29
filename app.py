@@ -21,7 +21,7 @@ def get_excel_from_google_drive():
 # Carregar a planilha no início do programa
 df = get_excel_from_google_drive()
 
-    pdf = PDF()
+        pdf = PDF()
         pdf.add_page()
         pdf.add_table(dados_bmps)
         pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
