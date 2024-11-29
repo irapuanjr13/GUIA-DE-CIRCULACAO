@@ -145,13 +145,13 @@ def guia_bens():
     )
 
     pdf = PDF()
-        pdf.add_page()
-        pdf.add_table(dados_bmps)
-        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+    pdf.add_page()
+    pdf.add_table(dados_bmps)
+    pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
-        output_path = "static/guia_circulacao_interna.pdf"
-        pdf.output(output_path)
-        return send_file(output_path, as_attachment=True)
+    output_path = "static/guia_circulacao_interna.pdf"
+    pdf.output(output_path)
+    return send_file(output_path, as_attachment=True)
 
     return render_template(
         "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
