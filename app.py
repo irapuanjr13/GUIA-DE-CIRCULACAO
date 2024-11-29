@@ -21,6 +21,19 @@ def get_excel_from_google_drive():
 # Carregar a planilha no início do programa
 df = get_excel_from_google_drive()
 
+pdf = PDF()
+    pdf.add_page()
+    pdf.add_table(dados_bmps)
+    pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+
+    output_path = "static/guia_circulacao_interna.pdf"
+    pdf.output(output_path)
+    return send_file(output_path, as_attachment=True)
+
+    return render_template(
+        "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
+    )
+
 class PDF(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'A4')  # Orientação retrato, milímetros, formato A4
@@ -125,6 +138,7 @@ def guia_bens():
                 "guia_bens.html",
                 secoes_origem=secoes_origem,
                 secoes_destino=secoes_destino,
+                results=results
                 error="Nenhum BMP encontrado para os números fornecidos.",
             )
 
@@ -135,25 +149,13 @@ def guia_bens():
                 secoes_destino=secoes_destino,
                 error="Itens da conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO' não podem ser processados."
             )
-      
+        results = dados_bmps
+    
     return render_template(
         "guia_bens.html",
         secoes_origem=secoes_origem,
         secoes_destino=secoes_destino,
         results=results
-    )
-
-    pdf = PDF()
-    pdf.add_page()
-    pdf.add_table(dados_bmps)
-    pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
-
-    output_path = "static/guia_circulacao_interna.pdf"
-    pdf.output(output_path)
-    return send_file(output_path, as_attachment=True)
-
-    return render_template(
-        "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
     )
 
 @app.route("/")
