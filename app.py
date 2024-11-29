@@ -138,7 +138,6 @@ def guia_bens():
                 "guia_bens.html",
                 secoes_origem=secoes_origem,
                 secoes_destino=secoes_destino,
-                results=results
                 error="Nenhum BMP encontrado para os números fornecidos.",
             )
 
