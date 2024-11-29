@@ -148,6 +148,19 @@ def guia_bens():
         "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
     )
 
+@app.route("/")
+def menu_principal():
+    return render_template("index.html")
+
+@app.route("/consulta_bmp", methods=["GET", "POST"])
+def consulta_bmp():
+    results = pd.DataFrame()
+    if request.method == "POST":
+        search_query = request.form.get("bmp_query", "").strip().lower()
+        if search_query:
+            results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
+    return render_template("consulta_bmp.html", results=results)
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     app.run(debug=True, host="0.0.0.0", port=port)
