@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guia de Circulação BMP</title>
     <style>
+        /* Estilos para a página */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
@@ -48,6 +49,10 @@
         button:hover {
             background-color: #0056b3;
         }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
         .error {
             color: red;
             font-size: 14px;
@@ -55,6 +60,18 @@
         .success {
             color: green;
             font-size: 14px;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            padding: 10px 0;
+            background-color: #f4f4f9;
         }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -92,6 +109,15 @@
         <div id="resultado" class="success"></div>
     </div>
 
+        <div class="observacao" id="observacao">
+        A Guia gerada deve ser encaminhada a Seção de Registro, via SIGADAER.
+        Para gerar o modelo do ofício, <a href="http://www.gapls.intraer/index.php/setores-novo/assessorias/comunicacao-social/category/178-modelos" target="_blank">clique aqui</a>.
+    </div>
+
+    <footer>
+        Criado por <strong>Cb Irapuan</strong>
+    </footer>
+
     <script>
         $(document).ready(function() {
             // Preencher campos de origem com base nos BMPs
@@ -104,6 +130,10 @@
                         contentType: "application/json",
                         data: JSON.stringify({ "bmp_numbers": bmpNumbers }),
                         success: function(response) {
+                             const firstBmp = bmpNumbers[0];
+                            if (response[firstBmp]) {
+                                $("#secao_origem").val(response[firstBmp].secao_origem || "");
+                                $("#chefia_origem").val(response[firstBmp].chefia_origem || "");
                             if (response && bmpNumbers[0] in response) {
                                 $("#secao_origem").val(response[bmpNumbers[0]].secao_origem || "");
                                 $("#chefia_origem").val(response[bmpNumbers[0]].chefia_origem || "");
