@@ -69,7 +69,7 @@ class PDF(FPDF):
             self.cell(col_widths[3], row_height, valor_atualizado, border=1, align="R")
             self.ln()
 
-   def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
+    def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
         text = f"""
 Solicitação de Transferência:
 Informo à Senhora Chefe do GAP-LS que os bens especificados estão inservíveis para uso neste setor, classificados como ociosos, recuperáveis, reparados ou novos - aguardando distribuição. Diante disso, solicito autorização para transferir o(s) Bem(ns) Móvel(is) Permanente(s) acima discriminado(s), atualmente sob minha guarda, para a Seção {secao_destino}.
