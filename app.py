@@ -27,8 +27,13 @@ def menu_principal():
 def guia_bens():
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
     secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
-    results = [results]
-    return render_template("guia_bens.html")
+    results = []
+    return render_template(
+        "guia_bens.html",
+        secoes_origem=secoes_origem,
+        secoes_destino=secoes_destino,
+        results=results
+    )
     
     if request.method == "POST":
         bmp_numbers = request.form.get("bmp_numbers")
