@@ -152,6 +152,44 @@ def guia_bens():
         "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
     )
 
+@app.route("/autocomplete", methods=["POST"])
+def autocomplete():
+    data = request.get_json()
+    bmp_numbers = data.get("bmp_numbers", [])
+
+    if not bmp_numbers:
+        return jsonify({"error": "Nenhum BMP fornecido!"}), 400
+
+    response = {}
+    for bmp in bmp_numbers:
+        filtro_bmp = df[df["Nº BMP"].astype(str) == bmp]
+        if not filtro_bmp.empty:
+            secao_origem = filtro_bmp["Seção de Origem"].values[0]
+            chefia_origem = filtro_bmp["Chefia de Origem"].values[0]
+            response[bmp] = {
+                "secao_origem": secao_origem,
+                "chefia_origem": chefia_origem
+            }
+        else:
+            response[bmp] = {"secao_origem": "", "chefia_origem": ""}
+
+    return jsonify(response)
+
+@app.route("/get_chefia", methods=["POST"])
+def get_chefia():
+    data = request.json
+    secao = data.get("secao")
+    tipo = data.get("tipo")
+
+    if tipo == "destino":
+        chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique()
+    elif tipo == "origem":
+        chefia = df[df['Seção de Origem'] == secao]['Chefia de Origem'].dropna().unique()
+    else:
+        return jsonify({"error": "Tipo inválido!"}), 400
+
+    return jsonify({"chefia": chefia.tolist()})
+
 @app.route("/")
 def menu_principal():
     return render_template("index.html")
