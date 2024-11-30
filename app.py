@@ -37,7 +37,7 @@ def guia_bens():
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
     secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
     results = []
-
+    
     if request.method == "POST":
         bmp_numbers = request.form.get("bmp_numbers")
         secao_origem = request.form.get("secao_origem")
@@ -108,10 +108,6 @@ def get_chefia():
         return jsonify({"error": "Tipo inválido!"}), 400
 
     return jsonify({"chefia": chefia.tolist()})
-
-return render_template(
-        "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
-)
 
 class PDF(FPDF):
     def __init__(self):
