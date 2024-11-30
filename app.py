@@ -199,6 +199,9 @@ Dirigente Máximo
         pdf.output(output_path)
         return send_file(output_path, as_attachment=True)
 
+    return render_template(
+        "index.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
+    )
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     app.run(debug=True, host="0.0.0.0", port=port)
