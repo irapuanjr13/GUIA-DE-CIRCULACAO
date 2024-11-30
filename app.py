@@ -138,8 +138,9 @@ class PDF(FPDF):
         self.set_font("Arial", size=10)
         for _, row in dados_bmps.iterrows():
             text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
-            line_count = self.get_string_width(text) // col_widths[1] + 1
-            row_height = 10 * line_count
+            text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
+            line_count = (self.get_string_width(text) // (col_widths[1] - 5)) + 1
+            row_height = line_count * 10
 
             self.cell(col_widths[0], row_height, str(row["Nº BMP"]), border=1, align="C")
             x, y = self.get_x(), self.get_y()
