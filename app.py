@@ -28,7 +28,7 @@ def guia_bens():
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
     secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
     results = []
-     return render_template("guia_bens.html")
+       return render_template("guia_bens.html")
     
     if request.method == "POST":
         bmp_numbers = request.form.get("bmp_numbers")
