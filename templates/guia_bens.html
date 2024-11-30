@@ -130,22 +130,22 @@
                         type: "POST",
                         contentType: "application/json",
                         data: JSON.stringify({ "bmp_numbers": bmpNumbers }),
-                        success: function(response) {
-                             const firstBmp = bmpNumbers[0];
+                    success: function(response) {
+                        if (response) {
+                            // Atualizar campos de seção e chefia de origem com base no primeiro BMP
+                            const firstBmp = bmpNumbers[0];
                             if (response[firstBmp]) {
                                 $("#secao_origem").val(response[firstBmp].secao_origem || "");
                                 $("#chefia_origem").val(response[firstBmp].chefia_origem || "");
-                            if (response && bmpNumbers[0] in response) {
-                                $("#secao_origem").val(response[bmpNumbers[0]].secao_origem || "");
-                                $("#chefia_origem").val(response[bmpNumbers[0]].chefia_origem || "");
-                            } else {
-                                alert("Dados de origem para o primeiro BMP não encontrados.");
                             }
-                            error: function(xhr, status, error) {
-                            console.error(`Erro na requisição: ${error}`);
-                            alert("Erro ao buscar os dados de origem. Tente novamente.");
                         }
-                    });
+                    },
+                    error: function() {
+                        console.error("Erro ao buscar os dados dos BMPs!");
+                    }
+                });
+            }
+        });
 
             // Preencher chefia de destino com base na seção
             $("#secao_destino").on("change", function() {
