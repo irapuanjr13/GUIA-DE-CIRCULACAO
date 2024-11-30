@@ -27,7 +27,7 @@ def menu_principal():
 def guia_bens():
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
     secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
-    results = []
+    results = [results]
     return render_template("guia_bens.html")
     
     if request.method == "POST":
