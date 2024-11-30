@@ -193,9 +193,9 @@ def gerar_guia():
         pdf.output(output_path)
         return send_file(output_path, as_attachment=True)
 
-    return render_template(
-        "
-            )
+        return render_template(
+            " "
+                )
 
 @app.route("/consulta_bmp", methods=["GET", "POST"])
 def consulta_bmp():
