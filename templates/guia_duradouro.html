@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guia de Circulação de Uso Duradouro</title>
+    <title>Guia de Circulação Interna</title>
     <style>
         /* Estilos para a página */
         body {
@@ -73,8 +73,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>Guia de Circulação de Uso Duradouro</h1>
-         <form method="POST" action="/guia_duradouro" id="guia_duradouro_form">
+        <h1>Guia de Circulação Interna</h1>
+        <form method="POST" action="/" id="guia-form">
             <div class="error">
                 {% if error %}
                     {{ error }}
@@ -129,7 +129,7 @@
 
             if (bmpNumbers.length > 0) {
                 $.ajax({
-                    url: "/autocompleti",  // Lógica de preenchimento do campo de seção e chefia de origem
+                    url: "/autocomplete",  // Lógica de preenchimento do campo de seção e chefia de origem
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify({ "bmp_numbers": bmpNumbers }),  // Passa todos os BMPs, mesmo que seja um só
@@ -155,7 +155,7 @@
             const secaoDestino = $(this).val();
             if (secaoDestino) {
                 $.ajax({
-                    url: "/get_chefia1",
+                    url: "/get_chefia",
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }),
