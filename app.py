@@ -109,6 +109,10 @@ def get_chefia():
 
     return jsonify({"chefia": chefia.tolist()})
 
+return render_template(
+        "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
+)
+
 class PDF(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'A4')  # Orientação retrato, milímetros, formato A4
@@ -198,10 +202,6 @@ Dirigente Máximo
         output_path = "static/guia_circulacao_interna.pdf"
         pdf.output(output_path)
         return send_file(output_path, as_attachment=True)
-
-    return render_template(
-        "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
-    )
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
