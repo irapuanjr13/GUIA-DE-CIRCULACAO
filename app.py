@@ -200,7 +200,7 @@ Dirigente Máximo
         return send_file(output_path, as_attachment=True)
 
     return render_template(
-        "index.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
+        "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
     )
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
