@@ -138,14 +138,15 @@
                             if (response && bmpNumbers[0] in response) {
                                 $("#secao_origem").val(response[bmpNumbers[0]].secao_origem || "");
                                 $("#chefia_origem").val(response[bmpNumbers[0]].chefia_origem || "");
+                            } else {
+                                alert("Dados de origem para o primeiro BMP não encontrados.");
                             }
-                        };
-                        error: function() {
-                            alert("Erro ao buscar os dados de origem.");
+                        },
+                        error: function(xhr, status, error) {
+                            console.error(`Erro na requisição: ${error}`);
+                            alert("Erro ao buscar os dados de origem. Tente novamente.");
                         }
                     });
-                }
-            });
 
             // Preencher chefia de destino com base na seção
             $("#secao_destino").on("change", function() {
