@@ -19,6 +19,96 @@ def get_excel_from_google_drive():
 # Carregar a planilha no início do programa
 df = get_excel_from_google_drive()
 
+@app.route("/")
+def menu_principal():
+    return render_template("index.html")
+
+@app.route("/consulta_bmp", methods=["GET", "POST"])
+def consulta_bmp():
+    results = pd.DataFrame()
+    if request.method == "POST":
+        search_query = request.form.get("bmp_query", "").strip().lower()
+        if search_query:
+            results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
+    return render_template("consulta_bmp.html", results=results)
+
+@app.route("/guia_bens", methods=["GET", "POST"])
+def guia_bens():
+    secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
+    secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
+    results = []
+
+    if request.method == "POST":
+        bmp_numbers = request.form.get("bmp_numbers")
+        secao_origem = request.form.get("secao_origem")
+        secao_destino = request.form.get("secao_destino")
+        chefia_origem = request.form.get("chefia_origem")
+        chefia_destino = request.form.get("chefia_destino")
+
+        if not (bmp_numbers and secao_origem and secao_destino and chefia_origem and chefia_destino):
+            return render_template(
+                "guia_bens.html",
+                secoes_origem=secoes_origem,
+                secoes_destino=secoes_destino,
+                error="Preencha todos os campos!",
+            )
+
+        bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",")]
+        dados_bmps = df[df["Nº BMP"].astype(str).str.strip().isin(bmp_list)]
+        if dados_bmps.empty:
+            return render_template(
+                "guia_bens.html",
+                secoes_origem=secoes_origem,
+                secoes_destino=secoes_destino,
+                error="Nenhum BMP encontrado para os números fornecidos.",
+            )
+
+        if dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
+            return render_template(
+                "guia_bens.html",
+                secoes_origem=secoes_origem,
+                secoes_destino=secoes_destino,
+                error="Itens da conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO' não podem ser processados."
+            )
+            
+@app.route("/autocomplete", methods=["POST"])
+def autocomplete():
+    data = request.get_json()
+    bmp_numbers = data.get("bmp_numbers", [])
+
+    if not bmp_numbers:
+        return jsonify({"error": "Nenhum BMP fornecido!"}), 400
+
+    response = {}
+    for bmp in bmp_numbers:
+        filtro_bmp = df[df["Nº BMP"].astype(str) == bmp]
+        if not filtro_bmp.empty:
+            secao_origem = filtro_bmp["Seção de Origem"].values[0]
+            chefia_origem = filtro_bmp["Chefia de Origem"].values[0]
+            response[bmp] = {
+                "secao_origem": secao_origem,
+                "chefia_origem": chefia_origem
+            }
+        else:
+            response[bmp] = {"secao_origem": "", "chefia_origem": ""}
+
+    return jsonify(response)
+
+@app.route("/get_chefia", methods=["POST"])
+def get_chefia():
+    data = request.json
+    secao = data.get("secao")
+    tipo = data.get("tipo")
+
+    if tipo == "destino":
+        chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique()
+    elif tipo == "origem":
+        chefia = df[df['Seção de Origem'] == secao]['Chefia de Origem'].dropna().unique()
+    else:
+        return jsonify({"error": "Tipo inválido!"}), 400
+
+    return jsonify({"chefia": chefia.tolist()})
+
 class PDF(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'A4')  # Orientação retrato, milímetros, formato A4
@@ -99,45 +189,6 @@ LUCIANA DO AMARAL CORREA  Cel Int
 Dirigente Máximo
 """
         self.multi_cell(0, 8, self.fix_text(text))
-
-@app.route("/guia_bens", methods=["GET", "POST"])
-def guia_bens():
-    secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
-    secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
-    results = []
-
-    if request.method == "POST":
-        bmp_numbers = request.form.get("bmp_numbers")
-        secao_origem = request.form.get("secao_origem")
-        secao_destino = request.form.get("secao_destino")
-        chefia_origem = request.form.get("chefia_origem")
-        chefia_destino = request.form.get("chefia_destino")
-
-        if not (bmp_numbers and secao_origem and secao_destino and chefia_origem and chefia_destino):
-            return render_template(
-                "guia_bens.html",
-                secoes_origem=secoes_origem,
-                secoes_destino=secoes_destino,
-                error="Preencha todos os campos!",
-            )
-
-        bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",")]
-        dados_bmps = df[df["Nº BMP"].astype(str).str.strip().isin(bmp_list)]
-        if dados_bmps.empty:
-            return render_template(
-                "guia_bens.html",
-                secoes_origem=secoes_origem,
-                secoes_destino=secoes_destino,
-                error="Nenhum BMP encontrado para os números fornecidos.",
-            )
-
-        if dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
-            return render_template(
-                "guia_bens.html",
-                secoes_origem=secoes_origem,
-                secoes_destino=secoes_destino,
-                error="Itens da conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO' não podem ser processados."
-            )
         
         pdf = PDF()
         pdf.add_page()
@@ -151,57 +202,6 @@ def guia_bens():
     return render_template(
         "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
     )
-
-@app.route("/autocomplete", methods=["POST"])
-def autocomplete():
-    data = request.get_json()
-    bmp_numbers = data.get("bmp_numbers", [])
-
-    if not bmp_numbers:
-        return jsonify({"error": "Nenhum BMP fornecido!"}), 400
-
-    response = {}
-    for bmp in bmp_numbers:
-        filtro_bmp = df[df["Nº BMP"].astype(str) == bmp]
-        if not filtro_bmp.empty:
-            secao_origem = filtro_bmp["Seção de Origem"].values[0]
-            chefia_origem = filtro_bmp["Chefia de Origem"].values[0]
-            response[bmp] = {
-                "secao_origem": secao_origem,
-                "chefia_origem": chefia_origem
-            }
-        else:
-            response[bmp] = {"secao_origem": "", "chefia_origem": ""}
-
-    return jsonify(response)
-
-@app.route("/get_chefia", methods=["POST"])
-def get_chefia():
-    data = request.json
-    secao = data.get("secao")
-    tipo = data.get("tipo")
-
-    if tipo == "destino":
-        chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique()
-    elif tipo == "origem":
-        chefia = df[df['Seção de Origem'] == secao]['Chefia de Origem'].dropna().unique()
-    else:
-        return jsonify({"error": "Tipo inválido!"}), 400
-
-    return jsonify({"chefia": chefia.tolist()})
-
-@app.route("/")
-def menu_principal():
-    return render_template("index.html")
-
-@app.route("/consulta_bmp", methods=["GET", "POST"])
-def consulta_bmp():
-    results = pd.DataFrame()
-    if request.method == "POST":
-        search_query = request.form.get("bmp_query", "").strip().lower()
-        if search_query:
-            results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
-    return render_template("consulta_bmp.html", results=results)
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
