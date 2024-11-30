@@ -103,7 +103,8 @@
                 <input type="text" id="chefia_destino" name="chefia_destino" readonly>
             </div>
             <div class="form-group">
-                <button type="submit">Gerar Guia</button>                
+                <button id="gerar-guia">Gerar Guia</button>
+                <div id="mensagem"></div>
             </div>
         </form>
         <div id="resultado" class="success"></div>
@@ -166,27 +167,32 @@
             });
 
             // Gerar PDF
-            $("#guia_bens").on("submit", function(e) {
-                e.preventDefault();
-                $.ajax({
-                    url: "/gerar_pdf",
-                    type: "POST",
-                    data: $(this).serialize(),
-                    xhrFields: { responseType: "blob" },
-                    success: function(blob) {
-                        const url = URL.createObjectURL(blob);
-                        const link = document.createElement("a");
-                        link.href = url;
-                        link.download = "guia_circulacao_interna.pdf";
-                        link.click();
-                        URL.revokeObjectURL(url);
-                    },
-                    error: function() {
-                        alert("Erro ao gerar o PDF.");
-                    }
-                });
-            });
+    document.getElementById("gerar-guia").addEventListener("click", function () {
+        fetch("/gerar_guia", {
+            method: "POST",
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.blob(); // Receber o arquivo PDF
+            } else {
+                throw new Error("Erro ao gerar a guia");
+            }
+        })
+        .then(blob => {
+            // Criar um link temporário para baixar o arquivo
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "guia_circulacao_interna.pdf";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+            document.getElementById("mensagem").innerText = "Erro: " + error.message;
         });
-    </script>
+    });
+</script>
 </body>
 </html>
