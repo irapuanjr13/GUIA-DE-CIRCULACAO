@@ -181,6 +181,9 @@ Dirigente Máximo
 """
         self.multi_cell(0, 8, self.fix_text(text))
         
+@app.route('/gerar_guia', methods=['POST'])
+    def gerar_guia():
+   
         pdf = PDF()
         pdf.add_page()
         pdf.add_table(dados_bmps)
@@ -191,10 +194,7 @@ Dirigente Máximo
         return send_file(output_path, as_attachment=True)
 
     return render_template(
-                "guia_bens.html",
-                secoes_origem=secoes_origem,
-                secoes_destino=secoes_destino,
-                error="erro",
+        "
             )
 
 @app.route("/consulta_bmp", methods=["GET", "POST"])
