@@ -23,15 +23,6 @@ df = get_excel_from_google_drive()
 def menu_principal():
     return render_template("index.html")
 
-@app.route("/consulta_bmp", methods=["GET", "POST"])
-def consulta_bmp():
-    results = pd.DataFrame()
-    if request.method == "POST":
-        search_query = request.form.get("bmp_query", "").strip().lower()
-        if search_query:
-            results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
-    return render_template("consulta_bmp.html", results=results)
-
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
@@ -202,6 +193,16 @@ Dirigente Máximo
     return render_template(
         "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
     )
+
+@app.route("/consulta_bmp", methods=["GET", "POST"])
+def consulta_bmp():
+    results = pd.DataFrame()
+    if request.method == "POST":
+        search_query = request.form.get("bmp_query", "").strip().lower()
+        if search_query:
+            results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
+    return render_template("consulta_bmp.html", results=results)
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     app.run(debug=True, host="0.0.0.0", port=port)
