@@ -191,8 +191,7 @@ Dirigente Máximo
         return send_file(output_path, as_attachment=True)
 
     return render_template(
-        "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
-    )
+        "guia_bens.html", results=results)
 
 @app.route("/consulta_bmp", methods=["GET", "POST"])
 def consulta_bmp():
