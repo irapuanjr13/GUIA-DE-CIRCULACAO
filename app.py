@@ -182,7 +182,7 @@ Dirigente Máximo
         self.multi_cell(0, 8, self.fix_text(text))
         
 @app.route('/gerar_guia', methods=['POST'])
-    def gerar_guia():
+def gerar_guia():
    
         pdf = PDF()
         pdf.add_page()
