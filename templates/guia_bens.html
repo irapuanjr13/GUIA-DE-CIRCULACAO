@@ -152,7 +152,7 @@
     .then(response => response.json())
     .then(data => {
         const secoesDropdown = document.getElementById("secoes-dropdown");
-        data.secoes_destino.forEach(secao => {
+        data.secao_destino.forEach(secao => {
             const option = document.createElement("option");
             option.value = secao;
             option.textContent = secao;
