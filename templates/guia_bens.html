@@ -178,38 +178,14 @@
         // Gerar PDF
         document.getElementById("gerar-guia").addEventListener("click", function () {
         fetch("/gerar_guia", {
-        method: "POST",
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+       secao_destino, chefia_origem, secao_origem, chefia_destino
     })
-    .then(response => {
-        if (response.ok) {
-            return response.blob(); // Receber o arquivo PDF
-        } else {
-            return response.text().then(text => {
-                throw new Error(`Erro: ${response.status} - ${text}`);
-            });
-        }
-    })
-    .then(blob => {
-        // Criar um link temporário para baixar o arquivo
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "guia_circulacao.pdf";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-    })
-    .catch(error => {
-        const mensagem = document.getElementById("mensagem");
-        if (mensagem) {
-            mensagem.innerText = "Erro: " + error.message;
-        } else {
-            alert("Erro: " + error.message); // Fallback para alert
-        }
-        console.error(error);
-    });
-});
+})
 </script>
 </body>
 </html>
