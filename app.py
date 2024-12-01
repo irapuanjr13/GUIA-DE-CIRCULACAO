@@ -108,7 +108,7 @@ def get_chefia():
 
 @app.route("/get_secoes", methods=["GET"])
 def get_secoes():
-    secoes_destino = df['Seção de Destino'].dropna().unique()
+    secoes_destino == df[df['Seção de Destino'].dropna().unique()
     return jsonify({"secoes_destino": secoes_destino.tolist()})
 
 class PDF(FPDF):
