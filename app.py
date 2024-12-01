@@ -190,19 +190,23 @@ Dirigente Máximo
         
 @app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
-   
-        pdf = PDF()
-        pdf.add_page()
-        pdf.add_table(dados_bmps)
-        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+    secao_destino = request.form["secao_destino"]
+    secao_origem = request.form["secao_origem"]
+    chefia_origem = request.form["chefia_origem"]
+    chefia_destino = request.form["chefia_destino"]
 
-        output_path = "static/guia_circulacao_interna.pdf"
-        pdf.output(output_path)
-        return send_file(output_path, as_attachment=True)
+    # Processa dados_bmps enviados como string JSON no formulário
+    import json
+    dados_bmps = pd.DataFrame(json.loads(request.form["dados_bmps"]))
 
-        return render_template(
-            " "
-                )
+    pdf = PDF()
+    pdf.add_page()
+    pdf.add_table(dados_bmps)
+    pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+
+    output_path = "static/guia_circulacao_interna.pdf"
+    pdf.output(output_path)
+    return send_file(output_path, as_attachment=True)
 
 @app.route("/consulta_bmp", methods=["GET", "POST"])
 def consulta_bmp():
