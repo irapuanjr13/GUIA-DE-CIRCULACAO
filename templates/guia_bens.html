@@ -93,10 +93,12 @@
                 <input type="text" id="chefia_origem" name="chefia_origem" readonly>
             </div>
             <div class="form-group">
-                <label for="secao_destino">Seção de Destino:</label>
-                <select id="secao_destino" name="secao_destino">
-                    <option value="" disabled selected>Selecione uma seção</option>
-                </select>
+            <select id="secao_destino" name="secao_destino">
+    <option value="">Selecione a seção de destino</option>
+    {% for secao in secoes_destino %}
+        <option value="{{ secao }}">{{ secao }}</option>
+    {% endfor %}
+           </select>
             </div>
             <div class="form-group">
                 <label for="chefia_destino">Chefia de Destino:</label>
