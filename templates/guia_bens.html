@@ -177,7 +177,11 @@
 
         // Gerar PDF
         document.getElementById("gerar-guia").addEventListener("click", function () {
-        fetch("/gerar_guia", {
+            const secao_destino = document.getElementById("secao-destino").value; 
+            const chefia_origem = document.getElementById("chefia-origem").value;
+            const secao_origem = document.getElementById("secao-origem").value;
+            const chefia_destino = document.getElementById("chefia-destino").value;
+            fetch("/gerar_guia", {
     method: "POST",
     headers: {
         "Content-Type": "application/json"
