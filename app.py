@@ -106,11 +106,6 @@ def get_chefia():
 
     return jsonify({"chefia": chefia.tolist()})
 
-@app.route("/get_secoes", methods=["GET"])
-def get_secoes():
-    secao_destino = df['Seção de Destino'].dropna().unique()
-    return jsonify({"secao_destino": secao_destino.tolist()})
-
 class PDF(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'A4')  # Orientação retrato, milímetros, formato A4
