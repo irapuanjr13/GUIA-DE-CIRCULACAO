@@ -151,7 +151,7 @@
     fetch("/get_secoes")
     .then(response => response.json())
     .then(data => {
-        const secoesDropdown = document.getElementById("secoes-dropdown");
+        const secao_destinoDropdown = document.getElementById("secao_destino-dropdown");
         data.secao_destino.forEach(secao => {
             const option = document.createElement("option");
             option.value = secao;
