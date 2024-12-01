@@ -190,6 +190,9 @@ Dirigente Máximo
         
 @app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
+    data = request.json
+    print(data)
+    print("Rota '/gerar_guia' foi chamada.")
     secao_destino = request.form["secao_destino"]
     secao_origem = request.form["secao_origem"]
     chefia_origem = request.form["chefia_origem"]
