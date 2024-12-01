@@ -177,17 +177,18 @@
 
         // Gerar PDF
         document.getElementById("gerar-guia").addEventListener("click", function () {
-            const secao_destino = document.getElementById("secao-destino").value; 
-            const chefia_origem = document.getElementById("chefia-origem").value;
-            const secao_origem = document.getElementById("secao-origem").value;
-            const chefia_destino = document.getElementById("chefia-destino").value;
+            const bmpNumbers = document.getElementbyId("bmp_number").value
+            const secao_destino = document.getElementById("secao_destino").value; 
+            const chefia_origem = document.getElementById("chefia_origem").value;
+            const secao_origem = document.getElementById("secao_origem").value;
+            const chefia_destino = document.getElementById("chefia_destino").value;
             fetch("/gerar_guia", {
     method: "POST",
     headers: {
         "Content-Type": "application/json"
     },
     body: JSON.stringify({
-       secao_destino, chefia_origem, secao_origem, chefia_destino, bmpNumbers
+       secao_destino, chefia_origem, secao_origem, chefia_destino, bmp_number
        })
     })
 })
