@@ -207,7 +207,7 @@ def gerar_guia():
     pdf.add_table(dados_bmps)
     pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
-    output_path = "static/guia_circulacao.pdf"
+    output_path = "generated_pdfs/guia_circulacao.pdf"
     pdf.output(output_path)
     return send_file(output_path, as_attachment=True)
 
