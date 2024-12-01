@@ -148,39 +148,32 @@
         })
     });
 
-    fetch("/get_secoes")
-    .then(response => response.json())
-    .then(data => {
-        const secao_destinoDropdown = document.getElementById("secao_destino-dropdown");
-        data.secao_destino.forEach(secao => {
-            const option = document.createElement("option");
-            option.value = secao;
-            option.textContent = secao;
-          secao_destinoDropdown.appendChild(option);
-        });
-    })
-    .catch(error => console.error("Erro ao buscar as seções:", error));
-
-            // Preencher chefia de destino com base na seção
-            $("#secao_destino").on("change", function() {
-                const secao = $(this).val();
-                if (secao) {
-                    $.ajax({
-                        url: "/get_chefia",
-                        type: "POST",
-                        contentType: "application/json",
-                        data: JSON.stringify({ "secao": secao }),
-                        success: function(response) {
-                            $("#chefia_destino").val(response.chefia || "");
-                        },
-                        error: function() {
-                            alert("Erro ao buscar a chefia de destino.");
+        // Evento para preencher a chefia de destino quando a seção de destino for selecionada
+        $("#secao_destino").on("change", function() {
+            const secaoDestino = $(this).val();
+            if (secaoDestino) {
+                $.ajax({
+                    url: "/get_chefia",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }),
+                    success: function(response) {
+                        if (response.chefia) {
+                            $("#chefia_destino").val(response.chefia);
+                        } else {
+                            $("#chefia_destino").val('');
                         }
-                    });
-                }
-            });
+                    },
+                    error: function() {
+                        console.error("Erro ao buscar a chefia de destino!");
+                    }
+                });
+            } else {
+                $("#chefia_destino").val('');
+            }
+        });
 
-            // Gerar PDF
+        // Gerar PDF
         document.getElementById("gerar-guia").addEventListener("click", function () {
         fetch("/gerar_guia", {
         method: "POST",
