@@ -148,6 +148,19 @@
         })
     });
 
+    fetch("/get_secoes")
+    .then(response => response.json())
+    .then(data => {
+        const secoesDropdown = document.getElementById("secoes-dropdown");
+        data.secoes_destino.forEach(secao => {
+            const option = document.createElement("option");
+            option.value = secao;
+            option.textContent = secao;
+            secoesDropdown.appendChild(option);
+        });
+    })
+    .catch(error => console.error("Erro ao buscar as seções:", error));
+
             // Preencher chefia de destino com base na seção
             $("#secao_destino").on("change", function() {
                 const secao = $(this).val();
