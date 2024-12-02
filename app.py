@@ -198,36 +198,49 @@ def get_chefia():
 
     return jsonify({"chefia": chefia.tolist()})
 
-@app.route('/gerar_guia', methods=["POST"])
+@app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
     try:
-        data = request.json  # Recebe os dados JSON
-        secao_destino = data.get('secao_destino')
-        chefia_origem = data.get('chefia_origem')
-        secao_origem = data.get('secao_origem')
-        chefia_destino = data.get('chefia_destino')
-        bmp_numbers = data.get('bmp_numbers')
+        # Captura dados do formulário
+        secao_destino = request.form["secao_destino"]
+        secao_origem = request.form["secao_origem"]
+        chefia_origem = request.form["chefia_origem"]
+        chefia_destino = request.form["chefia_destino"]
 
-        # Valida os parâmetros
-        if not all([secao_destino, chefia_origem, secao_origem, chefia_destino, bmp_numbers]):
-            return jsonify({"error": "Parâmetros incompletos!"}), 400
+        # Verifica se todos os campos estão preenchidos
+        if not all([secao_destino, secao_origem, chefia_origem, chefia_destino]):
+            return jsonify({"error": "Todos os campos são obrigatórios!"}), 400
 
-        # Processa os BMPs
-        bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",")]
-        dados_bmps = df[df["Nº BMP"].astype(str).str.strip().isin(bmp_list)]
-        if dados_bmps.empty:
-            return jsonify({"error": "Nenhum BMP encontrado para os números fornecidos."}), 400
+        # Processa `dados_bmps` enviados como string JSON no formulário
+        import json
+        dados_bmps = pd.DataFrame(json.loads(request.form["dados_bmps"]))
 
+        # Gera o PDF
         pdf = PDF()
         pdf.add_page()
         pdf.add_table(dados_bmps)
         pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
-        output_path = "generated_pdf/guia.pdf"
+        # Verifica se o diretório de saída existe
+        output_dir = "generated_pdfs"
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        output_path = os.path.join(output_dir, "guia_circulacao.pdf")
         pdf.output(output_path)
-        return send_file(output_path, as_attachment=True, mimetype="application/pdf")
+        return send_file(output_path, as_attachment=True)
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route("/consulta_bmp", methods=["GET", "POST"])
+def consulta_bmp():
+    results = pd.DataFrame()
+    if request.method == "POST":
+        search_query = request.form.get("bmp_query", "").strip().lower()
+        if search_query:
+            results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
+    return render_template("consulta_bmp.html", results=results)
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
