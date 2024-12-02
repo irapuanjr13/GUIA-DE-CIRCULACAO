@@ -200,14 +200,13 @@ def get_chefia():
 
 @app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
-    data = request.json
-    print(data)
-    print("Rota '/gerar_guia' foi chamada.")
-    secao_destino = request.form["secao_destino"]
-    secao_origem = request.form["secao_origem"]
-    chefia_origem = request.form["chefia_origem"]
-    chefia_destino = request.form["chefia_destino"]
-
+    try:
+        data = request.get_json()
+        # Processamento dos dados...
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        app.logger.error(f"Erro ao gerar guia: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
     # Processa dados_bmps enviados como string JSON no formulário
     import json
     dados_bmps = pd.DataFrame(json.loads(request.form["dados_bmps"]))
