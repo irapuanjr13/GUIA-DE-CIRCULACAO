@@ -209,7 +209,7 @@ def gerar_guia():
         bmp_number = request.args.get('bmp_number')
 
         if not all([secao_destino, chefia_origem, secao_origem, chefia_destino, bmp_number]):
-        return jsonify({"error": "Parâmetros incompletos!"}), 400
+            return jsonify({"error": "Parâmetros incompletos!"}), 400
 
         return jsonify({
         "message": "GET processado com sucesso!",
