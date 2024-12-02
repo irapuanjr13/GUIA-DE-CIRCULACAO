@@ -183,7 +183,6 @@ document.getElementById("gerar_guia").addEventListener("click", function () {
     const chefia_destino = document.getElementById("chefia_destino").value;
     const bmp_number = document.getElementById("bmp_number").value;
 
-    // Construir a query string
     const queryParams = new URLSearchParams({
         secao_destino,
         chefia_origem,
@@ -192,25 +191,30 @@ document.getElementById("gerar_guia").addEventListener("click", function () {
         bmp_number
     });
 
-    // Fazer a requisição GET
     fetch(`/gerar_guia?${queryParams.toString()}`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json"
-        }
+        method: "GET"
     })
     .then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
+        if (!response.ok) {
             throw new Error("Erro ao gerar guia.");
         }
+        return response.blob(); // Processar como Blob para arquivo
     })
-    .then(data => {
-        console.log("Guia gerada com sucesso:", data);
+    .then(blob => {
+        // Criar uma URL para o Blob
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "guia.pdf"; // Nome do arquivo para download
+        document.body.appendChild(a);
+        a.click(); // Simular clique para iniciar o download
+        a.remove(); // Remover o elemento após o uso
+        window.URL.revokeObjectURL(url); // Revogar a URL para liberar memória
+        console.log("Guia baixada com sucesso.");
     })
     .catch(error => {
         console.error("Erro:", error);
+        alert("Não foi possível baixar a guia. Tente novamente.");
     });
 });
 </script>
