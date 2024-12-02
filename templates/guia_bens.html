@@ -73,13 +73,18 @@
             padding: 10px 0;
             background-color: #f4f4f9;
         }
+        .observacao {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #555;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>Guia de Circulação BMP</h1>
-        <form id="guia_bens">        
+        <form id="guia_bens">
             <div class="form-group">
                 <label for="bmp_number">Números de BMP (separados por vírgula):</label>
                 <input type="text" id="bmp_number" name="bmp_numbers" placeholder="Ex.: 123, 456">
@@ -93,12 +98,13 @@
                 <input type="text" id="chefia_origem" name="chefia_origem" readonly>
             </div>
             <div class="form-group">
-            <select id="secao_destino" name="secao_destino">
-    <option value="">Selecione a seção de destino</option>
-    {% for secao in secoes_destino %}
-        <option value="{{ secao }}">{{ secao }}</option>
-    {% endfor %}
-           </select>
+                <label for="secao_destino">Seção de Destino:</label>
+                <select id="secao_destino" name="secao_destino">
+                    <option value="">Selecione a seção de destino</option>
+                    {% for secao in secoes_destino %}
+                    <option value="{{ secao }}">{{ secao }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group">
                 <label for="chefia_destino">Chefia de Destino:</label>
@@ -110,11 +116,10 @@
             </div>
         </form>
         <div id="resultado" class="success"></div>
-    </div>
-
         <div class="observacao" id="observacao">
-        A Guia gerada deve ser encaminhada a Seção de Registro, via SIGADAER.
-        Para gerar o modelo do ofício, <a href="http://www.gapls.intraer/index.php/setores-novo/assessorias/comunicacao-social/category/178-modelos" target="_blank">clique aqui</a>.
+            A Guia gerada deve ser encaminhada à Seção de Registro, via SIGADAER.
+            Para gerar o modelo do ofício, <a href="http://www.gapls.intraer/index.php/setores-novo/assessorias/comunicacao-social/category/178-modelos" target="_blank">clique aqui</a>.
+        </div>
     </div>
 
     <footer>
@@ -122,9 +127,8 @@
     </footer>
 
     <script>
-$(document).ready(function() {
-    // Preencher campos de origem com base nos BMPs
-    $("#bmp_number").on("input", function() {
+        $(document).ready(function() {
+         $("#bmp_number").on("input", function() {
         const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
         if (bmpNumbers.length > 0) {
             $.ajax({
@@ -148,8 +152,8 @@ $(document).ready(function() {
             });
         }
     });
-
-    // Evento para preencher a chefia de destino quando a seção de destino for selecionada
+});
+        // Evento para preencher a chefia de destino quando a seção de destino for selecionada
     $("#secao_destino").on("change", function() {
         const secaoDestino = $(this).val();
         if (secaoDestino) {
