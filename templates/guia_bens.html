@@ -191,29 +191,27 @@ document.getElementById("gerar_guia").addEventListener("click", function () {
         bmp_number
     });
 
-    fetch(`/gerar_guia?${queryParams.toString()}`, {
-        method: "GET"
-    })
+    fetch(`/gerar_guia?${queryParams.toString()}`, { method: "GET" })
     .then(response => {
         if (!response.ok) {
-            throw new Error("Erro ao gerar guia. Status: " + response.status);
+            return response.json().then(err => {
+                throw new Error(err.error || "Erro desconhecido.");
+            });
         }
         const contentType = response.headers.get("Content-Type");
         if (!contentType || !contentType.includes("application/pdf")) {
-            throw new Error("Resposta não é um PDF válido.");
+            throw new Error("A resposta não é um PDF válido.");
         }
         return response.blob();
     })
     .then(blob => {
-        const url = window.URL.createObjectURL(blob); // Criar URL temporária
-        window.open(url, "_blank"); // Abrir PDF em uma nova aba
-        console.log("PDF aberto no navegador.");
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, "_blank");
     })
     .catch(error => {
         console.error("Erro:", error);
-        alert("Não foi possível carregar o PDF. Verifique o servidor.");
+        alert("Erro: " + error.message);
     });
-});
 </script>
 </body>
 </html>
