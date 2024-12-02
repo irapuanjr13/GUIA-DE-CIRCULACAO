@@ -127,8 +127,9 @@
     </footer>
 
     <script>
-        $(document).ready(function() {
-         $("#bmp_number").on("input", function() {
+$(document).ready(function () {
+    // Evento para preencher seção e chefia de origem ao inserir BMPs
+    $("#bmp_number").on("input", function () {
         const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
         if (bmpNumbers.length > 0) {
             $.ajax({
@@ -136,7 +137,7 @@
                 type: "POST",
                 contentType: "application/json",
                 data: JSON.stringify({ "bmp_numbers": bmpNumbers }),
-                success: function(response) {
+                success: function (response) {
                     if (response) {
                         // Atualizar campos de seção e chefia de origem com base no primeiro BMP
                         const firstBmp = bmpNumbers[0];
@@ -146,15 +147,15 @@
                         }
                     }
                 },
-                error: function() {
+                error: function () {
                     console.error("Erro ao buscar os dados dos BMPs!");
                 }
             });
         }
     });
-});
-        // Evento para preencher a chefia de destino quando a seção de destino for selecionada
-    $("#secao_destino").on("change", function() {
+
+    // Evento para preencher chefia de destino ao selecionar a seção de destino
+    $("#secao_destino").on("change", function () {
         const secaoDestino = $(this).val();
         if (secaoDestino) {
             $.ajax({
@@ -162,14 +163,14 @@
                 type: "POST",
                 contentType: "application/json",
                 data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }),
-                success: function(response) {
+                success: function (response) {
                     if (response.chefia) {
                         $("#chefia_destino").val(response.chefia);
                     } else {
                         $("#chefia_destino").val('');
                     }
                 },
-                error: function() {
+                error: function () {
                     console.error("Erro ao buscar a chefia de destino!");
                 }
             });
@@ -178,59 +179,50 @@
         }
     });
 
-    document.getElementById("gerar_guia").addEventListener("click", function () {
-    const secao_destino = document.getElementById("secao_destino").value.trim(); 
-    const chefia_origem = document.getElementById("chefia_origem").value.trim();
-    const secao_origem = document.getElementById("secao_origem").value.trim();
-    const chefia_destino = document.getElementById("chefia_destino").value.trim();
-    const bmp_number = document.getElementById("bmp_number").value.trim();
+    // Evento para enviar o formulário e gerar o PDF
+    $("#guia_bens").on("submit", function (event) {
+        event.preventDefault(); // Evitar o envio padrão
 
-    if (!secao_destino || !chefia_origem || !secao_origem || !chefia_destino || !bmp_number) {
-        alert("Todos os campos devem ser preenchidos!");
-        return;
-    }
+        // Capturar os dados do formulário
+        const payload = {
+            secao_destino: $("#secao_destino").val().trim(),
+            chefia_origem: $("#chefia_origem").val().trim(),
+            secao_origem: $("#secao_origem").val().trim(),
+            chefia_destino: $("#chefia_destino").val().trim(),
+            bmp_number: $("#bmp_number").val().trim()
+        };
 
-    const payload = {
-        secao_destino,
-        chefia_origem,
-        secao_origem,
-        chefia_destino,
-        bmp_number,
-    };
-
-    fetch("/gerar_guia", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-    })
-    .then(response => {
-        if (!response.ok) {
-            if (response.status === 404) {
-                throw new Error("Rota não encontrada!");
-            } else if (response.status === 500) {
-                throw new Error("Erro interno no servidor!");
+        // Validar se todos os campos estão preenchidos
+        for (const key in payload) {
+            if (!payload[key]) {
+                alert("Todos os campos devem ser preenchidos!");
+                return;
             }
-            return response.json().then(err => {
-                throw new Error(err.error || "Erro desconhecido.");
-            });
         }
-        return response.blob();
-    })
-    .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.style.display = "none";
-        a.href = url;
-        a.download = "guia.pdf";
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-    })
-    .catch(error => {
-        console.error("Erro na requisição:", error);
-        alert(`Erro na geração do PDF: ${error.message}`);
+
+        // Enviar a requisição para gerar o PDF
+        $.ajax({
+            url: "/gerar_guia",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
+            success: function (blob) {
+                // Criar link para download do PDF
+                const url = window.URL.createObjectURL(new Blob([blob]));
+                const a = document.createElement("a");
+                a.style.display = "none";
+                a.href = url;
+                a.download = "guia.pdf";
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                $("#mensagem").text("PDF gerado com sucesso!").addClass("success").removeClass("error");
+            },
+            error: function (xhr) {
+                console.error("Erro ao gerar o PDF:", xhr.responseText);
+                $("#mensagem").text("Erro na geração do PDF!").addClass("error").removeClass("success");
+            }
+        });
     });
 });
 </script>
