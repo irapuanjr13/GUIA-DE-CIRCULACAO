@@ -102,7 +102,7 @@ def get_bmp_info():
     return jsonify({"secao_origem": secao_origem, "chefia_origem": chefia_origem})
 
 @app.route("/", methods=["GET", "POST"])
-def index():
+def guia_bens():
     secoes_origem = df["Seção de Origem"].dropna().unique().tolist()
     secoes_destino = df["Seção de Destino"].dropna().unique().tolist()
 
@@ -131,7 +131,7 @@ def index():
             )
 
     return render_template(
-        "index.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
+        "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
     )
 
 @app.route("/consulta_bmp", methods=["GET", "POST"])
