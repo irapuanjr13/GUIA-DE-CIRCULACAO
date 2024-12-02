@@ -109,14 +109,7 @@ def menu_principal():
 def guia_bens():
     secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
     secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
-    results = []
-    return render_template(
-        "guia_bens.html",
-        secoes_origem=secoes_origem,
-        secoes_destino=secoes_destino,
-        results=results
-    )
-    
+
     if request.method == "POST":
         bmp_numbers = request.form.get("bmp_numbers")
         secao_origem = request.form.get("secao_origem")
@@ -149,7 +142,24 @@ def guia_bens():
                 secoes_destino=secoes_destino,
                 error="Itens da conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO' não podem ser processados."
             )
-            
+
+        # Se chegou até aqui, significa que todos os dados foram validados corretamente
+        results = dados_bmps.to_dict(orient="records")  # Prepara os dados para exibição ou processamento
+        return render_template(
+            "guia_bens.html",
+            secoes_origem=secoes_origem,
+            secoes_destino=secoes_destino,
+            results=results,
+        )
+
+    # Para requisições GET, simplesmente renderize o formulário vazio
+    return render_template(
+        "guia_bens.html",
+        secoes_origem=secoes_origem,
+        secoes_destino=secoes_destino,
+        results=[],
+    )
+
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
     data = request.get_json()
