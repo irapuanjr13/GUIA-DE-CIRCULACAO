@@ -84,38 +84,38 @@
 <body>
     <div class="container">
         <h1>Guia de Circulação BMP</h1>
-        <form id="guia_bens">
-            <div class="form-group">
-                <label for="bmp_number">Números de BMP (separados por vírgula):</label>
-                <input type="text" id="bmp_number" name="bmp_numbers" placeholder="Ex.: 123, 456">
-            </div>
-            <div class="form-group">
-                <label for="secao_origem">Seção de Origem:</label>
-                <input type="text" id="secao_origem" name="secao_origem" readonly>
-            </div>
-            <div class="form-group">
-                <label for="chefia_origem">Chefia de Origem:</label>
-                <input type="text" id="chefia_origem" name="chefia_origem" readonly>
-            </div>
-            <div class="form-group">
-                <label for="secao_destino">Seção de Destino:</label>
-                <select id="secao_destino" name="secao_destino">
-                    <option value="">Selecione a seção de destino</option>
-                    {% for secao in secoes_destino %}
-                    <option value="{{ secao }}">{{ secao }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="chefia_destino">Chefia de Destino:</label>
-                <input type="text" id="chefia_destino" name="chefia_destino" readonly>
-            </div>
-            <div class="form-group">
-                <button type="button" id="gerar_guia">Gerar PDF</button>
-                <div id="mensagem"></div>
-            </div>
-        </form>
-        <div id="resultado" class="success"></div>
+        <form id="guia_bens" method="POST" action="/guia_bens">
+    <div class="form-group">
+        <label for="bmp_number">Números de BMP (separados por vírgula):</label>
+        <input type="text" id="bmp_number" name="bmp_numbers" placeholder="Ex.: 123, 456" required>
+    </div>
+    <div class="form-group">
+        <label for="secao_origem">Seção de Origem:</label>
+        <input type="text" id="secao_origem" name="secao_origem" readonly>
+    </div>
+    <div class="form-group">
+        <label for="chefia_origem">Chefia de Origem:</label>
+        <input type="text" id="chefia_origem" name="chefia_origem" readonly>
+    </div>
+    <div class="form-group">
+        <label for="secao_destino">Seção de Destino:</label>
+        <select id="secao_destino" name="secao_destino" required>
+            <option value="">Selecione a seção de destino</option>
+            {% for secao in secoes_destino %}
+            <option value="{{ secao }}">{{ secao }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="chefia_destino">Chefia de Destino:</label>
+        <input type="text" id="chefia_destino" name="chefia_destino" readonly>
+    </div>
+    <div class="form-group">
+        <button type="submit" id="gerar_guia">Gerar PDF</button>
+        <div id="mensagem"></div>
+    </div>
+</form>
+<div id="resultado" class="success"></div>
         <div class="observacao" id="observacao">
             A Guia gerada deve ser encaminhada à Seção de Registro, via SIGADAER.
             Para gerar o modelo do ofício, <a href="http://www.gapls.intraer/index.php/setores-novo/assessorias/comunicacao-social/category/178-modelos" target="_blank">clique aqui</a>.
