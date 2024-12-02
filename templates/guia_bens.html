@@ -122,102 +122,97 @@
     </footer>
 
     <script>
-        $(document).ready(function() {
-            // Preencher campos de origem com base nos BMPs
-            $("#bmp_number").on("input", function() {
-                const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
-                if (bmpNumbers.length > 0) {
-                    $.ajax({
-                        url: "/autocomplete",
-                        type: "POST",
-                        contentType: "application/json",
-                        data: JSON.stringify({ "bmp_numbers": bmpNumbers }),
-                    success: function(response) {
-                        if (response) {
-                            // Atualizar campos de seção e chefia de origem com base no primeiro BMP
-                            const firstBmp = bmpNumbers[0];
-                            if (response[firstBmp]) {
-                                $("#secao_origem").val(response[firstBmp].secao_origem || "");
-                                $("#chefia_origem").val(response[firstBmp].chefia_origem || "");
-                            }
+$(document).ready(function() {
+    // Preencher campos de origem com base nos BMPs
+    $("#bmp_number").on("input", function() {
+        const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
+        if (bmpNumbers.length > 0) {
+            $.ajax({
+                url: "/autocomplete",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ "bmp_numbers": bmpNumbers }),
+                success: function(response) {
+                    if (response) {
+                        // Atualizar campos de seção e chefia de origem com base no primeiro BMP
+                        const firstBmp = bmpNumbers[0];
+                        if (response[firstBmp]) {
+                            $("#secao_origem").val(response[firstBmp].secao_origem || "");
+                            $("#chefia_origem").val(response[firstBmp].chefia_origem || "");
                         }
-                    },
-                    error: function() {
-                        console.error("Erro ao buscar os dados dos BMPs!");
                     }
-                });
-            }
-        })
-    });
-
-        // Evento para preencher a chefia de destino quando a seção de destino for selecionada
-        $("#secao_destino").on("change", function() {
-            const secaoDestino = $(this).val();
-            if (secaoDestino) {
-                $.ajax({
-                    url: "/get_chefia",
-                    type: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }),
-                    success: function(response) {
-                        if (response.chefia) {
-                            $("#chefia_destino").val(response.chefia);
-                        } else {
-                            $("#chefia_destino").val('');
-                        }
-                    },
-                    error: function() {
-                        console.error("Erro ao buscar a chefia de destino!");
-                    }
-                });
-            } else {
-                $("#chefia_destino").val('');
-            }
-        });
-
-        // Gerar PDF
-document.getElementById("gerar_guia").addEventListener("click", function () {
-    const secao_destino = document.getElementById("secao_destino").value; 
-    const chefia_origem = document.getElementById("chefia_origem").value;
-    const secao_origem = document.getElementById("secao_origem").value;
-    const chefia_destino = document.getElementById("chefia_destino").value;
-    const bmp_number = document.getElementById("bmp_number").value;
-
-    const queryParams = new URLSearchParams({
-        secao_destino,
-        chefia_origem,
-        secao_origem,
-        chefia_destino,
-        bmp_number
-    });
-
-    fetch(`/gerar_guia?${queryParams.toString()}`, { method: "GET" })
-    .then(response => {
-        if (!response.ok) {
-            // Trata erro retornando a mensagem do servidor (JSON)
-            return response.json().then(err => {
-                throw new Error(err.error || "Erro desconhecido.");
-            }).catch(() => {
-                throw new Error("Erro ao processar a resposta do servidor.");
+                },
+                error: function() {
+                    console.error("Erro ao buscar os dados dos BMPs!");
+                }
             });
         }
-
-        // Verifica se o conteúdo é um PDF
-        const contentType = response.headers.get("Content-Type");
-        if (!contentType || !contentType.includes("application/pdf")) {
-            throw new Error("A resposta não é um PDF válido.");
-        }
-
-        return response.blob();
-    })
-    .then(blob => {
-        const url = window.URL.createObjectURL(blob); // Cria URL temporária para o PDF
-        window.open(url, "_blank"); // Abre o PDF em uma nova aba
-    })
-    .catch(error => {
-        console.error("Erro:", error); // Log detalhado para depuração
-        alert(`Erro: ${error.message}`); // Mensagem amigável para o usuário
     });
+
+    // Evento para preencher a chefia de destino quando a seção de destino for selecionada
+    $("#secao_destino").on("change", function() {
+        const secaoDestino = $(this).val();
+        if (secaoDestino) {
+            $.ajax({
+                url: "/get_chefia",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }),
+                success: function(response) {
+                    if (response.chefia) {
+                        $("#chefia_destino").val(response.chefia);
+                    } else {
+                        $("#chefia_destino").val('');
+                    }
+                },
+                error: function() {
+                    console.error("Erro ao buscar a chefia de destino!");
+                }
+            });
+        } else {
+            $("#chefia_destino").val('');
+        }
+    });
+
+    // Gerar PDF
+    document.getElementById("gerar_guia").addEventListener("click", function() {
+        const secao_destino = document.getElementById("secao_destino").value; 
+        const chefia_origem = document.getElementById("chefia_origem").value;
+        const secao_origem = document.getElementById("secao_origem").value;
+        const chefia_destino = document.getElementById("chefia_destino").value;
+        const bmp_number = document.getElementById("bmp_number").value;
+
+        const queryParams = new URLSearchParams({
+            secao_destino,
+            chefia_origem,
+            secao_origem,
+            chefia_destino,
+            bmp_number
+        });
+
+        fetch(`/gerar_guia?${queryParams.toString()}`, { method: "GET" })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.error || "Erro desconhecido.");
+                    });
+                }
+                const contentType = response.headers.get("Content-Type");
+                if (!contentType || !contentType.includes("application/pdf")) {
+                    throw new Error("A resposta não é um PDF válido.");
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob); // Cria URL temporária para o PDF
+                window.open(url, "_blank"); // Abre o PDF em uma nova aba
+            })
+            .catch(error => {
+                console.error("Erro:", error);
+                alert(`Erro: ${error.message}`);
+            });
+    });
+});
 </script>
 </body>
 </html>
