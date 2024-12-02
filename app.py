@@ -202,8 +202,9 @@ def get_chefia():
 
     return jsonify({"chefia": chefia.tolist()})
 
-@app.route('/gerar_guia', methods=['POST'])
+@app.route('/gerar_guia')
 def gerar_guia():
+    try:
     secao_destino = request.form.get('secao_destino')
     chefia_origem = request.form.get('chefia_origem')
     secao_origem = request.form.get('secao_origem')
@@ -227,33 +228,9 @@ def gerar_guia():
     pdf.output(buffer)
     buffer.seek(0)
 
-    return send_file(buffer, as_attachment=True, download_name="guia.pdf", mimetype="application/pdf")
-
-@app.route('/processar', methods=['POST'])
-def processar_dados():
-    # Recebendo os dados em JSON
-    dados_recebidos = request.get_json()
-    print("Recebido:", dados_recebidos)
-
-    # Processando os dados
-    resultado = {
-        "mensagem": f"Olá, {dados_recebidos['nome']}!",
-        "idade_dobro": dados_recebidos['idade'] * 2
-    }
-
-    # Retornando como JSON
-    return jsonify(resultado)
-
-@app.route('/dados', methods=['GET'])
-def enviar_dados():
-    dados = {"nome": "João", "idade": 30, "cidade": "São Paulo"}
-    return jsonify(dados)
-
-@app.route('/receber', methods=['POST'])
-def receber_dados():
-    dados_recebidos = request.get_json()
-    print(f"Dados recebidos: {dados_recebidos}")
-    return jsonify({"status": "sucesso", "dados_recebidos": dados_recebidos})
+   return send_file("guia.pdf", as_attachment=True, mimetype="application/pdf")
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
