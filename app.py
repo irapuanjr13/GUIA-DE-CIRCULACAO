@@ -208,10 +208,19 @@ def gerar_guia():
         chefia_destino = request.args.get('chefia_destino')
         bmp_number = request.args.get('bmp_number')
 
-        # Processar a lógica usando os dados recebidos
-        return jsonify({"message": "GET processado com sucesso!"}), 200
-    elif request.method == 'POST':
-        data = request.get_json()
+        if not all([secao_destino, chefia_origem, secao_origem, chefia_destino, bmp_number]):
+        return jsonify({"error": "Parâmetros incompletos!"}), 400
+
+        return jsonify({
+        "message": "GET processado com sucesso!",
+        "dados_recebidos": {
+            "secao_destino": secao_destino,
+            "chefia_origem": chefia_origem,
+            "secao_origem": secao_origem,
+            "chefia_destino": chefia_destino,
+            "bmp_number": bmp_number
+        }
+    }), 200
     
     pdf = PDF()
     pdf.add_page()
