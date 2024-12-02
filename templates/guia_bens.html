@@ -196,25 +196,22 @@ document.getElementById("gerar_guia").addEventListener("click", function () {
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error("Erro ao gerar guia.");
+            throw new Error("Erro ao gerar guia. Status: " + response.status);
         }
-        return response.blob(); // Processar como Blob para arquivo
+        const contentType = response.headers.get("Content-Type");
+        if (!contentType || !contentType.includes("application/pdf")) {
+            throw new Error("Resposta não é um PDF válido.");
+        }
+        return response.blob();
     })
     .then(blob => {
-        // Criar uma URL para o Blob
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "guia.pdf"; // Nome do arquivo para download
-        document.body.appendChild(a);
-        a.click(); // Simular clique para iniciar o download
-        a.remove(); // Remover o elemento após o uso
-        window.URL.revokeObjectURL(url); // Revogar a URL para liberar memória
-        console.log("Guia baixada com sucesso.");
+        const url = window.URL.createObjectURL(blob); // Criar URL temporária
+        window.open(url, "_blank"); // Abrir PDF em uma nova aba
+        console.log("PDF aberto no navegador.");
     })
     .catch(error => {
         console.error("Erro:", error);
-        alert("Não foi possível baixar a guia. Tente novamente.");
+        alert("Não foi possível carregar o PDF. Verifique o servidor.");
     });
 });
 </script>
