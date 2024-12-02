@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, send_file, jsonify
+from reportlab.pdfgen import canvas
 import pandas as pd
 import gdown
 from fpdf import FPDF
@@ -200,38 +201,33 @@ def get_chefia():
 
 @app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
-    try:
-        # Captura dados do formulário
-        secao_destino = request.form["secao_destino"]
-        secao_origem = request.form["secao_origem"]
-        chefia_origem = request.form["chefia_origem"]
-        chefia_destino = request.form["chefia_destino"]
-
-        # Verifica se todos os campos estão preenchidos
-        if not all([secao_destino, secao_origem, chefia_origem, chefia_destino]):
-            return jsonify({"error": "Todos os campos são obrigatórios!"}), 400
-
-        # Processa `dados_bmps` enviados como string JSON no formulário
-        import json
-        dados_bmps = pd.DataFrame(json.loads(request.form["dados_bmps"]))
-
-        # Gera o PDF
+    data = request.json
         pdf = PDF()
         pdf.add_page()
         pdf.add_table(dados_bmps)
         pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
-        # Verifica se o diretório de saída existe
-        output_dir = "generated_pdfs"
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+   return send_file(
+        pdf_buffer,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name='guia.pdf'
+    )
+def generate_pdf(data):
+        pdf = PDF()
+        pdf.add_page()
+        pdf.add_table(dados_bmps)
+        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
-        output_path = os.path.join(output_dir, "guia_circulacao.pdf")
-        pdf.output(output_path)
-        return send_file(output_path, as_attachment=True)
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    buffer = io.BytesIO()
+    c = canvas.Canvas(buffer)
+    c.drawString(100, 750, f"Seção de Origem: {data['secao_origem']}")
+    c.drawString(100, 730, f"Chefia de Origem: {data['chefia_origem']}")
+    c.drawString(100, 710, f"Seção de Destino: {data['secao_destino']}")
+    c.drawString(100, 690, f"Chefia de Destino: {data['chefia_destino']}")
+    c.save()
+    buffer.seek(0)
+    return buffer.getvalue()
 
 @app.route("/consulta_bmp", methods=["GET", "POST"])
 def consulta_bmp():
