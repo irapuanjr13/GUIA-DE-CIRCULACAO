@@ -199,29 +199,21 @@ def get_chefia():
 
     return jsonify({"chefia": chefia.tolist()})
 
-@app.route('/gerar_guia', methods=['GET', 'POST'])
+@app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
-    if request.method == 'GET':
-        # Simula um corpo de requisição no método GET usando parâmetros de URL
-        secao_destino = request.args.get('secao_destino')
-        chefia_origem = request.args.get('chefia_origem')
-        secao_origem = request.args.get('secao_origem')
-        chefia_destino = request.args.get('chefia_destino')
-        bmp_number = request.args.get('bmp_number')
+    secao_destino = request.form.get('secao_destino')
+    chefia_origem = request.form.get('chefia_origem')
+    secao_origem = request.form.get('secao_origem')
+    chefia_destino = request.form.get('chefia_destino')
+    bmp_numbers = request.form.get('bmp_numbers')
 
-        if not all([secao_destino, chefia_origem, secao_origem, chefia_destino, bmp_number]):
-            return jsonify({"error": "Parâmetros incompletos!"}), 400
+    if not all([secao_destino, chefia_origem, secao_origem, chefia_destino, bmp_numbers]):
+        return jsonify({"error": "Parâmetros incompletos!"}), 400
 
-        return jsonify({
-        "message": "GET processado com sucesso!",
-        "dados_recebidos": {
-            "secao_destino": secao_destino,
-            "chefia_origem": chefia_origem,
-            "secao_origem": secao_origem,
-            "chefia_destino": chefia_destino,
-            "bmp_number": bmp_number
-        }
-    }), 200
+    bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",")]
+    dados_bmps = df[df["Nº BMP"].astype(str).str.strip().isin(bmp_list)]
+    if dados_bmps.empty:
+        return jsonify({"error": "Nenhum BMP encontrado para os números fornecidos."}), 400
 
     buffer = BytesIO()
     pdf = PDF()
@@ -229,19 +221,10 @@ def gerar_guia():
     pdf.add_table(dados_bmps)
     pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
-    pdf_content = gerar_pdf_com_base_em_dados()  # Função fictícia para gerar PDF
-    buffer.write(pdf_content)
+    pdf.output(buffer)
     buffer.seek(0)
-    return send_file(buffer, as_attachment=True, download_name="guia.pdf", mimetype="application/pdf")
 
-@app.route("/consulta_bmp", methods=["GET", "POST"])
-def consulta_bmp():
-    results = pd.DataFrame()
-    if request.method == "POST":
-        search_query = request.form.get("bmp_query", "").strip().lower()
-        if search_query:
-            results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
-    return render_template("consulta_bmp.html", results=results)
+    return send_file(buffer, as_attachment=True, download_name="guia.pdf", mimetype="application/pdf")
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
