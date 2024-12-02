@@ -176,21 +176,43 @@
         });
 
         // Gerar PDF
-        document.getElementById("gerar_guia").addEventListener("click", function () {
-            const secao_destino = document.getElementById("secao_destino").value; 
-            const chefia_origem = document.getElementById("chefia_origem").value;
-            const secao_origem = document.getElementById("secao_origem").value;
-            const chefia_destino = document.getElementById("chefia_destino").value;
-            fetch("/gerar_guia", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-       secao_destino, chefia_origem, secao_origem, chefia_destino, bmp_number
-       })
+document.getElementById("gerar_guia").addEventListener("click", function () {
+    const secao_destino = document.getElementById("secao_destino").value; 
+    const chefia_origem = document.getElementById("chefia_origem").value;
+    const secao_origem = document.getElementById("secao_origem").value;
+    const chefia_destino = document.getElementById("chefia_destino").value;
+    const bmp_number = document.getElementById("bmp_number").value;
+
+    // Construir a query string
+    const queryParams = new URLSearchParams({
+        secao_destino,
+        chefia_origem,
+        secao_origem,
+        chefia_destino,
+        bmp_number
+    });
+
+    // Fazer a requisição GET
+    fetch(`/gerar_guia?${queryParams.toString()}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        }
     })
-})
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error("Erro ao gerar guia.");
+        }
+    })
+    .then(data => {
+        console.log("Guia gerada com sucesso:", data);
+    })
+    .catch(error => {
+        console.error("Erro:", error);
+    });
+});
 </script>
 </body>
 </html>
