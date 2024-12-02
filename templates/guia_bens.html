@@ -174,7 +174,7 @@ $(document).ready(function() {
         }
     });
 
-    document.getElementById("gerar_guia").addEventListener("click", function() {
+    document.getElementById("gerar_guia").addEventListener("click", function () {
     const secao_destino = document.getElementById("secao_destino").value.trim(); 
     const chefia_origem = document.getElementById("chefia_origem").value.trim();
     const secao_origem = document.getElementById("secao_origem").value.trim();
@@ -186,15 +186,21 @@ $(document).ready(function() {
         return;
     }
 
-    const queryParams = new URLSearchParams({
+    const payload = {
         secao_destino,
         chefia_origem,
         secao_origem,
         chefia_destino,
-        bmp_number
-    });
+        bmp_number,
+    };
 
-    fetch(`/gerar_guia?${queryParams.toString()}`, { method: "GET" })
+    fetch("/gerar_guia", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+    })
     .then(response => {
         if (!response.ok) {
             if (response.status === 404) {
@@ -208,10 +214,21 @@ $(document).ready(function() {
         }
         return response.blob();
     })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = "guia.pdf";
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    })
     .catch(error => {
         console.error("Erro na requisição:", error);
         alert(`Erro na geração do PDF: ${error.message}`);
     });
+});
 </script>
 </body>
 </html>
