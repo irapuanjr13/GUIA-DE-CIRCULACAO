@@ -162,7 +162,7 @@
                     $("#chefia_destino").val('');
                 }
             });
-
+        })
             $("#guia_bens").on("submit", function (event) {
                 event.preventDefault();
                 const payload = {
@@ -201,7 +201,9 @@
                 error: function () {
                     $("#mensagem").text("Erro na geração do PDF!").addClass("error").removeClass("loading");
                 }
+         
             });
-    </script>
+        })    
+</script>
 </body>
 </html>
