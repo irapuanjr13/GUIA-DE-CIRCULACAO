@@ -198,47 +198,36 @@ def get_chefia():
 
     return jsonify({"chefia": chefia.tolist()})
 
-@app.route('/gerar_guia', methods=['GET', 'POST'])
+@app.route('/gerar_guia', methods=["POST"])
 def gerar_guia():
-    if request.method == 'GET':
-        # Simula um corpo de requisição no método GET usando parâmetros de URL
-        secao_destino = request.args.get('secao_destino')
-        chefia_origem = request.args.get('chefia_origem')
-        secao_origem = request.args.get('secao_origem')
-        chefia_destino = request.args.get('chefia_destino')
-        bmp_number = request.args.get('bmp_number')
+    try:
+        data = request.json  # Recebe os dados JSON
+        secao_destino = data.get('secao_destino')
+        chefia_origem = data.get('chefia_origem')
+        secao_origem = data.get('secao_origem')
+        chefia_destino = data.get('chefia_destino')
+        bmp_numbers = data.get('bmp_numbers')
 
-        if not all([secao_destino, chefia_origem, secao_origem, chefia_destino, bmp_number]):
+        # Valida os parâmetros
+        if not all([secao_destino, chefia_origem, secao_origem, chefia_destino, bmp_numbers]):
             return jsonify({"error": "Parâmetros incompletos!"}), 400
 
-        return jsonify({
-        "message": "GET processado com sucesso!",
-        "dados_recebidos": {
-            "secao_destino": secao_destino,
-            "chefia_origem": chefia_origem,
-            "secao_origem": secao_origem,
-            "chefia_destino": chefia_destino,
-            "bmp_number": bmp_number
-        }
-    }), 200
-    
-    pdf = PDF()
-    pdf.add_page()
-    pdf.add_table(dados_bmps)
-    pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+        # Processa os BMPs
+        bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",")]
+        dados_bmps = df[df["Nº BMP"].astype(str).str.strip().isin(bmp_list)]
+        if dados_bmps.empty:
+            return jsonify({"error": "Nenhum BMP encontrado para os números fornecidos."}), 400
 
-    output_path = "generated_pdfs/guia.pdf"
-    pdf.output(output_path)
-    return send_file(output_path, as_attachment=False, mimetype='application/pdf')
+        pdf = PDF()
+        pdf.add_page()
+        pdf.add_table(dados_bmps)
+        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
-@app.route("/consulta_bmp", methods=["GET", "POST"])
-def consulta_bmp():
-    results = pd.DataFrame()
-    if request.method == "POST":
-        search_query = request.form.get("bmp_query", "").strip().lower()
-        if search_query:
-            results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
-    return render_template("consulta_bmp.html", results=results)
+        output_path = "generated_pdf/guia.pdf"
+        pdf.output(output_path)
+        return send_file(output_path, as_attachment=True, mimetype="application/pdf")
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
