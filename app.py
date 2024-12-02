@@ -45,32 +45,33 @@ class PDF(FPDF):
             text = text.replace(old, new)
         return text
 
-    def add_table(self, dados_bmps):
-        col_widths = [25, 70, 55, 35]
-        headers = ["Nº BMP", "Nomenclatura", "Nº Série", "Valor Atualizado"]
+def add_table(self, dados_bmps):
+    col_widths = [25, 70, 55, 35]
+    headers = ["Nº BMP", "Nomenclatura", "Nº Série", "Valor Atualizado"]
 
-        self.set_font("Arial", "B", 10)
-        for width, header in zip(col_widths, headers):
-            self.cell(width, 10, header, border=1, align="C")
+    # Cabeçalho da tabela
+    self.set_font("Arial", "B", 10)
+    for width, header in zip(col_widths, headers):
+        self.cell(width, 10, header, border=1, align="C")
+    self.ln()
+
+    # Corpo da tabela
+    self.set_font("Arial", size=10)
+    for _, row in dados_bmps.iterrows():
+        text = self.fix_text(str(row["NOMECLATURA/COMPONENTE"]))
+        lines = self.multi_cell(col_widths[1], 10, text, border=1, split_only=True)  # Estimar altura
+        row_height = max(len(lines) * 10, 10)  # Define a altura mínima de 10
+
+        self.cell(col_widths[0], row_height, str(row["Nº BMP"]), border=1, align="C")
+        x, y = self.get_x(), self.get_y()
+        self.multi_cell(col_widths[1], 10, text, border=1)
+        self.set_xy(x + col_widths[1], y)
+
+        self.cell(col_widths[2], row_height, self.fix_text(str(row["Nº SERIE"])), border=1, align="C")
+        valor_atualizado = f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ',') if pd.notnull(row['VL. ATUALIZ.']) else "N/A"
+        self.cell(col_widths[3], row_height, valor_atualizado, border=1, align="R")
         self.ln()
-
-        self.set_font("Arial", size=10)
-        for _, row in dados_bmps.iterrows():
-            text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
-            text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
-            line_count = (self.get_string_width(text) // (col_widths[1] - 5)) + 1
-            row_height = line_count * 10
-
-            self.cell(col_widths[0], row_height, str(row["Nº BMP"]), border=1, align="C")
-            x, y = self.get_x(), self.get_y()
-            self.multi_cell(col_widths[1], 10, text, border=1)
-            self.set_xy(x + col_widths[1], y)
-
-            self.cell(col_widths[2], row_height, self.fix_text(str(row["Nº SERIE"])), border=1, align="C")
-            valor_atualizado = f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ',') if not pd.isnull(row['VL. ATUALIZ.']) else "N/A"
-            self.cell(col_widths[3], row_height, valor_atualizado, border=1, align="R")
-            self.ln()
-
+       
     def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
         text = f"""
 Solicitação de Transferência:
@@ -102,6 +103,46 @@ Dirigente Máximo
 """
         self.multi_cell(0, 8, self.fix_text(text))
         
+@app.route('/gerar_guia', methods=['POST'])
+def gerar_guia():
+    try:
+        data = request.json  # Dados enviados do frontend
+
+        # Validar dados
+        if not data:
+            return jsonify({"error": "Dados insuficientes"}), 400
+
+        # Gerar PDF com a classe customizada
+        pdf = PDF()
+        pdf.add_page()
+
+        # Mock de DataFrame para teste
+        dados_bmps = pd.DataFrame(data['dados_bmps'])
+
+        # Adicionar conteúdo ao PDF
+        pdf.add_table(dados_bmps)
+        pdf.add_details(
+            secao_destino=data['secao_destino'],
+            chefia_origem=data['chefia_origem'],
+            secao_origem=data['secao_origem'],
+            chefia_destino=data['chefia_destino']
+        )
+
+        # Salvar PDF no buffer
+        buffer = io.BytesIO()
+        pdf.output(buffer)
+        buffer.seek(0)
+
+        # Retornar o arquivo PDF
+        return send_file(
+            buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name='guia.pdf'
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/")
 def menu_principal():
     return render_template("index.html")
@@ -198,36 +239,6 @@ def get_chefia():
         return jsonify({"error": "Tipo inválido!"}), 400
 
     return jsonify({"chefia": chefia.tolist()})
-
-@app.route('/gerar_guia', methods=['POST'])
-def gerar_guia():
-    data = request.json
-    pdf = PDF()
-    pdf.add_page()
-    pdf.add_table(dados_bmps)
-    pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
-
-    return send_file(
-        pdf_buffer,
-        mimetype='application/pdf',
-        as_attachment=True,
-        download_name='guia.pdf'
-    )
-def generate_pdf(data):
-    pdf = PDF()
-    pdf.add_page()
-    pdf.add_table(dados_bmps)
-    pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
-
-    buffer = io.BytesIO()
-    c = canvas.Canvas(buffer)
-    c.drawString(100, 750, f"Seção de Origem: {data['secao_origem']}")
-    c.drawString(100, 730, f"Chefia de Origem: {data['chefia_origem']}")
-    c.drawString(100, 710, f"Seção de Destino: {data['secao_destino']}")
-    c.drawString(100, 690, f"Chefia de Destino: {data['chefia_destino']}")
-    c.save()
-    buffer.seek(0)
-    return buffer.getvalue()
 
 @app.route("/consulta_bmp", methods=["GET", "POST"])
 def consulta_bmp():
