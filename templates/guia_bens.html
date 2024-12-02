@@ -184,23 +184,24 @@
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify(payload),
-                    success: function (blob) {
-                        const url = window.URL.createObjectURL(new Blob([blob]));
-                        const a = document.createElement("a");
-                        a.style.display = "none";
-                        a.href = url;
-                        a.download = "guia.pdf";
-                        document.body.appendChild(a);
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-                        $("#mensagem").text("PDF gerado com sucesso!").addClass("success").removeClass("loading");
+                    xhrFields: {
+                    responseType: 'blob' // Indica que a resposta é binária
                     },
-                    error: function () {
-                        $("#mensagem").text("Erro na geração do PDF!").addClass("error").removeClass("loading");
-                    }
-                });
+                success: function (blob) {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.style.display = "none";
+                    a.href = url;
+                    a.download = "guia.pdf"; // Nome do arquivo
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url); // Libera a memória
+                    $("#mensagem").text("PDF gerado com sucesso!").addClass("success").removeClass("loading");
+                },
+                error: function () {
+                    $("#mensagem").text("Erro na geração do PDF!").addClass("error").removeClass("loading");
+                }
             });
-        });
     </script>
 </body>
 </html>
