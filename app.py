@@ -5,7 +5,6 @@ import send_file
 import pandas as pd
 import gdown
 from fpdf import FPDF
-from io import BytesIO
 import os
 
 app = Flask(__name__)
@@ -219,15 +218,14 @@ def gerar_guia():
     if dados_bmps.empty:
         return jsonify({"error": "Nenhum BMP encontrado para os números fornecidos."}), 400
 
-    buffer = BytesIO()
     pdf = PDF()
     pdf.add_page()
     pdf.add_table(dados_bmps)
     pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
-    pdf.output(buffer)
-    buffer.seek(0)
-
+    output_path = "static/guia.pdf"
+    pdf.output(output_path)
+    
    return send_file("guia.pdf", as_attachment=True, mimetype="application/pdf")
     except Exception as e:
         return jsonify({"error": str(e)}), 500
