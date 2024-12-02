@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, send_file, jsonify
 import pandas as pd
 import gdown
 from fpdf import FPDF
+from io import BytesIO
 import os
 
 app = Flask(__name__)
@@ -221,15 +222,17 @@ def gerar_guia():
             "bmp_number": bmp_number
         }
     }), 200
-    
+
+    buffer = BytesIO()
     pdf = PDF()
     pdf.add_page()
     pdf.add_table(dados_bmps)
     pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
-    output_path = "generated_pdfs/guia.pdf"
-    pdf.output(output_path)
-    return send_file(output_path, as_attachment=False, mimetype='application/pdf')
+    pdf_content = gerar_pdf_com_base_em_dados()  # Função fictícia para gerar PDF
+    buffer.write(pdf_content)
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name="guia.pdf", mimetype="application/pdf")
 
 @app.route("/consulta_bmp", methods=["GET", "POST"])
 def consulta_bmp():
