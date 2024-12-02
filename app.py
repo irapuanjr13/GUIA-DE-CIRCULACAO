@@ -226,6 +226,21 @@ def gerar_guia():
 
     return send_file(buffer, as_attachment=True, download_name="guia.pdf", mimetype="application/pdf")
 
+@app.route('/processar', methods=['POST'])
+def processar_dados():
+    # Recebendo os dados em JSON
+    dados_recebidos = request.get_json()
+    print("Recebido:", dados_recebidos)
+
+    # Processando os dados
+    resultado = {
+        "mensagem": f"Olá, {dados_recebidos['nome']}!",
+        "idade_dobro": dados_recebidos['idade'] * 2
+    }
+
+    # Retornando como JSON
+    return jsonify(resultado)
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     app.run(debug=True, host="0.0.0.0", port=port)
