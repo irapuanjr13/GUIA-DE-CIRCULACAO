@@ -207,7 +207,7 @@ def gerar_guia():
     pdf.add_table(dados_bmps)
     pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
-return send_file(
+     return send_file(
         pdf_buffer,
         mimetype='application/pdf',
         as_attachment=True,
