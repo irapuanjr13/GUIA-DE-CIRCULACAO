@@ -202,19 +202,14 @@ def gerar_guia():
     import json
     dados_bmps = pd.DataFrame(json.loads(request.form["dados_bmps"]))
 
-try:
+    pdf = PDF()
     pdf.add_page()
     pdf.add_table(dados_bmps)
     pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
-    pdf.output(output_path)
-except Exception as e:
-    print(f"Erro ao gerar PDF: {e}")
-    return jsonify({"error": "Falha ao gerar o PDF!"}), 500
 
-    output_dir = "generated_pdfs"
-    os.makedirs(output_dir, exist_ok=True)
-    output_path = os.path.join(output_dir, "guia_circulacao.pdf")
+    output_path = "generated_pdfs/guia_circulacao.pdf"
     pdf.output(output_path)
+    return send_file(output_path, as_attachment=True)
 
 @app.route("/consulta_bmp", methods=["GET", "POST"])
 def consulta_bmp():
