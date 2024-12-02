@@ -194,23 +194,29 @@ document.getElementById("gerar_guia").addEventListener("click", function () {
     fetch(`/gerar_guia?${queryParams.toString()}`, { method: "GET" })
     .then(response => {
         if (!response.ok) {
+            // Trata erro retornando a mensagem do servidor (JSON)
             return response.json().then(err => {
                 throw new Error(err.error || "Erro desconhecido.");
+            }).catch(() => {
+                throw new Error("Erro ao processar a resposta do servidor.");
             });
         }
+
+        // Verifica se o conteúdo é um PDF
         const contentType = response.headers.get("Content-Type");
         if (!contentType || !contentType.includes("application/pdf")) {
             throw new Error("A resposta não é um PDF válido.");
         }
+
         return response.blob();
     })
     .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        window.open(url, "_blank");
+        const url = window.URL.createObjectURL(blob); // Cria URL temporária para o PDF
+        window.open(url, "_blank"); // Abre o PDF em uma nova aba
     })
     .catch(error => {
-        console.error("Erro:", error);
-        alert("Erro: " + error.message);
+        console.error("Erro:", error); // Log detalhado para depuração
+        alert(`Erro: ${error.message}`); // Mensagem amigável para o usuário
     });
 </script>
 </body>
