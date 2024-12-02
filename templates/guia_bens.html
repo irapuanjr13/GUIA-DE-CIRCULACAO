@@ -174,45 +174,44 @@ $(document).ready(function() {
         }
     });
 
-    // Gerar PDF
     document.getElementById("gerar_guia").addEventListener("click", function() {
-        const secao_destino = document.getElementById("secao_destino").value; 
-        const chefia_origem = document.getElementById("chefia_origem").value;
-        const secao_origem = document.getElementById("secao_origem").value;
-        const chefia_destino = document.getElementById("chefia_destino").value;
-        const bmp_number = document.getElementById("bmp_number").value;
+    const secao_destino = document.getElementById("secao_destino").value.trim(); 
+    const chefia_origem = document.getElementById("chefia_origem").value.trim();
+    const secao_origem = document.getElementById("secao_origem").value.trim();
+    const chefia_destino = document.getElementById("chefia_destino").value.trim();
+    const bmp_number = document.getElementById("bmp_number").value.trim();
 
-        const queryParams = new URLSearchParams({
-            secao_destino,
-            chefia_origem,
-            secao_origem,
-            chefia_destino,
-            bmp_number
-        });
+    if (!secao_destino || !chefia_origem || !secao_origem || !chefia_destino || !bmp_number) {
+        alert("Todos os campos devem ser preenchidos!");
+        return;
+    }
 
-        fetch(`/gerar_guia?${queryParams.toString()}`, { method: "GET" })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => {
-                        throw new Error(err.error || "Erro desconhecido.");
-                    });
-                }
-                const contentType = response.headers.get("Content-Type");
-                if (!contentType || !contentType.includes("application/pdf")) {
-                    throw new Error("A resposta não é um PDF válido.");
-                }
-                return response.blob();
-            })
-            .then(blob => {
-                const url = window.URL.createObjectURL(blob); // Cria URL temporária para o PDF
-                window.open(url, "_blank"); // Abre o PDF em uma nova aba
-            })
-            .catch(error => {
-                console.error("Erro:", error);
-                alert(`Erro: ${error.message}`);
-            });
+    const queryParams = new URLSearchParams({
+        secao_destino,
+        chefia_origem,
+        secao_origem,
+        chefia_destino,
+        bmp_number
     });
-});
+
+    fetch(`/gerar_guia?${queryParams.toString()}`, { method: "GET" })
+    .then(response => {
+        if (!response.ok) {
+            if (response.status === 404) {
+                throw new Error("Rota não encontrada!");
+            } else if (response.status === 500) {
+                throw new Error("Erro interno no servidor!");
+            }
+            return response.json().then(err => {
+                throw new Error(err.error || "Erro desconhecido.");
+            });
+        }
+        return response.blob();
+    })
+    .catch(error => {
+        console.error("Erro na requisição:", error);
+        alert(`Erro na geração do PDF: ${error.message}`);
+    });
 </script>
 </body>
 </html>
