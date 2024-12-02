@@ -241,6 +241,17 @@ def processar_dados():
     # Retornando como JSON
     return jsonify(resultado)
 
+@app.route('/dados', methods=['GET'])
+def enviar_dados():
+    dados = {"nome": "João", "idade": 30, "cidade": "São Paulo"}
+    return jsonify(dados)
+
+@app.route('/receber', methods=['POST'])
+def receber_dados():
+    dados_recebidos = request.get_json()
+    print(f"Dados recebidos: {dados_recebidos}")
+    return jsonify({"status": "sucesso", "dados_recebidos": dados_recebidos})
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     app.run(debug=True, host="0.0.0.0", port=port)
