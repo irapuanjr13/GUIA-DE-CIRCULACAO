@@ -180,49 +180,45 @@ $(document).ready(function () {
     });
 
     // Evento para enviar o formulário e gerar o PDF
-    $("#guia_bens").on("submit", function (event) {
-        event.preventDefault(); // Evitar o envio padrão
+$("#guia_bens").on("submit", function (event) {
+    event.preventDefault(); // Evita o envio padrão do formulário
 
-        // Capturar os dados do formulário
-        const payload = {
-            secao_destino: $("#secao_destino").val().trim(),
-            chefia_origem: $("#chefia_origem").val().trim(),
-            secao_origem: $("#secao_origem").val().trim(),
-            chefia_destino: $("#chefia_destino").val().trim(),
-            bmp_number: $("#bmp_number").val().trim()
-        };
+    const payload = {
+        secao_destino: $("#secao_destino").val().trim(),
+        chefia_origem: $("#chefia_origem").val().trim(),
+        secao_origem: $("#secao_origem").val().trim(),
+        chefia_destino: $("#chefia_destino").val().trim(),
+        bmp_number: $("#bmp_number").val().trim()
+    };
 
-        // Validar se todos os campos estão preenchidos
-        for (const key in payload) {
-            if (!payload[key]) {
-                alert("Todos os campos devem ser preenchidos!");
-                return;
-            }
+    // Valida se todos os campos estão preenchidos
+    if (Object.values(payload).some(value => !value)) {
+        alert("Todos os campos devem ser preenchidos!");
+        return;
+    }
+
+    // Mostra indicador de carregamento
+    $("#mensagem").text("Gerando PDF...").removeClass("success error").addClass("loading");
+
+    $.ajax({
+        url: "/gerar_guia",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (blob) {
+            const url = window.URL.createObjectURL(new Blob([blob]));
+            const a = document.createElement("a");
+            a.style.display = "none";
+            a.href = url;
+            a.download = "guia.pdf";
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            $("#mensagem").text("PDF gerado com sucesso!").addClass("success").removeClass("loading");
+        },
+        error: function () {
+            $("#mensagem").text("Erro na geração do PDF!").addClass("error").removeClass("loading");
         }
-
-        // Enviar a requisição para gerar o PDF
-        $.ajax({
-            url: "/gerar_guia",
-            type: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(payload),
-            success: function (blob) {
-                // Criar link para download do PDF
-                const url = window.URL.createObjectURL(new Blob([blob]));
-                const a = document.createElement("a");
-                a.style.display = "none";
-                a.href = url;
-                a.download = "guia.pdf";
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                $("#mensagem").text("PDF gerado com sucesso!").addClass("success").removeClass("error");
-            },
-            error: function (xhr) {
-                console.error("Erro ao gerar o PDF:", xhr.responseText);
-                $("#mensagem").text("Erro na geração do PDF!").addClass("error").removeClass("success");
-            }
-        });
     });
 });
 </script>
