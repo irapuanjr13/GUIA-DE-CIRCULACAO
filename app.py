@@ -1,7 +1,4 @@
-from flask import Flask, jsonify
-import render_template
-import request
-import send_file
+from flask import Flask, render_template, request, send_file, jsonify
 import pandas as pd
 import gdown
 from fpdf import FPDF
@@ -201,32 +198,34 @@ def get_chefia():
 
     return jsonify({"chefia": chefia.tolist()})
 
-@app.route('/gerar_guia')
+@app.route('/gerar_guia', methods=["POST"])
 def gerar_guia():
     try:
-    secao_destino = request.form.get('secao_destino')
-    chefia_origem = request.form.get('chefia_origem')
-    secao_origem = request.form.get('secao_origem')
-    chefia_destino = request.form.get('chefia_destino')
-    bmp_numbers = request.form.get('bmp_numbers')
+        data = request.json  # Recebe os dados JSON
+        secao_destino = data.get('secao_destino')
+        chefia_origem = data.get('chefia_origem')
+        secao_origem = data.get('secao_origem')
+        chefia_destino = data.get('chefia_destino')
+        bmp_numbers = data.get('bmp_numbers')
 
-    if not all([secao_destino, chefia_origem, secao_origem, chefia_destino, bmp_numbers]):
-        return jsonify({"error": "Parâmetros incompletos!"}), 400
+        # Valida os parâmetros
+        if not all([secao_destino, chefia_origem, secao_origem, chefia_destino, bmp_numbers]):
+            return jsonify({"error": "Parâmetros incompletos!"}), 400
 
-    bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",")]
-    dados_bmps = df[df["Nº BMP"].astype(str).str.strip().isin(bmp_list)]
-    if dados_bmps.empty:
-        return jsonify({"error": "Nenhum BMP encontrado para os números fornecidos."}), 400
+        # Processa os BMPs
+        bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",")]
+        dados_bmps = df[df["Nº BMP"].astype(str).str.strip().isin(bmp_list)]
+        if dados_bmps.empty:
+            return jsonify({"error": "Nenhum BMP encontrado para os números fornecidos."}), 400
 
-    pdf = PDF()
-    pdf.add_page()
-    pdf.add_table(dados_bmps)
-    pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+        pdf = PDF()
+        pdf.add_page()
+        pdf.add_table(dados_bmps)
+        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
-    output_path = "static/guia.pdf"
-    pdf.output(output_path)
-    
-   return send_file("guia.pdf", as_attachment=True, mimetype="application/pdf")
+        output_path = "generated_pdf/guia.pdf"
+        pdf.output(output_path)
+        return send_file(output_path, as_attachment=True, mimetype="application/pdf")
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
