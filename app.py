@@ -202,10 +202,10 @@ def get_chefia():
 @app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
     data = request.json
-        pdf = PDF()
-        pdf.add_page()
-        pdf.add_table(dados_bmps)
-        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+    pdf = PDF()
+    pdf.add_page()
+    pdf.add_table(dados_bmps)
+    pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
    return send_file(
         pdf_buffer,
@@ -214,10 +214,10 @@ def gerar_guia():
         download_name='guia.pdf'
     )
 def generate_pdf(data):
-        pdf = PDF()
-        pdf.add_page()
-        pdf.add_table(dados_bmps)
-        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+    pdf = PDF()
+    pdf.add_page()
+    pdf.add_table(dados_bmps)
+    pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer)
