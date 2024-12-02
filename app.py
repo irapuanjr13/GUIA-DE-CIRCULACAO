@@ -198,19 +198,21 @@ def get_chefia():
 
     return jsonify({"chefia": chefia.tolist()})
 
-@app.route('/gerar_guia', methods=['POST'])
+@app.route('/gerar_guia', methods=['GET', 'POST'])
 def gerar_guia():
-    try:
-        data = request.get_json()
-        # Processamento dos dados...
-        return jsonify({"success": True}), 200
-    except Exception as e:
-        app.logger.error(f"Erro ao gerar guia: {e}")
-        return jsonify({"success": False, "error": str(e)}), 500
-    # Processa dados_bmps enviados como string JSON no formulário
-    import json
-    dados_bmps = pd.DataFrame(json.loads(request.form["dados_bmps"]))
+    if request.method == 'GET':
+        # Simula um corpo de requisição no método GET usando parâmetros de URL
+        secao_destino = request.args.get('secao_destino')
+        chefia_origem = request.args.get('chefia_origem')
+        secao_origem = request.args.get('secao_origem')
+        chefia_destino = request.args.get('chefia_destino')
+        bmp_number = request.args.get('bmp_number')
 
+        # Processar a lógica usando os dados recebidos
+        return jsonify({"message": "GET processado com sucesso!"}), 200
+    elif request.method == 'POST':
+        data = request.get_json()
+    
     pdf = PDF()
     pdf.add_page()
     pdf.add_table(dados_bmps)
