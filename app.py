@@ -45,8 +45,6 @@ class PDF(FPDF):
             self.cell(col_widths[1], 10, str(row["NOMECLATURA/COMPONENTE"]), border=1, align="L")
             self.cell(col_widths[2], 10, str(row["QTD"]), border=1, align="C")
             self.cell(col_widths[3], 10, f"R$ {row['VL. ATUALIZ.']:.2f}".replace(".", ","), border=1, align="C")
-            self.cell(col_widths[4], 10, str(row["Qtde a Movimentar"]), border=1, align="C")
-            self.cell(col_widths[5], 10, f"R$ {row['Valor a Movimentar']:.2f}".replace(".", ","), border=1, align="C")
             self.ln()
 
     def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
@@ -144,7 +142,7 @@ def consulta_bmp():
             results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
     return render_template("consulta_bmp.html", results=results)
 
-@app.route("/")
+@app.route("/initio")
 def menu_principal():
     return render_template("index.html")
 
