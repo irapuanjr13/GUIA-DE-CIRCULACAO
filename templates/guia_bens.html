@@ -133,9 +133,7 @@
 <script>
 document.getElementById("bmp_numbers").addEventListener("input", function () {
     const bmpList = this.value.split(",").map(bmp => bmp.trim()).filter(bmp => bmp !== "");
-    const container = document.getElementById("bmp_info");
-    container.innerHTML = ""; // Limpa qualquer conteúdo anterior no contêiner
-
+    
     if (bmpList.length > 0) {
         // Fazer requisição ao endpoint /autocomplete
         fetch("/autocomplete", {
@@ -152,25 +150,23 @@ document.getElementById("bmp_numbers").addEventListener("input", function () {
             return response.json();
         })
         .then(data => {
-            bmpList.forEach((bmp, guia_bens) => {
-                const info = data[bmp] || { secao_origem: "", chefia_origem: "" };
+            // Preenche os campos de origem apenas para o primeiro BMP
+            const firstBmp = bmpList[0]; // Considera apenas o primeiro BMP
+            const info = data[firstBmp] || { secao_origem: "", chefia_origem: "" };
 
-                // Atualiza os campos de origem no formulário para o primeiro BMP válido
-                if (guia_bens === 0) {
-                    document.getElementById("secao_origem").value = info.secao_origem || "";
-                    document.getElementById("chefia_origem").value = info.chefia_origem || "";
-                }
-
-                // Opcional: exibir informações no contêiner (para feedback visual)
-                const label = document.createElement("p");
-                label.textContent = `BMP ${bmp} - Seção de Origem: ${info.secao_origem}, Chefia de Origem: ${info.chefia_origem}`;
-                container.appendChild(label);
-            });
+            document.getElementById("secao_origem").value = info.secao_origem || "";
+            document.getElementById("chefia_origem").value = info.chefia_origem || "";
         })
         .catch(error => {
             console.error(error);
-            container.textContent = "Erro ao carregar dados!";
+            // Limpa os campos em caso de erro
+            document.getElementById("secao_origem").value = "";
+            document.getElementById("chefia_origem").value = "";
         });
+    } else {
+        // Limpa os campos se nenhum BMP for fornecido
+        document.getElementById("secao_origem").value = "";
+        document.getElementById("chefia_origem").value = "";
     }
 });
 
