@@ -131,40 +131,48 @@
     </footer>
 
 <script>
-    document.getElementById("bmp_numbers").addEventListener("input", function () {
-        const bmpList = this.value.split(",").map(bmp => bmp.trim()).filter(bmp => bmp !== "");
-        const container = document.getElementById("bmp_info");
-        container.innerHTML = "";
-        
-        if (bmpList.length > 0) {
-            // Fazer requisição ao endpoint /autocomplete
-            fetch("/autocomplete", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ bmp_numbers: bmpList })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Erro ao buscar dados de BMPs!");
+document.getElementById("bmp_numbers").addEventListener("input", function () {
+    const bmpList = this.value.split(",").map(bmp => bmp.trim()).filter(bmp => bmp !== "");
+    const container = document.getElementById("bmp_info");
+    container.innerHTML = ""; // Limpa qualquer conteúdo anterior no contêiner
+
+    if (bmpList.length > 0) {
+        // Fazer requisição ao endpoint /autocomplete
+        fetch("/autocomplete", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ bmp_numbers: bmpList })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Erro ao buscar dados de BMPs!");
+            }
+            return response.json();
+        })
+        .then(data => {
+            bmpList.forEach((bmp, guia_bens) => {
+                const info = data[bmp] || { secao_origem: "", chefia_origem: "" };
+
+                // Atualiza os campos de origem no formulário para o primeiro BMP válido
+                if (guia_bens === 0) {
+                    document.getElementById("secao_origem").value = info.secao_origem || "";
+                    document.getElementById("chefia_origem").value = info.chefia_origem || "";
                 }
-                return response.json();
-            })
-            .then(data => {
-                bmpList.forEach(bmp => {
-                    const info = data[bmp] || { secao_origem: "", chefia_origem: "" };
-                    const label = document.createElement("p");
-                    label.textContent = `BMP ${bmp} - Seção de Origem: ${info.secao_origem}, Chefia de Origem: ${info.chefia_origem}`;
-                    container.appendChild(label);
-                });
-            })
-            .catch(error => {
-                console.error(error);
-                container.textContent = "Erro ao carregar dados!";
+
+                // Opcional: exibir informações no contêiner (para feedback visual)
+                const label = document.createElement("p");
+                label.textContent = `BMP ${bmp} - Seção de Origem: ${info.secao_origem}, Chefia de Origem: ${info.chefia_origem}`;
+                container.appendChild(label);
             });
-        }
-    });
+        })
+        .catch(error => {
+            console.error(error);
+            container.textContent = "Erro ao carregar dados!";
+        });
+    }
+});
 
     // Função para buscar chefia com base na seção e tipo
     function fetchChefia(secao, tipo) {
