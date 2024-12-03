@@ -208,6 +208,44 @@ document.getElementById("bmp_numbers").addEventListener("input", function () {
             });
         });
     });
+
+document.getElementById("guia_bens_form").addEventListener("submit", function (event) {
+    event.preventDefault();  // Evita o envio normal do formulário
+
+    // Aqui você pode implementar o código de download ou execução do backend.
+    // Exemplo de chamada ao backend (caso o download seja gerado no servidor):
+    fetch("/guia_bens", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            bmp_numbers: document.getElementById("bmp_number").value,
+            secao_origem: document.getElementById("secao_origem").value,
+            chefia_origem: document.getElementById("chefia_origem").value,
+            secao_destino: document.getElementById("secao_destino").value,
+            chefia_destino: document.getElementById("chefia_destino").value
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            // Se o servidor retornar o arquivo, pode iniciar o download aqui
+            return response.blob();
+        } else {
+            throw new Error("Erro ao gerar a guia.");
+        }
+    })
+    .then(blob => {
+        // Criação do link para o download do arquivo
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "guia_bens.pdf"; // Nome do arquivo gerado
+        link.click(); // Inicia o download
+    })
+    .catch(error => {
+        console.error("Erro ao gerar a guia:", error);
+    });
+});
 </script>
 </body>
 </html>
