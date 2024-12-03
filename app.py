@@ -144,6 +144,10 @@ def consulta_bmp():
             results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
     return render_template("consulta_bmp.html", results=results)
 
+@app.route("/")
+def menu_principal():
+    return render_template("index.html")
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     app.run(debug=True, host="0.0.0.0", port=port)
