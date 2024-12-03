@@ -117,7 +117,7 @@ def get_bmp_info():
 
 def get_secoes_destino():
    secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
-    secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
+   secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
 
     if request.method == "POST":
         bmp_numbers = request.form.get("bmp_numbers")
