@@ -30,7 +30,7 @@ class PDF(FPDF):
 
     def add_table(self, dados_bmps):
         col_widths = [15, 55, 15, 30]
-        headers = ["Nº BMP", "Nomenclatura", "Qtde", "Valor Atualizado", "Qtde a Movimentar", "Valor a Movimentar"]
+        headers = ["Nº BMP", "Nomenclatura", "Qtde", "Valor Atualizado"]
 
         # Renderizar cabeçalhos
         self.set_font("Arial", "B", 9)
