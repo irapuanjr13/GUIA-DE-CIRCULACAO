@@ -213,7 +213,7 @@ document.getElementById("guia_bens_form").addEventListener("submit", function (e
     event.preventDefault();  // Impede o envio padrão do formulário
 
     // Obtém os valores dos campos
-    const bmpNumbers = document.getElementById("bmp_number").value; // Usar 'bmp_number' aqui
+    const bmpNumbers = document.getElementById("bmp_number").value; // O valor já é uma string
     const secaoOrigem = document.getElementById("secao_origem").value;
     const chefiaOrigem = document.getElementById("chefia_origem").value;
     const secaoDestino = document.getElementById("secao_destino").value;
