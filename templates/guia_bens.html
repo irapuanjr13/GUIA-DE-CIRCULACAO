@@ -87,7 +87,7 @@
             </div>
             <div class="form-group">
                 <label for="bmp_numbers">Números de BMP (separados por vírgula):</label>
-                <input type="text" id="bmp_numbers" name="bmp_numbers" placeholder="Ex.: 123, 456">
+                <input type="text" id="bmp_number" name="bmp_numbers" placeholder="Ex.: 123, 456">
             </div>
             <!-- Contêiner para exibir informações sobre os BMPs -->
             <div id="bmp_info"></div>
@@ -226,7 +226,7 @@ document.getElementById("guia_bens_form").addEventListener("submit", function (e
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            bmp_numbers: bmpNumbers,  // Correção aqui: 'bmp_number' para 'bmp_numbers'
+            bmp_number: bmpNumbers,  // Correção aqui: 'bmp_number' para 'bmp_numbers'
             secao_origem: secaoOrigem,
             chefia_origem: chefiaOrigem,
             secao_destino: secaoDestino,
