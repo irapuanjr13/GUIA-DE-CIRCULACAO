@@ -210,27 +210,33 @@ document.getElementById("bmp_numbers").addEventListener("input", function () {
     });
 
 document.getElementById("guia_bens_form").addEventListener("submit", function (event) {
-    event.preventDefault();  // Evita o envio normal do formulário
+    event.preventDefault();  // Impede o envio padrão do formulário
 
-    // Aqui você pode implementar o código de download ou execução do backend.
-    // Exemplo de chamada ao backend (caso o download seja gerado no servidor):
+    // Obtém os valores dos campos
+    const bmpNumbers = document.getElementById("bmp_number").value; // Usar 'bmp_number' aqui
+    const secaoOrigem = document.getElementById("secao_origem").value;
+    const chefiaOrigem = document.getElementById("chefia_origem").value;
+    const secaoDestino = document.getElementById("secao_destino").value;
+    const chefiaDestino = document.getElementById("chefia_destino").value;
+
+    // Envia os dados para o backend
     fetch("/guia_bens", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            bmp_numbers: document.getElementById("bmp_number").value,
-            secao_origem: document.getElementById("secao_origem").value,
-            chefia_origem: document.getElementById("chefia_origem").value,
-            secao_destino: document.getElementById("secao_destino").value,
-            chefia_destino: document.getElementById("chefia_destino").value
+            bmp_numbers: bmpNumbers,  // Correção aqui: 'bmp_number' para 'bmp_numbers'
+            secao_origem: secaoOrigem,
+            chefia_origem: chefiaOrigem,
+            secao_destino: secaoDestino,
+            chefia_destino: chefiaDestino
         })
     })
     .then(response => {
         if (response.ok) {
             // Se o servidor retornar o arquivo, pode iniciar o download aqui
-            return response.blob();
+            return response.blob(); // Espera o arquivo (PDF, etc.)
         } else {
             throw new Error("Erro ao gerar a guia.");
         }
