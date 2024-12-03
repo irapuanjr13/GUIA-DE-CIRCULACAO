@@ -24,7 +24,6 @@ class PDF(FPDF):
         super().__init__('P', 'mm', 'A4')  # Orientação retrato, milímetros, formato A4
 
     def header(self):
-        # Cabeçalho centralizado
         self.set_font("Arial", "B", 12)
         self.cell(0, 6, "MINISTÉRIO DA DEFESA", ln=True, align="C")
         self.cell(0, 6, "COMANDO DA AERONÁUTICA", ln=True, align="C")
@@ -32,44 +31,27 @@ class PDF(FPDF):
         self.cell(0, 8, "GUIA DE MOVIMENTAÇÃO DE BEM MÓVEL PERMANENTE ENTRE AS SEÇÕES DO GAPLS", ln=True, align="C")
         self.ln(10)
 
-    def fix_text(self, text):
-        """Corrige caracteres incompatíveis com a codificação latin-1."""
-        replacements = {
-            "–": "-",  # Substituir travessão por hífen
-            "“": '"',  # Substituir aspas abertas por aspas duplas
-            "”": '"',  # Substituir aspas fechadas por aspas duplas
-            "’": "'",  # Substituir apóstrofo por aspas simples
-        }
-        for old, new in replacements.items():
-            text = text.replace(old, new)
-        return text
-
-    def add_table(self, dados_bmps):
+       def add_table(self, dados_bmps):
         col_widths = [25, 70, 55, 35]
         headers = ["Nº BMP", "Nomenclatura", "Nº Série", "Valor Atualizado"]
-
-        self.set_font("Arial", "B", 10)
-        for width, header in zip(col_widths, headers):
+        # Renderizar cabeçalhos
+        self.set_font("Arial", "B", 9)
+        for header, width in zip(headers, col_widths):
             self.cell(width, 10, header, border=1, align="C")
         self.ln()
-
-        self.set_font("Arial", size=10)
+        # Adicionar dados
+        self.set_font("Arial", size=9)
         for _, row in dados_bmps.iterrows():
-            text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
-            line_count = (self.get_string_width(text) // (col_widths[1] - 5)) + 1
-            row_height = line_count * 10
-
-            self.cell(col_widths[0], row_height, str(row["Nº BMP"]), border=1, align="C")
-            x, y = self.get_x(), self.get_y()
-            self.multi_cell(col_widths[1], 10, text, border=1)
-            self.set_xy(x + col_widths[1], y)
-
-            self.cell(col_widths[2], row_height, self.fix_text(str(row["Nº SERIE"])), border=1, align="C")
-            valor_atualizado = f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ',') if not pd.isnull(row['VL. ATUALIZ.']) else "N/A"
-            self.cell(col_widths[3], row_height, valor_atualizado, border=1, align="R")
+            self.cell(col_widths[0], 10, str(row["Nº BMP"]), border=1, align="C")
+            self.cell(col_widths[1], 10, str(row["NOMECLATURA/COMPONENTE"]), border=1, align="L")
+            self.cell(col_widths[2], 10, str(row["QTD"]), border=1, align="C")
+            self.cell(col_widths[3], 10, f"R$ {row['VL. ATUALIZ.']:.2f}".replace(".", ","), border=1, align="C")
+            self.cell(col_widths[4], 10, str(row["Qtde a Movimentar"]), border=1, align="C")
+            self.cell(col_widths[5], 10, f"R$ {row['Valor a Movimentar']:.2f}".replace(".", ","), border=1, align="C")
             self.ln()
-
     def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
+        self.set_font("Arial", size=12)
+        self.ln(10)
         text = f"""
 Solicitação de Transferência:
 Informo à Senhora Chefe do GAP-LS que os bens especificados estão inservíveis para uso neste setor, classificados como ociosos, recuperáveis, reparados ou novos - aguardando distribuição. Diante disso, solicito autorização para transferir o(s) Bem(ns) Móvel(is) Permanente(s) acima discriminado(s), atualmente sob minha guarda, para a Seção {secao_destino}.
@@ -102,59 +84,40 @@ Dirigente Máximo
         
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
-    secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
-    secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
-
+    secoes_origem = df["Seção de Origem"].dropna().unique().tolist()
+    secoes_destino = df["Seção de Destino"].dropna().unique().tolist()
     if request.method == "POST":
-        bmp_numbers = request.form.get("bmp_numbers")
+        bmp_numbers = request.form.get("bmp_numbers", "").strip()
         secao_origem = request.form.get("secao_origem")
         secao_destino = request.form.get("secao_destino")
         chefia_origem = request.form.get("chefia_origem")
         chefia_destino = request.form.get("chefia_destino")
-
-        if not (bmp_numbers and secao_origem and secao_destino and chefia_origem and chefia_destino):
+        bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",") if bmp.strip()]
+        dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
+        if dados_bmps.empty:
             return render_template(
                 "guia_bens.html",
                 secoes_origem=secoes_origem,
                 secoes_destino=secoes_destino,
-                error="Preencha todos os campos!",
+                error="Nenhum BMP encontrado ou inválido."
             )
-
-        bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",")]
-        dados_bmps = df[df["Nº BMP"].astype(str).str.strip().isin(bmp_list)]
-        if dados_bmps.empty:
+        if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
             return render_template(
                 "guia_bens.html",
                 secoes_origem=secoes_origem,
                 secoes_destino=secoes_destino,
                 error="Nenhum BMP encontrado para os números fornecidos.",
             )
-
-        if dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
-            return render_template(
-                "guia_bens.html",
-                secoes_origem=secoes_origem,
-                secoes_destino=secoes_destino,
-                error="Itens da conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO' não podem ser processados."
-            )
-
-        # Se chegou até aqui, significa que todos os dados foram validados corretamente
-        results = dados_bmps.to_dict(orient="records")  # Prepara os dados para exibição ou processamento
-        return render_template(
-            "guia_bens.html",
-            secoes_origem=secoes_origem,
-            secoes_destino=secoes_destino,
-            results=results,
-        )
-
-    # Para requisições GET, simplesmente renderize o formulário vazio
+        pdf = PDF()
+        pdf.add_page()
+        pdf.add_table(dados_bmps)
+        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)  # Adicionando os detalhes ao PDF
+        output_path = "static/guia_circulacao_interna.pdf"
+        pdf.output(output_path)
+        return send_file(output_path, as_attachment=True)
     return render_template(
-        "guia_bens.html",
-        secoes_origem=secoes_origem,
-        secoes_destino=secoes_destino,
-        results=[],
+        "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
     )
-
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
     data = request.get_json()
@@ -192,37 +155,6 @@ def get_chefia():
         return jsonify({"error": "Tipo inválido!"}), 400
 
     return jsonify({"chefia": chefia.tolist()})
-
-@app.route('/gerar_guia', methods=["POST"])
-def gerar_guia():
-    try:
-        data = request.json  # Recebe os dados JSON
-        secao_destino = data.get('secao_destino')
-        chefia_origem = data.get('chefia_origem')
-        secao_origem = data.get('secao_origem')
-        chefia_destino = data.get('chefia_destino')
-        bmp_numbers = data.get('bmp_numbers')
-
-        # Valida os parâmetros
-        if not all([secao_destino, chefia_origem, secao_origem, chefia_destino, bmp_numbers]):
-            return jsonify({"error": "Parâmetros incompletos!"}), 400
-
-        # Processa os BMPs
-        bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",")]
-        dados_bmps = df[df["Nº BMP"].astype(str).str.strip().isin(bmp_list)]
-        if dados_bmps.empty:
-            return jsonify({"error": "Nenhum BMP encontrado para os números fornecidos."}), 400
-
-        pdf = PDF()
-        pdf.add_page()
-        pdf.add_table(dados_bmps)
-        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
-
-        output_path = "generated_pdf/guia.pdf"
-        pdf.output(output_path)
-        return send_file(output_path, as_attachment=True, mimetype="application/pdf")
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 @app.route("/consulta_bmp", methods=["GET", "POST"])
 def consulta_bmp():
