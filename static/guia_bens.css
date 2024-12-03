@@ -1,37 +1,37 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerar Guia de Movimentação</title>
-    <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body>
-    <h1>Gerar Guia de Movimentação</h1>
-    <form id="guiaForm" method="POST">
-        <label for="bmp_numbers">Números BMP (separados por vírgula):</label>
-        <input type="text" id="bmp_numbers" name="bmp_numbers" required>
-        
-        <label for="secao_origem">Seção de Origem:</label>
-        <select id="secao_origem" name="secao_origem" required>
-            <!-- Opções serão preenchidas dinamicamente -->
-        </select>
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
 
-        <label for="secao_destino">Seção de Destino:</label>
-        <select id="secao_destino" name="secao_destino" required>
-            <!-- Opções serão preenchidas dinamicamente -->
-        </select>
+form {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
 
-        <label for="chefia_origem">Chefia de Origem:</label>
-        <input type="text" id="chefia_origem" name="chefia_origem" required>
+label {
+    display: block;
+    margin: 10px 0 5px;
+}
 
-        <label for="chefia_destino">Chefia de Destino:</label>
-        <input type="text" id="chefia_destino" name="chefia_destino" required>
+input, select, button {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
 
-        <button type="submit">Gerar Guia</button>
-    </form>
+button {
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
 
-    <div id="error-message" style="color: red;"></div>
-    <script src="/static/scripts.js"></script>
-</body>
-</html>
+button:hover {
+    background-color: #45a049;
+}
