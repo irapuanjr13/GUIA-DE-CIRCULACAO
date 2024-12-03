@@ -100,8 +100,8 @@ def get_bmp_info():
 
     return jsonify({"secao_origem": secao_origem, "chefia_origem": chefia_origem})
 
-@app.route("/", methods=["GET", "POST"])
-def guia_bens():
+@app.route("/get_chefia", methods=["GET", "POST"])
+def get_chefia():
     secoes_origem = df["Seção de Origem"].dropna().unique().tolist()
     secoes_destino = df["Seção de Destino"].dropna().unique().tolist()
 
@@ -142,7 +142,7 @@ def consulta_bmp():
             results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
     return render_template("consulta_bmp.html", results=results)
 
-@app.route("/initio")
+@app.route("/")
 def menu_principal():
     return render_template("index.html")
 
