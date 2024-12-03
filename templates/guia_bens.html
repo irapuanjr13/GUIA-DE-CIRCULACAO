@@ -1,151 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guia de Circulação de Bens</title>
-    <style>
-        /* CSS para a interface */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #343a40;
-            color: #fff;
-            padding: 10px 0;
-            text-align: center;
-        }
-        .container {
-            margin: 20px auto;
-            max-width: 600px;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .button:hover {
-            background-color: #0056b3;
-        }
-        #resultado {
-            margin-top: 20px;
-        }
-    </style>
+    <title>Gerar Guia de Movimentação</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <header>
-        <h1>Guia de Circulação de Bens</h1>
-    </header>
-    <div class="container">
-        <form id="guiaForm">
-            <div class="form-group">
-                <label for="bmp">Número BMP:</label>
-                <input type="text" id="bmp" name="bmp" placeholder="Digite o número do BMP" onblur="preencherOrigem()">
-            </div>
-            <div class="form-group">
-                <label for="secaoOrigem">Seção de Origem:</label>
-                <input type="text" id="secaoOrigem" name="secaoOrigem" readonly>
-            </div>
-            <div class="form-group">
-                <label for="chefiaOrigem">Chefia de Origem:</label>
-                <input type="text" id="chefiaOrigem" name="chefiaOrigem" readonly>
-            </div>
-            <div class="form-group">
-                <label for="secaoDestino">Seção de Destino:</label>
-                <select id="secaoDestino">
-                    <option value="">Selecione uma seção</option>
-                    <option value="1">Seção A</option>
-                    <option value="2">Seção B</option>
-                    <option value="3">Seção C</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="chefiaDestino">Chefia de Destino:</label>
-                <input type="text" id="chefiaDestino" name="chefiaDestino" placeholder="Chefia será preenchida automaticamente">
-            </div>
-            <button type="button" class="button" onclick="gerarGuia()">Gerar Guia</button>
-        </form>
-        <div id="resultado"></div>
-    </div>
-    <script>
-        // Preenchimento automático da seção e chefia de origem com base no BMP
-        async function preencherOrigem() {
-            const bmp = document.getElementById("bmp").value.trim();
-            if (!bmp) return;
+    <h1>Gerar Guia de Movimentação</h1>
+    <form id="guiaForm" method="POST">
+        <label for="bmp_numbers">Números BMP (separados por vírgula):</label>
+        <input type="text" id="bmp_numbers" name="bmp_numbers" required>
+        
+        <label for="secao_origem">Seção de Origem:</label>
+        <select id="secao_origem" name="secao_origem" required>
+            <!-- Opções serão preenchidas dinamicamente -->
+        </select>
 
-            try {
-                // Requisição ao backend para buscar os dados do BMP
-                const response = await fetch(`/buscar_bmp?bmp=${bmp}`);
-                if (!response.ok) throw new Error("Erro ao buscar BMP");
-                const data = await response.json();
+        <label for="secao_destino">Seção de Destino:</label>
+        <select id="secao_destino" name="secao_destino" required>
+            <!-- Opções serão preenchidas dinamicamente -->
+        </select>
 
-                // Preenchendo os campos de origem com os dados retornados
-                document.getElementById("secaoOrigem").value = data.secaoOrigem || "";
-                document.getElementById("chefiaOrigem").value = data.chefiaOrigem || "";
-            } catch (error) {
-                console.error("Erro ao preencher origem:", error);
-                alert("Não foi possível buscar os dados do BMP. Verifique o número e tente novamente.");
-            }
-        }
+        <label for="chefia_origem">Chefia de Origem:</label>
+        <input type="text" id="chefia_origem" name="chefia_origem" required>
 
-        // Preenchimento automático da chefia de destino com base na seção
-        document.getElementById("secaoDestino").addEventListener("change", function() {
-            const chefias = {
-                "1": "Chefe da Seção A",
-                "2": "Chefe da Seção B",
-                "3": "Chefe da Seção C"
-            };
-            const chefiaDestino = chefias[this.value] || "";
-            document.getElementById("chefiaDestino").value = chefiaDestino;
-        });
+        <label for="chefia_destino">Chefia de Destino:</label>
+        <input type="text" id="chefia_destino" name="chefia_destino" required>
 
-        // Função para gerar a guia
-        function gerarGuia() {
-            const bmp = document.getElementById("bmp").value.trim();
-            const secaoOrigem = document.getElementById("secaoOrigem").value.trim();
-            const chefiaOrigem = document.getElementById("chefiaOrigem").value.trim();
-            const secaoDestino = document.getElementById("secaoDestino").value;
-            const chefiaDestino = document.getElementById("chefiaDestino").value.trim();
+        <button type="submit">Gerar Guia</button>
+    </form>
 
-            if (!bmp || !secaoOrigem || !chefiaOrigem || !secaoDestino || !chefiaDestino) {
-                alert("Por favor, preencha todos os campos!");
-                return;
-            }
-
-            document.getElementById("resultado").innerHTML = `
-                <p><strong>Guia Gerada com Sucesso!</strong></p>
-                <p>BMP: ${bmp}</p>
-                <p>Seção de Origem: ${secaoOrigem}</p>
-                <p>Chefia de Origem: ${chefiaOrigem}</p>
-                <p>Seção de Destino: ${secaoDestino}</p>
-                <p>Chefia de Destino: ${chefiaDestino}</p>
-                <p><a href="#" class="button">Baixe aqui</a></p>
-            `;
-        }
-    </script>
+    <div id="error-message" style="color: red;"></div>
+    <script src="/static/scripts.js"></script>
 </body>
 </html>
