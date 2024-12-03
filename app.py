@@ -117,7 +117,7 @@ def guia_bens():
 
         if dados_bmps.empty:
             return render_template(
-                "index.html",
+                "guia_bens.html",
                 secoes_origem=secoes_origem,
                 secoes_destino=secoes_destino,
                 error="Nenhum BMP encontrado ou inválido."
