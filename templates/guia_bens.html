@@ -130,7 +130,7 @@
                 console.log("Enviando BMPs: ", bmpNumbers);  // Verifique no console se os BMPs estão sendo enviados corretamente
 
                 $.ajax({
-                    url: "/autocomplete",  // Lógica de preenchimento do campo de seção e chefia de origem
+                    url: "/get_bmp_info",  // Lógica de preenchimento do campo de seção e chefia de origem
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify({ "bmp_numbers": bmpNumbers }),  // Passa todos os BMPs, mesmo que seja um só
@@ -161,7 +161,7 @@
             const secaoDestino = $(this).val();
             if (secaoDestino) {
                 $.ajax({
-                    url: "/get_chefia",
+                    url: "/guia_bens1",
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }), // Envia a seção de destino ao backend
