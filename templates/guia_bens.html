@@ -1,186 +1,151 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guia de Circulação Interna</title>
+    <title>Guia de Circulação de Bens</title>
     <style>
-        /* Estilos para a página */
+        /* CSS para a interface */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            background-color: #f8f9fa;
             margin: 0;
             padding: 0;
         }
-        .container {
-            max-width: 800px;
-            margin: 20px auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
+        header {
+            background-color: #343a40;
+            color: #fff;
+            padding: 10px 0;
             text-align: center;
-            color: #333;
+        }
+        .container {
+            margin: 20px auto;
+            max-width: 600px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .form-group {
             margin-bottom: 15px;
         }
-        label {
+        .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
-            color: #555;
         }
-        select, input[type="text"], button {
+        .form-group input, .form-group select {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
+            border-radius: 5px;
         }
-        button {
+        .button {
             background-color: #007bff;
-            color: #fff;
+            color: white;
             border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
             cursor: pointer;
         }
-        button:hover {
+        .button:hover {
             background-color: #0056b3;
         }
-        .error {
-            color: red;
-            font-size: 14px;
-        }
-        .success {
-            color: green;
-            font-size: 14px;
-        }
-        footer {
-            text-align: left;
-            font-size: 10px;
-            color: #666;
-            padding: 10px 20px;
-            background-color: #f4f4f9;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
+        #resultado {
+            margin-top: 20px;
         }
     </style>
-    <!-- Adicionando jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
+    <header>
+        <h1>Guia de Circulação de Bens</h1>
+    </header>
     <div class="container">
-        <h1>Guia de Circulação Interna</h1>
-        <form method="POST" action="/" id="guia-form">
-            <div class="error">
-                {% if error %}
-                    {{ error }}
-                {% endif %}
+        <form id="guiaForm">
+            <div class="form-group">
+                <label for="bmp">Número BMP:</label>
+                <input type="text" id="bmp" name="bmp" placeholder="Digite o número do BMP" onblur="preencherOrigem()">
             </div>
             <div class="form-group">
-                <label for="bmp_number">Números de BMP (separados por vírgula):</label>
-                <input type="text" id="bmp_number" name="bmp_numbers" placeholder="Ex.: 123, 456, 789">
+                <label for="secaoOrigem">Seção de Origem:</label>
+                <input type="text" id="secaoOrigem" name="secaoOrigem" readonly>
             </div>
             <div class="form-group">
-                <label for="secao_origem">Seção de Origem:</label>
-                <input type="text" id="secao_origem" name="secao_origem" readonly>
+                <label for="chefiaOrigem">Chefia de Origem:</label>
+                <input type="text" id="chefiaOrigem" name="chefiaOrigem" readonly>
             </div>
             <div class="form-group">
-                <label for="chefia_origem">Chefia de Origem:</label>
-                <input type="text" id="chefia_origem" name="chefia_origem" readonly>
-            </div>
-            <div class="form-group">
-                <label for="secao_destino">Seção de Destino:</label>
-                <select id="secao_destino" name="secao_destino">
-                    <option value="" disabled selected>Selecione uma seção</option>
-                    {% for secao in secoes_destino %}
-                        <option value="{{ secao }}">{{ secao }}</option>
-                    {% endfor %}
+                <label for="secaoDestino">Seção de Destino:</label>
+                <select id="secaoDestino">
+                    <option value="">Selecione uma seção</option>
+                    <option value="1">Seção A</option>
+                    <option value="2">Seção B</option>
+                    <option value="3">Seção C</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="chefia_destino">Chefia de Destino:</label>
-                <input type="text" id="chefia_destino" name="chefia_destino" readonly>
+                <label for="chefiaDestino">Chefia de Destino:</label>
+                <input type="text" id="chefiaDestino" name="chefiaDestino" placeholder="Chefia será preenchida automaticamente">
             </div>
-            <div class="form-group">
-                <button type="submit">Gerar Guia</button>
-            </div>
+            <button type="button" class="button" onclick="gerarGuia()">Gerar Guia</button>
         </form>
+        <div id="resultado"></div>
     </div>
-
-    <div class="observacao" id="observacao">
-        A Guia gerada deve ser encaminhada a Seção de Registro, via SIGADAER.
-        Para gerar o modelo do ofício, <a href="/gerar-oficio">clique aqui</a>.
-    </div>
-
-    <footer>
-        Criado por <strong>Cb Irapuan</strong>
-    </footer>
-
     <script>
-    $(document).ready(function() {
-        // Função para atualizar os campos de origem com base no(s) BMP(s)
-        $("#bmp_number").on("input", function() {
-            const bmpNumbers = $(this).val().split(",").map(bmp => bmp.trim());
+        // Preenchimento automático da seção e chefia de origem com base no BMP
+        async function preencherOrigem() {
+            const bmp = document.getElementById("bmp").value.trim();
+            if (!bmp) return;
 
-            if (bmpNumbers.length > 0) {
-                console.log("Enviando BMPs: ", bmpNumbers);  // Verifique no console se os BMPs estão sendo enviados corretamente
+            try {
+                // Requisição ao backend para buscar os dados do BMP
+                const response = await fetch(`/buscar_bmp?bmp=${bmp}`);
+                if (!response.ok) throw new Error("Erro ao buscar BMP");
+                const data = await response.json();
 
-                $.ajax({
-                    url: "/get_bmp_info",  // Lógica de preenchimento do campo de seção e chefia de origem
-                    type: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify({ "bmp_numbers": bmpNumbers }),  // Passa todos os BMPs, mesmo que seja um só
-                    success: function(response) {
-                        console.log("Resposta do servidor:", response);  // Verifique a resposta do servidor
-                        
-                        // Preencher os campos de seção e chefia de origem para todos os BMPs
-                        bmpNumbers.forEach(function(bmp) {
-                            if (response[bmp]) {
-                                if (response[bmp].secao_origem) {
-                                    $("#secao_origem").val(response[bmp].secao_origem);
-                                }
-                                if (response[bmp].chefia_origem) {
-                                    $("#chefia_origem").val(response[bmp].chefia_origem);
-                                }
-                            }
-                        });
-                    },
-                    error: function() {
-                        console.error("Erro ao buscar os dados dos BMPs!");
-                    }
-                });
+                // Preenchendo os campos de origem com os dados retornados
+                document.getElementById("secaoOrigem").value = data.secaoOrigem || "";
+                document.getElementById("chefiaOrigem").value = data.chefiaOrigem || "";
+            } catch (error) {
+                console.error("Erro ao preencher origem:", error);
+                alert("Não foi possível buscar os dados do BMP. Verifique o número e tente novamente.");
             }
+        }
+
+        // Preenchimento automático da chefia de destino com base na seção
+        document.getElementById("secaoDestino").addEventListener("change", function() {
+            const chefias = {
+                "1": "Chefe da Seção A",
+                "2": "Chefe da Seção B",
+                "3": "Chefe da Seção C"
+            };
+            const chefiaDestino = chefias[this.value] || "";
+            document.getElementById("chefiaDestino").value = chefiaDestino;
         });
 
-        // Evento para preencher a chefia de destino quando a seção de destino for selecionada
-        $("#secao_destino").on("change", function() {
-            const secaoDestino = $(this).val();
-            if (secaoDestino) {
-                $.ajax({
-                    url: "/guia_bens",
-                    type: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }), // Envia a seção de destino ao backend
-                    success: function(response) {
-                        if (response.chefia) {
-                            $("#chefia_destino").val(response.chefia);  // Preencher o campo Chefia de Destino
-                        } else {
-                            $("#chefia_destino").val('');  // Limpar se não houver chefia encontrada
-                        }
-                    },
-                    error: function() {
-                        console.error("Erro ao buscar a chefia de destino!");
-                    }
-                });
-            } else {
-                $("#chefia_destino").val('');  // Limpar o campo Chefia de Destino se não houver seção selecionada
+        // Função para gerar a guia
+        function gerarGuia() {
+            const bmp = document.getElementById("bmp").value.trim();
+            const secaoOrigem = document.getElementById("secaoOrigem").value.trim();
+            const chefiaOrigem = document.getElementById("chefiaOrigem").value.trim();
+            const secaoDestino = document.getElementById("secaoDestino").value;
+            const chefiaDestino = document.getElementById("chefiaDestino").value.trim();
+
+            if (!bmp || !secaoOrigem || !chefiaOrigem || !secaoDestino || !chefiaDestino) {
+                alert("Por favor, preencha todos os campos!");
+                return;
             }
-        });
-    });
+
+            document.getElementById("resultado").innerHTML = `
+                <p><strong>Guia Gerada com Sucesso!</strong></p>
+                <p>BMP: ${bmp}</p>
+                <p>Seção de Origem: ${secaoOrigem}</p>
+                <p>Chefia de Origem: ${chefiaOrigem}</p>
+                <p>Seção de Destino: ${secaoDestino}</p>
+                <p>Chefia de Destino: ${chefiaDestino}</p>
+                <p><a href="#" class="button">Baixe aqui</a></p>
+            `;
+        }
     </script>
 </body>
 </html>
