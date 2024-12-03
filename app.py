@@ -31,7 +31,7 @@ class PDF(FPDF):
         self.cell(0, 8, "GUIA DE MOVIMENTAÇÃO DE BEM MÓVEL PERMANENTE ENTRE AS SEÇÕES DO GAPLS", ln=True, align="C")
         self.ln(10)
 
-       def add_table(self, dados_bmps):
+    def add_table(self, dados_bmps):
         col_widths = [25, 70, 55, 35]
         headers = ["Nº BMP", "Nomenclatura", "Nº Série", "Valor Atualizado"]
         # Renderizar cabeçalhos
