@@ -132,7 +132,20 @@ def guia_bens():
     return render_template(
         "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
     )
+def get_secoes_destino():
+    # Exemplo de função para obter as seções do banco de dados
+    conn = sqlite3.connect('patrimonio.xlsx.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, nome FROM secoes")  # Ajuste a consulta conforme seu banco de dados
+    secoes = cursor.fetchall()  # Retorna uma lista de tuplas (id, nome)
+    conn.close()
+    return secoes
 
+@app.route("/gerar_guia")
+def gerar_guia():
+    secoes = get_secoes_destino()  # Busca as seções no banco de dados
+    return render_template("guia_bens.html", secoes=secoes)
+    
 @app.route('/buscar_bmp', methods=['GET'])
 def buscar_bmp():
     """Busca as informações de um BMP e retorna os dados no formato JSON."""
