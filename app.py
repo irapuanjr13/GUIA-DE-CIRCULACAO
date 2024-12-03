@@ -116,8 +116,13 @@ def get_bmp_info():
     return jsonify(response)
 
 def get_secoes_destino():
-   secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
-   secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
+    secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
+    secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
+    return secoes_origem, secoes_destino
+
+@app.route("/gerar_guia", methods=["GET", "POST"])
+def gerar_guia():
+    secoes_origem, secoes_destino = get_secoes_destino()
 
     if request.method == "POST":
         bmp_numbers = request.form.get("bmp_numbers")
@@ -152,7 +157,7 @@ def get_secoes_destino():
                 error="Itens da conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO' não podem ser processados."
             )
 
-       results = dados_bmps.to_dict(orient="records")  # Prepara os dados para exibição ou processamento
+        results = dados_bmps.to_dict(orient="records")  # Prepara os dados para exibição ou processamento
         return render_template(
             "guia_bens.html",
             secoes_origem=secoes_origem,
@@ -167,11 +172,6 @@ def get_secoes_destino():
         secoes_destino=secoes_destino,
         results=[],
     )
-
-@app.route("/gerar_guia")
-def gerar_guia():
-    secoes = get_secoes_destino()  # Busca as seções no banco de dados
-    return render_template("guia_bens.html", secoes=secoes)
     
 @app.route('/buscar_bmp', methods=['GET'])
 def buscar_bmp():
