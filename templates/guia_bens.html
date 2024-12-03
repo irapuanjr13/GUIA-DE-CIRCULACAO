@@ -127,17 +127,80 @@
         Criado por <strong>Cb Irapuan</strong>
     </footer>
 
-    <script>
-        document.getElementById("bmp_numbers").addEventListener("input", function () {
-            const bmpList = this.value.split(",").map(bmp => bmp.trim()).filter(bmp => bmp !== "");
-            const container = document.getElementById("bmp_info");
-            container.innerHTML = "";
-            bmpList.forEach(bmp => {
-                const label = document.createElement("p");
-                label.textContent = `BMP ${bmp}`;
-                container.appendChild(label);
+<script>
+    document.getElementById("bmp_numbers").addEventListener("input", function () {
+        const bmpList = this.value.split(",").map(bmp => bmp.trim()).filter(bmp => bmp !== "");
+        const container = document.getElementById("bmp_info");
+        container.innerHTML = "";
+        
+        if (bmpList.length > 0) {
+            // Fazer requisição ao endpoint /autocomplete
+            fetch("/autocomplete", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ bmp_numbers: bmpList })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erro ao buscar dados de BMPs!");
+                }
+                return response.json();
+            })
+            .then(data => {
+                bmpList.forEach(bmp => {
+                    const info = data[bmp] || { secao_origem: "", chefia_origem: "" };
+                    const label = document.createElement("p");
+                    label.textContent = `BMP ${bmp} - Seção de Origem: ${info.secao_origem}, Chefia de Origem: ${info.chefia_origem}`;
+                    container.appendChild(label);
+                });
+            })
+            .catch(error => {
+                console.error(error);
+                container.textContent = "Erro ao carregar dados!";
+            });
+        }
+    });
+
+    // Função para buscar chefia com base na seção e tipo
+    function fetchChefia(secao, tipo) {
+        return fetch("/get_chefia", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ secao: secao, tipo: tipo })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Erro ao buscar chefia!");
+            }
+            return response.json();
+        })
+        .then(data => {
+            return data.chefia || [];
+        })
+        .catch(error => {
+            console.error(error);
+            return [];
+        });
+    }
+
+    // Exemplo de uso para o fetchChefia
+    document.getElementById("secao_destino").addEventListener("change", function () {
+        const secao = this.value;
+        fetchChefia(secao, "destino").then(chefiaList => {
+            const chefiaDestino = document.getElementById("chefia_destino");
+            chefiaDestino.innerHTML = ""; // Limpar lista atual
+            chefiaList.forEach(chefia => {
+                const option = document.createElement("option");
+                option.value = chefia;
+                option.textContent = chefia;
+                chefiaDestino.appendChild(option);
             });
         });
-    </script>
+    });
+</script>
 </body>
 </html>
