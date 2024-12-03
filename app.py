@@ -133,6 +133,32 @@ def guia_bens():
         "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
     )
 
+@app.route('/buscar_bmp', methods=['GET'])
+def buscar_bmp():
+    """Busca as informações de um BMP e retorna os dados no formato JSON."""
+    bmp = request.args.get('bmp')
+    if not bmp:
+        return jsonify({"error": "Número BMP não fornecido"}), 400
+
+    # Carregar os dados da planilha
+    df = carregar_dados()
+    if df is None:
+        return jsonify({"error": "Erro ao carregar a base de dados"}), 500
+
+    # Localizar o BMP na coluna específica
+    try:
+        resultado = df[df['Nº BMP'] == int(bmp)].iloc[0]
+        secao_origem = resultado['Seção de Origem']
+        chefia_origem = resultado['Chefia de Origem']
+        return jsonify({
+            "secaoOrigem": secao_origem,
+            "chefiaOrigem": chefia_origem
+        })
+    except IndexError:
+        return jsonify({"error": "BMP não encontrado"}), 404
+    except Exception as e:
+        return jsonify({"error": f"Erro inesperado: {e}"}), 500
+
 @app.route("/consulta_bmp", methods=["GET", "POST"])
 def consulta_bmp():
     results = pd.DataFrame()
