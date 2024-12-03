@@ -28,6 +28,18 @@ class PDF(FPDF):
         self.cell(0, 8, "GUIA DE MOVIMENTAÇÃO DE BEM DE USO DURADOURO ENTRE AS SEÇÕES DO GAPLS", ln=True, align="C")
         self.ln(10)
 
+    def fix_text(self, text):
+        """Corrige caracteres incompatíveis com a codificação latin-1."""
+        replacements = {
+            "–": "-",  # Substituir travessão por hífen
+            "“": '"',  # Substituir aspas abertas por aspas duplas
+            "”": '"',  # Substituir aspas fechadas por aspas duplas
+            "’": "'",  # Substituir apóstrofo por aspas simples
+        }
+        for old, new in replacements.items():
+            text = text.replace(old, new)
+        return text
+
     def add_table(self, dados_bmps):
         col_widths = [15, 55, 15, 30]
         headers = ["Nº BMP", "Nomenclatura", "Qtde", "Valor Atualizado"]
@@ -82,64 +94,79 @@ Dirigente Máximo
 
 @app.route("/get_bmp_info", methods=["POST"])
 def get_bmp_info():
-    data = request.json
-    bmp_number = data.get("bmp_number")
+    data = request.get_json()
+    bmp_numbers = data.get("bmp_numbers", [])
 
-    if not bmp_number:
-        return jsonify({"error": "Nº BMP não informado"}), 400
+    if not bmp_numbers:
+        return jsonify({"error": "Nenhum BMP fornecido!"}), 400
 
-    # Filtra o DataFrame para o BMP especificado
-    bmp_data = df[df["Nº BMP"].astype(str) == str(bmp_number)]
+    response = {}
+    for bmp in bmp_numbers:
+        filtro_bmp = df[df["Nº BMP"].astype(str) == bmp]
+        if not filtro_bmp.empty:
+            secao_origem = filtro_bmp["Seção de Origem"].values[0]
+            chefia_origem = filtro_bmp["Chefia de Origem"].values[0]
+            response[bmp] = {
+                "secao_origem": secao_origem,
+                "chefia_origem": chefia_origem
+            }
+        else:
+            response[bmp] = {"secao_origem": "", "chefia_origem": ""}
 
-    if bmp_data.empty:
-        return jsonify({"error": "Nº BMP não encontrado"}), 404
+    return jsonify(response)
 
-    # Retorna a Seção de Origem e Chefia de Origem
-    secao_origem = bmp_data["Seção de Origem"].iloc[0]
-    chefia_origem = bmp_data["Chefia de Origem"].iloc[0]
-
-    return jsonify({"secao_origem": secao_origem, "chefia_origem": chefia_origem})
-
-@app.route("/guia_bens", methods=["GET", "POST"])
-def guia_bens():
-    secoes_origem = df["Seção de Origem"].dropna().unique().tolist()
-    secoes_destino = df["Seção de Destino"].dropna().unique().tolist()
+def get_secoes_destino():
+   secoes_origem = df['Seção de Origem'].dropna().unique().tolist()
+    secoes_destino = df['Seção de Destino'].dropna().unique().tolist()
 
     if request.method == "POST":
-        bmp_numbers = request.form.get("bmp_numbers", "").strip()
+        bmp_numbers = request.form.get("bmp_numbers")
+        secao_origem = request.form.get("secao_origem")
         secao_destino = request.form.get("secao_destino")
+        chefia_origem = request.form.get("chefia_origem")
         chefia_destino = request.form.get("chefia_destino")
 
-        bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",") if bmp.strip()]
-        dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
+        if not (bmp_numbers and secao_origem and secao_destino and chefia_origem and chefia_destino):
+            return render_template(
+                "guia_bens.html",
+                secoes_origem=secoes_origem,
+                secoes_destino=secoes_destino,
+                error="Preencha todos os campos!",
+            )
 
+        bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",")]
+        dados_bmps = df[df["Nº BMP"].astype(str).str.strip().isin(bmp_list)]
         if dados_bmps.empty:
             return render_template(
                 "guia_bens.html",
                 secoes_origem=secoes_origem,
                 secoes_destino=secoes_destino,
-                error="Nenhum BMP encontrado ou inválido."
+                error="Nenhum BMP encontrado para os números fornecidos.",
             )
 
-            if dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
-                    return render_template(
-                        "guia_bens.html",
-                        secoes_origem=secoes_origem,
-                        secoes_destino=secoes_destino,
-                        error="Itens da conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO' não podem ser processados."
+        if dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
+            return render_template(
+                "guia_bens.html",
+                secoes_origem=secoes_origem,
+                secoes_destino=secoes_destino,
+                error="Itens da conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO' não podem ser processados."
             )
 
+       results = dados_bmps.to_dict(orient="records")  # Prepara os dados para exibição ou processamento
+        return render_template(
+            "guia_bens.html",
+            secoes_origem=secoes_origem,
+            secoes_destino=secoes_destino,
+            results=results,
+        )
+
+    # Para requisições GET, simplesmente renderize o formulário vazio
     return render_template(
-        "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
+        "guia_bens.html",
+        secoes_origem=secoes_origem,
+        secoes_destino=secoes_destino,
+        results=[],
     )
-def get_secoes_destino():
-    # Exemplo de função para obter as seções do banco de dados
-    conn = sqlite3.connect('patrimonio.xlsx.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, nome FROM secoes")  # Ajuste a consulta conforme seu banco de dados
-    secoes = cursor.fetchall()  # Retorna uma lista de tuplas (id, nome)
-    conn.close()
-    return secoes
 
 @app.route("/gerar_guia")
 def gerar_guia():
