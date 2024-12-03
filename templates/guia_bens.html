@@ -161,7 +161,7 @@
             const secaoDestino = $(this).val();
             if (secaoDestino) {
                 $.ajax({
-                    url: "/guia_bens1",
+                    url: "/guia_bens",
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify({ "secao": secaoDestino, "tipo": "destino" }), // Envia a seção de destino ao backend
