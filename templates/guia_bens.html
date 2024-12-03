@@ -211,9 +211,9 @@ document.getElementById("bmp_numbers").addEventListener("input", function () {
     });
 
 document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById("guia_bens_form").addEventListener("submit", function (event) {
-        event.preventDefault();  // Impede o envio padrão do formulário
-
+    document.getElementById("guia_bens_form").addEventListener("submit", function(event) {
+        event.preventDefault();
+        
         // Obtém os valores dos campos
         const bmpNumbers = document.getElementById("bmp_number").value; // O valor já é uma string
         const secaoOrigem = document.getElementById("secao_origem").value;
