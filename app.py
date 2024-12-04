@@ -149,7 +149,7 @@ def guia_bens():
         pdf = PDF()
         pdf.add_page()
         pdf.add_table(dados_bmps)
-        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+        pdf.add_details(chefia_origem, secao_origem, secao_destino, chefia_destino)
 
         output_path = "static/guia_circulacao.pdf"
         pdf.output(output_path)
