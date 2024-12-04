@@ -153,47 +153,44 @@ document.getElementById("bmp_numbers").addEventListener("input", function () {
     }
 });
 
-// Atualiza chefia de destino ao selecionar seção de destino
-document.getElementById("secao_destino").addEventListener("change", function () {
-    const secao = this.value;
-    const chefiaDestino = document.getElementById("chefia_destino");
+    // Função para buscar chefia com base na seção e tipo
+    function fetchChefia(secao, tipo) {
+        return fetch("/get_chefia", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ secao: secao, tipo: tipo })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Erro ao buscar chefia!");
+            }
+            return response.json();
+        })
+        .then(data => {
+            return data.chefia || [];
+        })
+        .catch(error => {
+            console.error(error);
+            return [];
+        });
+    }
 
-    // Limpa chefias anteriores
-    chefiaDestino.innerHTML = '<option value="">Selecione a chefia</option>';
-
-    if (!secao) return; // Se nenhuma seção for selecionada, retorna
-
-    // Faz a requisição ao servidor
-    fetch("/get_chefia", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ secao: secao })
-    })
-    .then(response => {
-        if (!response.ok) throw new Error("Erro ao buscar chefias!");
-        return response.json();
-    })
-    .then(data => {
-        if (data.length === 0) {
-            // Exibe mensagem quando não há chefias
-            const option = document.createElement("option");
-            option.value = "";
-            option.textContent = "Nenhuma chefia encontrada";
-            chefiaDestino.appendChild(option);
-        } else {
-            // Preenche chefias no select
-            data.forEach(chefia => {
+    // Exemplo de uso para o fetchChefia
+    document.getElementById("secao_destino").addEventListener("change", function () {
+        const secao = this.value;
+        fetchChefia(secao, "destino").then(chefiaList => {
+            const chefiaDestino = document.getElementById("chefia_destino");
+            chefiaDestino.innerHTML = ""; // Limpar lista atual
+            chefiaList.forEach(chefia => {
                 const option = document.createElement("option");
                 option.value = chefia;
                 option.textContent = chefia;
                 chefiaDestino.appendChild(option);
             });
-        }
-    })
-    .catch(error => console.error("Erro ao buscar chefias: ", error));
-});
+        });
+    });
 
 // Envio do formulário
 document.getElementById("gerar-guia").addEventListener("click", function (event) {
