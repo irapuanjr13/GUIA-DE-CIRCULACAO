@@ -146,11 +146,11 @@ def guia_bens():
 if not data:
     return jsonify({"error": "Dados inválidos!"}), 400
 
-		bmp_list = data.get("dados_bmps", [])
-		secao_origem = data.get("secao_origem", "").strip()
-		chefia_origem = data.get("chefia_origem", "").strip()
-		secao_destino = data.get("secao_destino", "").strip()
-		chefia_destino = data.get("chefia_destino", "").strip()
+	bmp_list = data.get("dados_bmps", [])
+	secao_origem = data.get("secao_origem", "").strip()
+	chefia_origem = data.get("chefia_origem", "").strip()
+	secao_destino = data.get("secao_destino", "").strip()
+	chefia_destino = data.get("chefia_destino", "").strip()
 
         if dados_bmps.empty:
             return jsonify({"error": "Nenhum BMP encontrado ou inválido."}), 400
