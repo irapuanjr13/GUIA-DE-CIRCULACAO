@@ -96,14 +96,7 @@ if request.method == "POST":
 
     bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",") if bmp.strip()]
     dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
-    if dados_bmps.empty:
-        return render_template(
-            "guia_bens.html",
-            secoes_origem=secoes_origem,
-            secoes_destino=secoes_destino,
-            error="Nenhum BMP encontrado ou inválido."
-            )
-    
+        
     if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
         return render_template(
             "guia_bens.html",
