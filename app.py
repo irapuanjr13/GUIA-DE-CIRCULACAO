@@ -112,7 +112,7 @@ def guia_bens():
         data = request.get_json()
         bmp_numbers = data.get("bmp_numbers", "").strip()
         secao_origem = data.get("secoes_origem")
-        secao_destino = data.get(" secoes_destino")
+        secao_destino = data.get("secoes_destino")
         chefia_origem = data.get("chefia_origem")
         chefia_destino = data.get("chefia_destino")
 
@@ -120,10 +120,10 @@ def guia_bens():
         dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
 
         if dados_bmps.empty:
-            return render_template("guia_bens.html", secao_origem=secoes_origem, secao_destino=secoes_destino, error="Nenhum BMP encontrado ou inválido.")
+            return render_template("guia_bens.html", secao_origem=secao_origem, secao_destino=secao_destino, error="Nenhum BMP encontrado ou inválido.")
 
         if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
-            return render_template("guia_bens.html", secao_origem=secoes_origem, secao_destino=secoes_destino, error="Nenhum BMP encontrado para os números fornecidos.")
+            return render_template("guia_bens.html", secao_origem=secao_origem, secao_destino=secao_destino, error="Nenhum BMP encontrado para os números fornecidos.")
 
         pdf = PDF()
         pdf.add_page()
