@@ -44,31 +44,33 @@ class PDF(FPDF):
         self.ln(10)
 
     def add_table(self, dados_bmps):
-        col_widths = [25, 70, 55, 35]
-        headers = ["Nº BMP", "Nomenclatura", "Nº Série", "Valor Atualizado"]
-        # Adicionar cabeçalho da tabela
-        self.set_font("Arial", "B", 10)
-        for width, header in zip(col_widths, headers):
-            self.cell(width, 10, header, border=1, align="C")
+    col_widths = [25, 70, 55, 35]
+    headers = ["Nº BMP", "Nomenclatura", "Nº Série", "Valor Atualizado"]
+    
+    # Adicionar cabeçalho da tabela
+    self.set_font("Arial", "B", 10)
+    for width, header in zip(col_widths, headers):
+        self.cell(width, 10, header, border=1, align="C")
+    self.ln()
+
+    # Adicionar as linhas da tabela
+    self.set_font("Arial", size=10)
+    for _, row in dados_bmps.iterrows():
+        text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
+        max_chars = int(col_widths[1] / 3)  # Aprox. número de caracteres por linha
+        line_count = len(text) // max_chars + 1
+        row_height = 10 * line_count
+
+        self.cell(col_widths[0], row_height, str(row["Nº BMP"]), border=1, align="C")
+        
+        # Multi-cell para a coluna "Nomenclatura"
+        x, y = self.get_x(), self.get_y()
+        self.multi_cell(col_widths[1], 10, text, border=1)
+        self.set_xy(x + col_widths[1], y)  # Posiciona na próxima célula
+
+        self.cell(col_widths[2], row_height, self.fix_text(str(row["Nº SERIE"])), border=1, align="C")
+        self.cell(col_widths[3], row_height, f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ','), border=1, align="R")
         self.ln()
-
-        # Adicionar as linhas da tabela
-        self.set_font("Arial", size=10)
-        for _, row in dados_bmps.iterrows():
-            # Calcular a altura necessária para a célula "Nomenclatura"
-            text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
-            line_count = self.get_string_width(text) // col_widths[1] + 1
-            row_height = 10 * line_count  # 10 é a altura padrão da célula
-            
-            self.cell(col_widths[0], row_height, str(row["Nº BMP"]), border=1, align="C")
-
-            x, y = self.get_x(), self.get_y()
-            self.multi_cell(col_widths[1], 10, text, border=1)
-            self.set_xy(x + col_widths[1], y)  # Reposicionar para a próxima coluna
-
-            self.cell(col_widths[2], row_height, self.fix_text(row["Nº SERIE"]), border=1, align="C")
-            self.cell(col_widths[3], row_height, f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ','), border=1, align="R")
-            self.ln()
 
     def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
         self.set_font("Arial", size=12)
@@ -126,52 +128,67 @@ def validar_campos_obrigatorios(campos):
         if not valor:
             erros.append(f"O campo '{campo}' é obrigatório.")
     return True if not erros else erros
-        
+
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
+    # Carregar as seções únicas
     secao_origem = df["Seção de Origem"].dropna().unique().tolist()
     secao_destino = df["Seção de Destino"].dropna().unique().tolist()
 
+    # Receber os dados no formato JSON
     data = request.get_json(silent=True)
     if not data:
         return jsonify({"error": "Os dados enviados não estão no formato JSON!"}), 400
-        
-        print("Dados recebidos:", data)
 
-    # Validação dos campos
-    if not all([data.get("bmp_numbers"), data.get("secao_origem"), data.get("secao_destino"), data.get("chefia_origem"), data.get("chefia_destino")]):
+    print("Dados recebidos:", data)  # Para depuração
+
+    # Validação dos campos obrigatórios
+    if not all([
+        data.get("bmp_numbers"),
+        data.get("secao_origem"),
+        data.get("secao_destino"),
+        data.get("chefia_origem"),
+        data.get("chefia_destino")
+    ]):
         return jsonify({"error": "Dados incompletos!"}), 400
-        
-    data = request.get_json(silent=True)
-	if not data:
-    	return jsonify({"error": "Dados inválidos!"}), 400
 
-	bmp_list = data.get("dados_bmps", [])
-	secao_origem = data.get("secao_origem", "").strip()
-	chefia_origem = data.get("chefia_origem", "").strip()
-	secao_destino = data.get("secao_destino", "").strip()
-	chefia_destino = data.get("chefia_destino", "").strip()
+    # Extrair os dados do JSON
+    bmp_numbers = data.get("bmp_numbers", [])
+    secao_origem = data.get("secao_origem", "").strip()
+    chefia_origem = data.get("chefia_origem", "").strip()
+    secao_destino = data.get("secao_destino", "").strip()
+    chefia_destino = data.get("chefia_destino", "").strip()
 
+    # Limpar e validar os números BMP
+    bmp_list = [bmp.strip() for bmp in bmp_numbers if bmp.strip()]
+    if not bmp_list:
+        return jsonify({"error": "Nenhum BMP válido foi enviado!"}), 400
+
+    # Filtrar os BMPs na base de dados
+    dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
     if dados_bmps.empty:
         return jsonify({"error": "Nenhum BMP encontrado ou inválido."}), 400
 
-        bmp_list = [bmp.strip() for bmp in bmp_numbers if bmp.strip()]
-        dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
-                
+    # Validar a conta dos BMPs
     if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
-    	return render_template("guia_bens.html", secao_origem=secoes_origem, secao_destino=secoes_destino, error="Nenhum BMP encontrado.")
+        return render_template(
+            "guia_bens.html",
+            secao_origem=secao_origem,
+            secao_destino=secao_destino,
+            error="Nenhum BMP válido encontrado."
+        )
 
-    if dados_bmps.empty:
-    	return jsonify({"error": "Nenhum BMP encontrado ou inválido."}), 400
+    # Gerar o PDF
+    pdf = PDF()
+    pdf.add_page()
+    pdf.add_table(dados_bmps)
+    pdf.add_details(chefia_origem, secao_origem, secao_destino, chefia_destino)
 
-		pdf = PDF()
-		pdf.add_page()
-		pdf.add_table(dados_bmps)
-		pdf.add_details(chefia_origem, secao_origem, secao_destino, chefia_destino)
+    output_path = "static/guia_circulacao.pdf"
+    pdf.output(output_path)
 
-		output_path = "static/guia_circulacao.pdf"
-		pdf.output(output_path)
-		return send_file(output_path, as_attachment=True)
+    # Retornar o PDF para download
+    return send_file(output_path, as_attachment=True)
     
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
