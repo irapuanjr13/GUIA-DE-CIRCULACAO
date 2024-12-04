@@ -1,4 +1,4 @@
- from flask import Flask, render_template, request, send_file, jsonify
+from flask import Flask, render_template, request, send_file, jsonify
 import pandas as pd
 import gdown
 from fpdf import FPDF
