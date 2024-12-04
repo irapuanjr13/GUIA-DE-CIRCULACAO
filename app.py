@@ -156,12 +156,9 @@ if request.method == "POST":
     erros_bmps = validar_bmps(bmp_numbers)
     if erros_bmps is not True:
         return jsonify({"success": False, "errors": erros_bmps}), 400
-
-    # Simular dados (substitua pelo código que coleta os dados reais)
-    dados_bmps = [{"BMP": bmp, "Descrição": f"Descrição do BMP {bmp}"} for bmp in bmp_numbers]
-
-        bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",") if bmp.strip()]
-        dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
+   
+    bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",") if bmp.strip()]
+    dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
 
         if dados_bmps.empty:
             return render_template("guia_bens.html", secao_origem=secao_origem, secao_destino=secao_destino, error="Nenhum BMP encontrado ou inválido.")
