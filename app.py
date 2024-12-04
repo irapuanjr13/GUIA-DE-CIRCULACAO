@@ -143,8 +143,8 @@ if request.method == "POST":
     bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",") if bmp.strip()]
     dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
         
-if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
-    return render_template("guia_bens.html", secao_origem=secao_origem, secao_destino=secao_destino, error="Nenhum BMP encontrado para os números fornecidos.")
+        if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
+            return render_template("guia_bens.html", secao_origem=secao_origem, secao_destino=secao_destino, error="Nenhum BMP encontrado para os números fornecidos.")
 
     pdf = PDF()
     pdf.add_page()
