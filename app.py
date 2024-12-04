@@ -133,8 +133,8 @@ def guia_bens():
     secao_destino = df["Seção de Destino"].dropna().unique().tolist()
 
     data = request.get_json(silent=True)
-if not data:
-    return jsonify({"error": "Os dados enviados não estão no formato JSON!"}), 400
+    if not data:
+        return jsonify({"error": "Os dados enviados não estão no formato JSON!"}), 400
         
         print("Dados recebidos:", data)
 
