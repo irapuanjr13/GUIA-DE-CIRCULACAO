@@ -127,7 +127,7 @@ def validar_campos_obrigatorios(campos):
             erros.append(f"O campo '{campo}' é obrigatório.")
     return True if not erros else erros
         
-@app.route("/guia_bens", methods=["POST"])
+@app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
     secao_origem = df["Seção de Origem"].dropna().unique().tolist()
     secao_destino = df["Seção de Destino"].dropna().unique().tolist()
