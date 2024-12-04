@@ -131,7 +131,7 @@
     </footer>
 
 <script>
-document.getElementById("bmp_numbers").addEventListener("input", function () {
+document.getElementById("bmp_number").addEventListener("input", function () {
     const bmpList = this.value.split(",").map(bmp => bmp.trim()).filter(bmp => bmp !== "");
     
     if (bmpList.length > 0) {
@@ -141,7 +141,7 @@ document.getElementById("bmp_numbers").addEventListener("input", function () {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ bmp_numbers: bmpList })
+            body: JSON.stringify({ bmp_number: bmpList })
         })
         .then(response => {
             if (!response.ok) {
@@ -226,7 +226,7 @@ document.getElementById("guia_bens_form").addEventListener("submit", function (e
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            bmp_numbers: bmpNumbers,  // Correção aqui: 'bmp_number' para 'bmp_numbers'
+            bmp_number: bmpNumbers,  // Correção aqui: 'bmp_number' para 'bmp_numbers'
             secao_origem: secaoOrigem,
             chefia_origem: chefiaOrigem,
             secao_destino: secaoDestino,
