@@ -86,16 +86,16 @@ Dirigente Máximo
 def guia_bens():
     secoes_origem = df["Seção de Origem"].dropna().unique().tolist()
     secoes_destino = df["Seção de Destino"].dropna().unique().tolist()
-    if request.method == "POST":
-    data = request.get_json()
-    bmp_numbers = data.get("bmp_numbers", "").strip()
-    secao_origem = data.get("secao_origem")
-    secao_destino = data.get("secao_destino")
-    chefia_origem = data.get("chefia_origem")
-    chefia_destino = data.get("chefia_destino")
+        if request.method == "POST":
+            data = request.get_json()
+            bmp_numbers = data.get("bmp_numbers", "").strip()
+            secao_origem = data.get("secao_origem")
+            secao_destino = data.get("secao_destino")
+            chefia_origem = data.get("chefia_origem")
+            chefia_destino = data.get("chefia_destino")
 
-        bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",") if bmp.strip()]
-        dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
+            bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",") if bmp.strip()]
+            dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
         if dados_bmps.empty:
             return render_template(
                 "guia_bens.html",
