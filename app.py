@@ -155,7 +155,7 @@ def guia_bens():
         pdf.output(output_path)
         return send_file(output_path, as_attachment=True)
 
-    return render_template("guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino)
+    return render_template("guia_bens.html", secoes_origem=secao_origem, secoes_destino=secao_destino)
     
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
