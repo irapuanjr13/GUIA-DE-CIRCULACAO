@@ -142,6 +142,7 @@ if request.method == "POST":
 
     bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",") if bmp.strip()]
     dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
+    
     if dados_bmps.empty:
         return render_template("guia_bens.html", secao_origem=secao_origem, secao_destino=secao_destino, error="Nenhum BMP encontrado ou inválido.")
 
