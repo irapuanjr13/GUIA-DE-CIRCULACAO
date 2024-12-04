@@ -87,11 +87,13 @@ def guia_bens():
     secoes_origem = df["Seção de Origem"].dropna().unique().tolist()
     secoes_destino = df["Seção de Destino"].dropna().unique().tolist()
     if request.method == "POST":
-        bmp_numbers = request.form.get("bmp_numbers", "").strip()
-        secao_origem = request.form.get("secao_origem")
-        secao_destino = request.form.get("secao_destino")
-        chefia_origem = request.form.get("chefia_origem")
-        chefia_destino = request.form.get("chefia_destino")
+    data = request.get_json()
+    bmp_numbers = data.get("bmp_numbers", "").strip()
+    secao_origem = data.get("secao_origem")
+    secao_destino = data.get("secao_destino")
+    chefia_origem = data.get("chefia_origem")
+    chefia_destino = data.get("chefia_destino")
+
         bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",") if bmp.strip()]
         dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
         if dados_bmps.empty:
