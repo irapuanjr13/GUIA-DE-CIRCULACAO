@@ -23,6 +23,18 @@ class PDF(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'A4')  # Orientação retrato, milímetros, formato A4
 
+    def fix_text(self, text):
+        """Corrige caracteres incompatíveis com a codificação latin-1."""
+        replacements = {
+            "–": "-",  # Substituir travessão por hífen
+            "“": '"',  # Substituir aspas abertas por aspas duplas
+            "”": '"',  # Substituir aspas fechadas por aspas duplas
+            "’": "'",  # Substituir apóstrofo por aspas simples
+        }
+        for old, new in replacements.items():
+            text = text.replace(old, new)
+        return text
+    
     def header(self):
         self.set_font("Arial", "B", 12)
         self.cell(0, 6, "MINISTÉRIO DA DEFESA", ln=True, align="C")
