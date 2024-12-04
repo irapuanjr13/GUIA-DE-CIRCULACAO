@@ -219,6 +219,11 @@ document.getElementById("guia_bens_form").addEventListener("submit", function (e
     const secaoDestino = document.getElementById("secao_destino").value;
     const chefiaDestino = document.getElementById("chefia_destino").value;
 
+    if (!bmpNumbers || !secaoOrigem || !chefiaOrigem || !secaoDestino || !chefiaDestino) {
+    alert("Todos os campos devem ser preenchidos!");
+    return;
+}
+
     // Envia os dados para o backend
     fetch("/guia_bens", {
         method: "POST",
