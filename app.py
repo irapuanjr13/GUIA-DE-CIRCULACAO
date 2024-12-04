@@ -140,20 +140,8 @@ if request.method == "POST":
     secao_destino = data.get("secao_destino", "").strip()
     chefia_destino = data.get("chefia_destino", "").strip()
 
-    # Validar campos obrigatórios
-    campos_obrigatorios = {
-        "bmp_numbers": bmp_numbers,
-        "secao_origem": secao_origem,
-        "chefia_origem": chefia_origem,
-        "secao_destino": secao_destino,
-        "chefia_destino": chefia_destino,
-    }
-    
-    erros_campos = validar_campos_obrigatorios(campos_obrigatorios)
-       
     bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",") if bmp.strip()]
     dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
-
     if dados_bmps.empty:
         return render_template("guia_bens.html", secao_origem=secao_origem, secao_destino=secao_destino, error="Nenhum BMP encontrado ou inválido.")
 
