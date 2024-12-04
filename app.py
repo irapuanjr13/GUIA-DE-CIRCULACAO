@@ -142,33 +142,36 @@ def guia_bens():
         if not all([data.get("bmp_numbers"), data.get("secao_origem"), data.get("secao_destino"), data.get("chefia_origem"), data.get("chefia_destino")]):
             return jsonify({"error": "Dados incompletos!"}), 400
         
-        bmp_numbers = data.get("bmp_numbers", "").split(",")  # Recebido como string separada por vírgulas
-        secao_origem = data.get("secao_origem", "").strip()
-        chefia_origem = data.get("chefia_origem", "").strip()
-        secao_destino = data.get("secao_destino", "").strip()
-        chefia_destino = data.get("chefia_destino", "").strip()
+        data = request.get_json(silent=True)
+if not data:
+    return jsonify({"error": "Dados inválidos!"}), 400
+
+		bmp_list = data.get("dados_bmps", [])
+		secao_origem = data.get("secao_origem", "").strip()
+		chefia_origem = data.get("chefia_origem", "").strip()
+		secao_destino = data.get("secao_destino", "").strip()
+		chefia_destino = data.get("chefia_destino", "").strip()
 
         if dados_bmps.empty:
             return jsonify({"error": "Nenhum BMP encontrado ou inválido."}), 400
 
         bmp_list = [bmp.strip() for bmp in bmp_numbers if bmp.strip()]
         dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
-
-        
-        
+                
         if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
             return render_template("guia_bens.html", secao_origem=secoes_origem, secao_destino=secoes_destino, error="Nenhum BMP encontrado.")
 
-        pdf = PDF()
-        pdf.add_page()
-        pdf.add_table(dados_bmps)
-        pdf.add_details(chefia_origem, secao_origem, secao_destino, chefia_destino)
+        if dados_bmps.empty:
+    		return jsonify({"error": "Nenhum BMP encontrado ou inválido."}), 400
 
-        output_path = "static/guia_circulacao.pdf"
-        pdf.output(output_path)
-        return send_file(output_path, as_attachment=True)
+			pdf = PDF()
+			pdf.add_page()
+			pdf.add_table(dados_bmps)
+			pdf.add_details(chefia_origem, secao_origem, secao_destino, chefia_destino)
 
-    return render_template("guia_bens.html", secoes_origem=secao_origem, secoes_destino=secao_destino)
+			output_path = "static/guia_circulacao.pdf"
+			pdf.output(output_path)
+			return send_file(output_path, as_attachment=True)
     
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
