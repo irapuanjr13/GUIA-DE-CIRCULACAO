@@ -111,8 +111,8 @@ def guia_bens():
     if request.method == "POST":
         data = request.get_json()
         bmp_numbers = data.get("bmp_numbers", "").strip()
-        secoes_origem = data.get("secao_origem")
-        secoes_destino = data.get(" secao_destino")
+        secao_origem = data.get("secoes_origem")
+        secao_destino = data.get(" secoes_destino")
         chefia_origem = data.get("chefia_origem")
         chefia_destino = data.get("chefia_destino")
 
