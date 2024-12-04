@@ -106,7 +106,7 @@ Dirigente Máximo
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
     secao_origem = df["Seção de Origem"].dropna().unique().tolist()
-     secao_destino = df["Seção de Destino"].dropna().unique().tolist()
+    secao_destino = df["Seção de Destino"].dropna().unique().tolist()
 
     if request.method == "POST":
         data = request.get_json()
