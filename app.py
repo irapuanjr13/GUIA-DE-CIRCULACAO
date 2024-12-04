@@ -102,6 +102,30 @@ LUCIANA DO AMARAL CORREA  Cel Int
 Dirigente Máximo
 """
         self.multi_cell(0, 8, self.fix_text(text))
+
+# Mock para as funções de validação
+def validar_bmps(dados_bmps):
+    """
+    Valida se os BMPs fornecidos são válidos.
+    Retorna True se todos os BMPs forem válidos e uma lista de erros se houver problemas.
+    """
+    erros = []
+    for bmp in dados_bmps:
+        if not bmp.isdigit():  # Exemplo simples: verifica se é numérico
+            erros.append(f"BMP '{bmp}' não é um número válido.")
+        elif int(bmp) <= 0:
+            erros.append(f"BMP '{bmp}' deve ser maior que zero.")
+    return True if not erros else erros
+
+def validar_campos_obrigatorios(campos):
+    """
+    Verifica se os campos obrigatórios foram preenchidos.
+    """
+    erros = []
+    for campo, valor in campos.items():
+        if not valor:
+            erros.append(f"O campo '{campo}' é obrigatório.")
+    return True if not erros else erros
         
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
@@ -109,12 +133,32 @@ def guia_bens():
     secao_destino = df["Seção de Destino"].dropna().unique().tolist()
 
     if request.method == "POST":
-        data = request.get_json()
-        bmp_numbers = data.get("bmp_numbers", "").strip()
-        secao_origem = data.get("secoes_origem")
-        secao_destino = data.get("secoes_destino")
-        chefia_origem = data.get("chefia_origem")
-        chefia_destino = data.get("chefia_destino")
+    data = request.json
+    bmp_numbers = data.get("bmp_numbers", "").split(",")  # Recebido como string separada por vírgulas
+    secao_origem = data.get("secao_origem", "").strip()
+    chefia_origem = data.get("chefia_origem", "").strip()
+    secao_destino = data.get("secao_destino", "").strip()
+    chefia_destino = data.get("chefia_destino", "").strip()
+
+    # Validar campos obrigatórios
+    campos_obrigatorios = {
+        "bmp_numbers": bmp_numbers,
+        "secao_origem": secao_origem,
+        "chefia_origem": chefia_origem,
+        "secao_destino": secao_destino,
+        "chefia_destino": chefia_destino,
+    }
+    erros_campos = validar_campos_obrigatorios(campos_obrigatorios)
+    if erros_campos is not True:
+        return jsonify({"success": False, "errors": erros_campos}), 400
+
+    # Validar BMPs
+    erros_bmps = validar_bmps(bmp_numbers)
+    if erros_bmps is not True:
+        return jsonify({"success": False, "errors": erros_bmps}), 400
+
+    # Simular dados (substitua pelo código que coleta os dados reais)
+    dados_bmps = [{"BMP": bmp, "Descrição": f"Descrição do BMP {bmp}"} for bmp in bmp_numbers]
 
         bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",") if bmp.strip()]
         dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
