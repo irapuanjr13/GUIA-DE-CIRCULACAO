@@ -133,15 +133,27 @@ def guia_bens():
     secao_destino = df["Seção de Destino"].dropna().unique().tolist()
 
     if request.method == "POST":
-        data = request.json
+        data = request.get_json()
+        
+        print("Dados recebidos:", data)
+
+        # Validação dos campos
+        if not all([data.get("bmp_numbers"), data.get("secao_origem"), data.get("secao_destino"), data.get("chefia_origem"), data.get("chefia_destino")]):
+            return jsonify({"error": "Dados incompletos!"}), 400
+        
         bmp_numbers = data.get("bmp_numbers", "").split(",")  # Recebido como string separada por vírgulas
         secao_origem = data.get("secao_origem", "").strip()
         chefia_origem = data.get("chefia_origem", "").strip()
         secao_destino = data.get("secao_destino", "").strip()
         chefia_destino = data.get("chefia_destino", "").strip()
 
+        if dados_bmps.empty:
+            return jsonify({"error": "Nenhum BMP encontrado ou inválido."}), 400
+
         bmp_list = [bmp.strip() for bmp in bmp_numbers if bmp.strip()]
         dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
+
+        
         
         if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
             return render_template("guia_bens.html", secao_origem=secoes_origem, secao_destino=secoes_destino, error="Nenhum BMP encontrado.")
