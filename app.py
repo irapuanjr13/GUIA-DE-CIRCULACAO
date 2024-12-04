@@ -127,13 +127,14 @@ def validar_campos_obrigatorios(campos):
             erros.append(f"O campo '{campo}' é obrigatório.")
     return True if not erros else erros
         
-@app.route("/guia_bens", methods=["GET", "POST"])
+@app.route("/guia_bens", methods=["POST"])
 def guia_bens():
     secao_origem = df["Seção de Origem"].dropna().unique().tolist()
     secao_destino = df["Seção de Destino"].dropna().unique().tolist()
 
-    if request.method == "POST":
-        data = request.get_json()
+    data = request.get_json(silent=True)
+    if not data:
+    return jsonify({"error": "Os dados enviados não estão no formato JSON!"}), 400
         
         print("Dados recebidos:", data)
 
