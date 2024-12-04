@@ -132,31 +132,31 @@ def guia_bens():
     secao_origem = df["Seção de Origem"].dropna().unique().tolist()
     secao_destino = df["Seção de Destino"].dropna().unique().tolist()
 
-if request.method == "POST":
-    data = request.json
-    bmp_numbers = data.get("bmp_numbers", "").split(",")  # Recebido como string separada por vírgulas
-    secao_origem = data.get("secao_origem", "").strip()
-    chefia_origem = data.get("chefia_origem", "").strip()
-    secao_destino = data.get("secao_destino", "").strip()
-    chefia_destino = data.get("chefia_destino", "").strip()
+    if request.method == "POST":
+        data = request.json
+        bmp_numbers = data.get("bmp_numbers", "").split(",")  # Recebido como string separada por vírgulas
+        secao_origem = data.get("secao_origem", "").strip()
+        chefia_origem = data.get("chefia_origem", "").strip()
+        secao_destino = data.get("secao_destino", "").strip()
+        chefia_destino = data.get("chefia_destino", "").strip()
 
-    bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",") if bmp.strip()]
-    dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
+        bmp_list = [bmp.strip() for bmp in bmp_numbers if bmp.strip()]
+        dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
         
         if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
-            return render_template("guia_bens.html", secao_origem=secao_origem, secao_destino=secao_destino, error="Nenhum BMP encontrado para os números fornecidos.")
+            return render_template("guia_bens.html", secao_origem=secoes_origem, secao_destino=secoes_destino, error="Nenhum BMP encontrado.")
 
-    pdf = PDF()
-    pdf.add_page()
-    pdf.add_table(dados_bmps)
-    pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+        pdf = PDF()
+        pdf.add_page()
+        pdf.add_table(dados_bmps)
+        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
 
-    output_path = "static/guia_circulacao.pdf"
-    pdf.output(output_path)
-    return send_file(output_path, as_attachment=True)
+        output_path = "static/guia_circulacao.pdf"
+        pdf.output(output_path)
+        return send_file(output_path, as_attachment=True)
 
-return render_template("guia_bens.html", secoes_origem=secao_origem, secoes_destino=secao_destino)
-
+    return render_template("guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino)
+    
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
     data = request.get_json()
