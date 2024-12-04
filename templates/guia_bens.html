@@ -87,7 +87,7 @@
             </div>
             <div class="form-group">
                 <label for="bmp_numbers">Números de BMP (separados por vírgula):</label>
-                <input type="text" id="bmp_number" name="bmp_numbers" placeholder="Ex.: 123, 456">
+                <input type="text" id="bmp_numbers" name="bmp_numbers" placeholder="Ex.: 123, 456">
             </div>
             <!-- Contêiner para exibir informações sobre os BMPs -->
             <div id="bmp_info"></div>
@@ -131,7 +131,7 @@
     </footer>
 
 <script>
-document.getElementById("bmp_number").addEventListener("input", function () {
+document.getElementById("bmp_numbers").addEventListener("input", function () {
     const bmpList = this.value.split(",").map(bmp => bmp.trim()).filter(bmp => bmp !== "");
     
     if (bmpList.length > 0) {
@@ -141,7 +141,7 @@ document.getElementById("bmp_number").addEventListener("input", function () {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ bmp_number: bmpList })
+            body: JSON.stringify({ bmp_numbers: bmpList })
         })
         .then(response => {
             if (!response.ok) {
@@ -213,7 +213,7 @@ document.getElementById("guia_bens_form").addEventListener("submit", function (e
     event.preventDefault();  // Impede o envio padrão do formulário
 
     // Obtém os valores dos campos
-    const bmpNumbers = document.getElementById("bmp_number").value; // O valor já é uma string
+    const bmpNumbers = document.getElementById("bmp_numbers").value; // O valor já é uma string
     const secaoOrigem = document.getElementById("secao_origem").value;
     const chefiaOrigem = document.getElementById("chefia_origem").value;
     const secaoDestino = document.getElementById("secao_destino").value;
@@ -226,7 +226,7 @@ document.getElementById("guia_bens_form").addEventListener("submit", function (e
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            bmp_number: bmpNumbers,  // Correção aqui: 'bmp_number' para 'bmp_numbers'
+            bmp_numbers: bmpNumbers,  // Correção aqui: 'bmp_number' para 'bmp_numbers'
             secao_origem: secaoOrigem,
             chefia_origem: chefiaOrigem,
             secao_destino: secaoDestino,
@@ -245,7 +245,7 @@ document.getElementById("guia_bens_form").addEventListener("submit", function (e
         // Criação do link para o download do arquivo
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = "guia_bens.pdf"; // Nome do arquivo gerado
+        link.download = "guia_circulacao.pdf"; // Nome do arquivo gerado
         link.click(); // Inicia o download
     })
     .catch(error => {
