@@ -148,15 +148,9 @@ if request.method == "POST":
         "secao_destino": secao_destino,
         "chefia_destino": chefia_destino,
     }
+    
     erros_campos = validar_campos_obrigatorios(campos_obrigatorios)
-    if erros_campos is not True:
-        return jsonify({"success": False, "errors": erros_campos}), 400
-
-    # Validar BMPs
-    erros_bmps = validar_bmps(bmp_numbers)
-    if erros_bmps is not True:
-        return jsonify({"success": False, "errors": erros_bmps}), 400
-   
+       
     bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",") if bmp.strip()]
     dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
 
