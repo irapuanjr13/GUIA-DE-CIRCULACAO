@@ -98,7 +98,7 @@ if request.method == "POST":
     dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
         
     if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
-        return render_template(
+            return render_template(
             "guia_bens.html",
             secoes_origem=secoes_origem,
             secoes_destino=secoes_destino,
