@@ -138,13 +138,13 @@ def guia_bens():
         
         print("Dados recebidos:", data)
 
-        # Validação dos campos
-        if not all([data.get("bmp_numbers"), data.get("secao_origem"), data.get("secao_destino"), data.get("chefia_origem"), data.get("chefia_destino")]):
-            return jsonify({"error": "Dados incompletos!"}), 400
+    # Validação dos campos
+    if not all([data.get("bmp_numbers"), data.get("secao_origem"), data.get("secao_destino"), data.get("chefia_origem"), data.get("chefia_destino")]):
+        return jsonify({"error": "Dados incompletos!"}), 400
         
-        data = request.get_json(silent=True)
-if not data:
-    return jsonify({"error": "Dados inválidos!"}), 400
+    data = request.get_json(silent=True)
+	if not data:
+    	return jsonify({"error": "Dados inválidos!"}), 400
 
 	bmp_list = data.get("dados_bmps", [])
 	secao_origem = data.get("secao_origem", "").strip()
@@ -152,26 +152,26 @@ if not data:
 	secao_destino = data.get("secao_destino", "").strip()
 	chefia_destino = data.get("chefia_destino", "").strip()
 
-        if dados_bmps.empty:
-            return jsonify({"error": "Nenhum BMP encontrado ou inválido."}), 400
+    if dados_bmps.empty:
+        return jsonify({"error": "Nenhum BMP encontrado ou inválido."}), 400
 
         bmp_list = [bmp.strip() for bmp in bmp_numbers if bmp.strip()]
         dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
                 
-        if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
-            return render_template("guia_bens.html", secao_origem=secoes_origem, secao_destino=secoes_destino, error="Nenhum BMP encontrado.")
+    if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
+    	return render_template("guia_bens.html", secao_origem=secoes_origem, secao_destino=secoes_destino, error="Nenhum BMP encontrado.")
 
-        if dados_bmps.empty:
-    		return jsonify({"error": "Nenhum BMP encontrado ou inválido."}), 400
+    if dados_bmps.empty:
+    	return jsonify({"error": "Nenhum BMP encontrado ou inválido."}), 400
 
-			pdf = PDF()
-			pdf.add_page()
-			pdf.add_table(dados_bmps)
-			pdf.add_details(chefia_origem, secao_origem, secao_destino, chefia_destino)
+		pdf = PDF()
+		pdf.add_page()
+		pdf.add_table(dados_bmps)
+		pdf.add_details(chefia_origem, secao_origem, secao_destino, chefia_destino)
 
-			output_path = "static/guia_circulacao.pdf"
-			pdf.output(output_path)
-			return send_file(output_path, as_attachment=True)
+		output_path = "static/guia_circulacao.pdf"
+		pdf.output(output_path)
+		return send_file(output_path, as_attachment=True)
     
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
