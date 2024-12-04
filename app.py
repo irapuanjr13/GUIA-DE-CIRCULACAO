@@ -87,7 +87,7 @@ def guia_bens():
     secoes_origem = df["Seção de Origem"].dropna().unique().tolist()
     secoes_destino = df["Seção de Destino"].dropna().unique().tolist()
     if request.method == "POST":
-        bmp_numbers = request.form.get("bmp_numbers", "").strip()
+        bmp_numbers = request.form.get("bmp_number", "").strip()
         secao_origem = request.form.get("secao_origem")
         secao_destino = request.form.get("secao_destino")
         chefia_origem = request.form.get("chefia_origem")
@@ -121,7 +121,7 @@ def guia_bens():
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
     data = request.get_json()
-    bmp_numbers = data.get("bmp_numbers", [])
+    bmp_numbers = data.get("bmp_number", [])
 
     if not bmp_numbers:
         return jsonify({"error": "Nenhum BMP fornecido!"}), 400
