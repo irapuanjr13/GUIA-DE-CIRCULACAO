@@ -132,7 +132,7 @@ def guia_bens():
     secao_origem = df["Seção de Origem"].dropna().unique().tolist()
     secao_destino = df["Seção de Destino"].dropna().unique().tolist()
 
-    if request.method == "POST":
+if request.method == "POST":
     data = request.json
     bmp_numbers = data.get("bmp_numbers", "").split(",")  # Recebido como string separada por vírgulas
     secao_origem = data.get("secao_origem", "").strip()
