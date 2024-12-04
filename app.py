@@ -86,35 +86,35 @@ Dirigente Máximo
 def guia_bens():
     secoes_origem = df["Seção de Origem"].dropna().unique().tolist()
     secoes_destino = df["Seção de Destino"].dropna().unique().tolist()
-if request.method == "POST":
-    data = request.get_json()
-    bmp_numbers = data.get("bmp_numbers", "").strip()
-    secao_origem = data.get("secao_origem")
-    secao_destino = data.get("secao_destino")
-    chefia_origem = data.get("chefia_origem")
-    chefia_destino = data.get("chefia_destino")
 
-    bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",") if bmp.strip()]
-    dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
-        
-    if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
-            return render_template(
-            "guia_bens.html",
-            secoes_origem=secoes_origem,
-            secoes_destino=secoes_destino,
-            error="Nenhum BMP encontrado para os números fornecidos.",
-            )
-    pdf = PDF()
-    pdf.add_page()
-    pdf.add_table(dados_bmps)
-    pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)  # Adicionando os detalhes ao PDF
-    output_path = "static/guia_circulacao_interna.pdf"
-    pdf.output(output_path)
-    return send_file(output_path, as_attachment=True)
+    if request.method == "POST":
+        data = request.get_json()
+        bmp_numbers = data.get("bmp_numbers", "").strip()
+        secao_origem = data.get("secao_origem")
+        secao_destino = data.get("secao_destino")
+        chefia_origem = data.get("chefia_origem")
+        chefia_destino = data.get("chefia_destino")
 
-return render_template(
-            "guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino
-    )
+        bmp_list = [bmp.strip() for bmp in bmp_numbers.split(",") if bmp.strip()]
+        dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
+
+        if dados_bmps.empty:
+            return render_template("guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino, error="Nenhum BMP encontrado ou inválido.")
+
+        if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
+            return render_template("guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino, error="Nenhum BMP encontrado para os números fornecidos.")
+
+        pdf = PDF()
+        pdf.add_page()
+        pdf.add_table(dados_bmps)
+        pdf.add_details(secao_destino, chefia_origem, secao_origem, chefia_destino)
+
+        output_path = "static/guia_circulacao_interna.pdf"
+        pdf.output(output_path)
+        return send_file(output_path, as_attachment=True)
+
+    return render_template("guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino)
+
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
     data = request.get_json()
