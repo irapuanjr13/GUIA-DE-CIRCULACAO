@@ -38,7 +38,7 @@ class PDF(FPDF):
     
     def header(self):
         # Adiciona o brasão no topo
-        self.image('brasãodasarmas.png', x=7, y=5, w=20)  # Ajuste x, y e w conforme necessário
+        self.image('brasao.png', x=7, y=5, w=20)  # Ajuste x, y e w conforme necessário
         self.set_font("Arial", "B", 12)
         self.cell(0, 6, "MINISTÉRIO DA DEFESA", ln=True, align="C")
         self.cell(0, 6, "COMANDO DA AERONÁUTICA", ln=True, align="C")
@@ -46,7 +46,7 @@ class PDF(FPDF):
         self.cell(0, 8, "GUIA DE MOVIMENTAÇÃO DE BEM MÓVEL PERMANENTE ENTRE AS SEÇÕES DO GAPLS", ln=True, align="C")
         self.ln(10)
 
-def add_table(self, dados_bmp):
+def add_table(self, dados):
     col_widths = [25, 70, 55, 35]
     headers = ["Nº BMP", "Nomenclatura", "Nº Série", "Valor Atualizado"]
     
@@ -207,7 +207,7 @@ def gerar_guia():
         pdf_buffer = io.BytesIO()
         pdf = PDF()  # Sua classe de PDF
         pdf.add_page()
-        pdf.add_table(dados_bmp)
+        pdf.add_table(dados)
         pdf.add_details(
             secao_destino=secao_destino,
             chefia_origem=chefia_origem,
