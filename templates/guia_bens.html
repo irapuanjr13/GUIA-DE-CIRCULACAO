@@ -193,7 +193,7 @@ document.getElementById("bmp_numbers").addEventListener("input", function () {
     });
 
 // Envio do formulário
-document.getElementById("guia_bens").addEventListener("click", function (event) {
+document.getElementById("gerar_guia").addEventListener("click", function (event) {
     event.preventDefault(); // Impede o comportamento padrão do formulário
 
     const bmpNumbers = document.getElementById("bmp_number").value.split(",").map(bmp => bmp.trim());
