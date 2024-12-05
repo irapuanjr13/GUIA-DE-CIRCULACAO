@@ -37,6 +37,8 @@ class PDF(FPDF):
         return text
     
     def header(self):
+        # Adiciona o brasão no topo
+        self.image('brasao.png', x=7, y=5, w=20)  # Ajuste x, y e w conforme necessário
         self.set_font("Arial", "B", 12)
         self.cell(0, 6, "MINISTÉRIO DA DEFESA", ln=True, align="C")
         self.cell(0, 6, "COMANDO DA AERONÁUTICA", ln=True, align="C")
@@ -44,7 +46,7 @@ class PDF(FPDF):
         self.cell(0, 8, "GUIA DE MOVIMENTAÇÃO DE BEM MÓVEL PERMANENTE ENTRE AS SEÇÕES DO GAPLS", ln=True, align="C")
         self.ln(10)
 
-def add_table(self, dados_bmps):
+def add_table(self, dados):
     col_widths = [25, 70, 55, 35]
     headers = ["Nº BMP", "Nomenclatura", "Nº Série", "Valor Atualizado"]
     
@@ -56,7 +58,7 @@ def add_table(self, dados_bmps):
 
     # Adicionar as linhas da tabela
     self.set_font("Arial", size=10)
-    for _, row in dados_bmps.iterrows():
+    for _, row in dados.iterrows():
         text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
         max_chars = int(col_widths[1] / 3)  # Aprox. número de caracteres por linha
         line_count = len(text) // max_chars + 1
