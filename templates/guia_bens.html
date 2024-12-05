@@ -193,6 +193,18 @@ document.getElementById("bmp_numbers").addEventListener("input", function () {
     });
 
 // Envio do formulário
+document.addEventListener("DOMContentLoaded", function () {
+    const button = document.getElementById("gerar_guia");
+    if (button) {
+        button.addEventListener("click", function (event) {
+            event.preventDefault();
+            console.log("Botão clicado!");
+        });
+    } else {
+        console.error("Elemento com ID 'gerar_guia' não encontrado.");
+    }
+});
+    
 document.getElementById("gerar_guia").addEventListener("click", function (event) {
     event.preventDefault(); // Impede o comportamento padrão do formulário
 
