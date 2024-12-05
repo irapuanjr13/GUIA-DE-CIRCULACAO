@@ -208,7 +208,7 @@ document.addEventListener("DOMContentLoaded", function () {
 document.getElementById("gerar_guia").addEventListener("click", function (event) {
     event.preventDefault(); // Impede o comportamento padrão do formulário
 
-    const bmpNumbers = document.getElementById("bmp_number").value.split(",").map(bmp => bmp.trim());
+    const bmpNumbers = document.getElementById("bmp_numbers").value.split(",").map(bmp => bmp.trim());
     const secaoOrigem = document.getElementById("secao_origem").value;
     const chefiaOrigem = document.getElementById("chefia_origem").value;
     const secaoDestino = document.getElementById("secao_destino").value;
