@@ -3,6 +3,7 @@ import pandas as pd
 import gdown
 from fpdf import FPDF
 import os
+import io
 
 app = Flask(__name__)
 
@@ -194,22 +195,46 @@ def guia_bens():
             error="Nenhum BMP válido encontrado."
         )
 
-    # Gerar o PDF
-        pdf = PDF()
+@app.route('/gerar_guia', methods=['POST'])
+def gerar_guia():
+    try:
+        # Obtém os dados enviados na requisição
+        data = request.get_json()
+
+        if not data:
+            return jsonify({"error": "Nenhum dado recebido"}), 400
+
+        # Dados para gerar o PDF
+        dados_bmps = data.get("bmps", [])
+        secao_destino = data["secao_destino"]
+        chefia_origem = data["chefia_origem"]
+        secao_origem = data["secao_origem"]
+        chefia_destino = data["chefia_destino"]
+
+        # Geração do PDF em memória
+        pdf_buffer = io.BytesIO()
+        pdf = PDF()  # Sua classe de PDF
         pdf.add_page()
         pdf.add_table(dados_bmps)
         pdf.add_details(
-            secao_destino=data["secao_destino"],
-            chefia_origem=data["chefia_origem"],
-            secao_origem=data["secao_origem"],
-            chefia_destino=data["chefia_destino"]
+            secao_destino=secao_destino,
+            chefia_origem=chefia_origem,
+            secao_origem=secao_origem,
+            chefia_destino=chefia_destino
+        )
+        pdf.output(pdf_buffer)
+        pdf_buffer.seek(0)  # Retorna ao início para leitura
+
+        # Enviar o PDF gerado como resposta
+        return send_file(
+            pdf_buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name="guia_circulacao_interna.pdf"
         )
 
-        output_path = "static/guia_circulacao.pdf"
-        pdf.output(output_path)
-
-        # Retornar o link para download do PDF
-        return jsonify({"success": True, "download_link": f"/{output_path}"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
