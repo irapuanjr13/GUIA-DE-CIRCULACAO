@@ -108,29 +108,29 @@ Dirigente Máximo
 """
 self.multi_cell(0, 8, self.fix_text(text))
 
-    # Mock para as funções de validação
-    def validar_bmps(dados_bmps):
-        """
-        Valida se os BMPs fornecidos são válidos.
-        Retorna True se todos os BMPs forem válidos e uma lista de erros se houver problemas.
-        """
-        erros = []
-        for bmp in dados_bmps:
-            if not bmp.isdigit():  # Exemplo simples: verifica se é numérico
-                erros.append(f"BMP '{bmp}' não é um número válido.")
-            elif int(bmp) <= 0:
-                erros.append(f"BMP '{bmp}' deve ser maior que zero.")
-        return True if not erros else erros
+# Mock para as funções de validação
+def validar_bmps(dados_bmps):
+    """
+    Valida se os BMPs fornecidos são válidos.
+    Retorna True se todos os BMPs forem válidos e uma lista de erros se houver problemas.
+    """
+    erros = []
+    for bmp in dados_bmps:
+        if not bmp.isdigit():  # Exemplo simples: verifica se é numérico
+            erros.append(f"BMP '{bmp}' não é um número válido.")
+        elif int(bmp) <= 0:
+            erros.append(f"BMP '{bmp}' deve ser maior que zero.")
+    return True if not erros else erros
 
-    def validar_campos_obrigatorios(campos):
-        """
-        Verifica se os campos obrigatórios foram preenchidos.
-        """
-        erros = []
-        for campo, valor in campos.items():
-            if not valor:
-                erros.append(f"O campo '{campo}' é obrigatório.")
-        return True if not erros else erros
+def validar_campos_obrigatorios(campos):
+    """
+    Verifica se os campos obrigatórios foram preenchidos.
+    """
+    erros = []
+    for campo, valor in campos.items():
+        if not valor:
+            erros.append(f"O campo '{campo}' é obrigatório.")
+    return True if not erros else erros
 
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
