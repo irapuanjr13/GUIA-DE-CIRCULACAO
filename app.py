@@ -110,10 +110,10 @@ Dirigente Máximo
 
 # Mock para as funções de validação
 def validar_bmps(dados_bmps):
-"""
-Valida se os BMPs fornecidos são válidos.
-Retorna True se todos os BMPs forem válidos e uma lista de erros se houver problemas.
-"""
+    """
+    Valida se os BMPs fornecidos são válidos.
+    Retorna True se todos os BMPs forem válidos e uma lista de erros se houver problemas.
+    """
     erros = []
     for bmp in dados_bmps:
         if not bmp.isdigit():  # Exemplo simples: verifica se é numérico
@@ -123,9 +123,9 @@ Retorna True se todos os BMPs forem válidos e uma lista de erros se houver prob
     return True if not erros else erros
 
 def validar_campos_obrigatorios(campos):
-"""
-Verifica se os campos obrigatórios foram preenchidos.
-"""
+    """
+    Verifica se os campos obrigatórios foram preenchidos.
+    """
         erros = []
         for campo, valor in campos.items():
             if not valor:
