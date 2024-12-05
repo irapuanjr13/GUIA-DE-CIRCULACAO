@@ -108,8 +108,8 @@ Dirigente Máximo
 """
 self.multi_cell(0, 8, self.fix_text(text))
 
-        # Mock para as funções de validação
-        def validar_bmps(dados_bmps):
+    # Mock para as funções de validação
+    def validar_bmps(dados_bmps):
         """
         Valida se os BMPs fornecidos são válidos.
         Retorna True se todos os BMPs forem válidos e uma lista de erros se houver problemas.
@@ -122,7 +122,7 @@ self.multi_cell(0, 8, self.fix_text(text))
                 erros.append(f"BMP '{bmp}' deve ser maior que zero.")
         return True if not erros else erros
 
-        def validar_campos_obrigatorios(campos):
+    def validar_campos_obrigatorios(campos):
         """
         Verifica se os campos obrigatórios foram preenchidos.
         """
