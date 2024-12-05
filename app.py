@@ -75,10 +75,10 @@ class PDF(FPDF):
         self.cell(col_widths[3], row_height, f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ','), border=1, align="R")
         self.ln()
         
-        def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
-            self.set_font("Arial", size=12)
-            self.ln(10)
-            text = f"""
+    def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
+         self.set_font("Arial", size=12)
+         self.ln(10)
+         text = f"""
 Solicitação de Transferência:
 Informo à Senhora Chefe do GAP-LS que os bens especificados estão inservíveis para uso neste setor, classificados como ociosos, recuperáveis, reparados ou novos - aguardando distribuição. Diante disso, solicito autorização para transferir o(s) Bem(ns) Móvel(is) Permanente(s) acima discriminado(s), atualmente sob minha guarda, para a Seção {secao_destino}.
 
@@ -108,8 +108,8 @@ Dirigente Máximo
 """
         self.multi_cell(0, 8, self.fix_text(text))
 
-# Mock para as funções de validação
-def validar_bmps(dados_bmps):
+    # Mock para as funções de validação
+    def validar_bmps(dados_bmps):
     """
     Valida se os BMPs fornecidos são válidos.
     Retorna True se todos os BMPs forem válidos e uma lista de erros se houver problemas.
@@ -122,15 +122,15 @@ def validar_bmps(dados_bmps):
             erros.append(f"BMP '{bmp}' deve ser maior que zero.")
     return True if not erros else erros
 
-def validar_campos_obrigatorios(campos):
-    """
-    Verifica se os campos obrigatórios foram preenchidos.
-    """
-    erros = []
-    for campo, valor in campos.items():
-        if not valor:
-            erros.append(f"O campo '{campo}' é obrigatório.")
-    return True if not erros else erros
+    def validar_campos_obrigatorios(campos):
+        """
+        Verifica se os campos obrigatórios foram preenchidos.
+        """
+        erros = []
+        for campo, valor in campos.items():
+            if not valor:
+                erros.append(f"O campo '{campo}' é obrigatório.")
+        return True if not erros else erros
 
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
