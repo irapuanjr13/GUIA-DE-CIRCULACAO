@@ -74,7 +74,7 @@
 <body>
     <div class="container">
         <h1>Guia de Circulação BMP</h1>
-        <form action="/guia_bens" method="POST" id="guia_bens_form">
+        <form id="guia_bens_form">
             <div class="error">
                 {% if error %}
                     {{ error }}
@@ -108,7 +108,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <button type="submit">Gerar Guia</button>                
+                <button id="gerar-guia" type="button">Gerar Guia</button>
             </div>
         </form>
     </div>
