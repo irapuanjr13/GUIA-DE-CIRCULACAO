@@ -195,7 +195,7 @@ def guia_bens():
             error="Nenhum BMP válido encontrado."
         )
 
-@app.route('/gerar_guia', methods=['POST'])
+@app.route("/gerar_guia", methods=['POST'])
 def gerar_guia():
     try:
         # Obtém os dados enviados na requisição
