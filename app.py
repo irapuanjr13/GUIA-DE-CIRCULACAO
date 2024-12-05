@@ -76,9 +76,9 @@ class PDF(FPDF):
         self.ln()
         
     def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
-         self.set_font("Arial", size=12)
-         self.ln(10)
-         text = f"""
+        self.set_font("Arial", size=12)
+        self.ln(10)
+        text = f"""
 Solicitação de Transferência:
 Informo à Senhora Chefe do GAP-LS que os bens especificados estão inservíveis para uso neste setor, classificados como ociosos, recuperáveis, reparados ou novos - aguardando distribuição. Diante disso, solicito autorização para transferir o(s) Bem(ns) Móvel(is) Permanente(s) acima discriminado(s), atualmente sob minha guarda, para a Seção {secao_destino}.
 
@@ -106,31 +106,30 @@ Autorizo a movimentação solicitada e determino:
 LUCIANA DO AMARAL CORREA  Cel Int
 Dirigente Máximo
 """
-self.multi_cell(0, 8, self.fix_text(text))
-
+        self.multi_cell(0, 8, self.fix_text(text))
 # Mock para as funções de validação
-def validar_bmps(dados_bmps):
-    """
-    Valida se os BMPs fornecidos são válidos.
-    Retorna True se todos os BMPs forem válidos e uma lista de erros se houver problemas.
-    """
-    erros = []
-    for bmp in dados_bmps:
-        if not bmp.isdigit():  # Exemplo simples: verifica se é numérico
-            erros.append(f"BMP '{bmp}' não é um número válido.")
-        elif int(bmp) <= 0:
-            erros.append(f"BMP '{bmp}' deve ser maior que zero.")
-    return True if not erros else erros
+    def validar_bmps(dados_bmps):
+        """
+        Valida se os BMPs fornecidos são válidos.
+        Retorna True se todos os BMPs forem válidos e uma lista de erros se houver problemas.
+        """
+        erros = []
+        for bmp in dados_bmps:
+            if not bmp.isdigit():  # Exemplo simples: verifica se é numérico
+                erros.append(f"BMP '{bmp}' não é um número válido.")
+            elif int(bmp) <= 0:
+                erros.append(f"BMP '{bmp}' deve ser maior que zero.")
+        return True if not erros else erros
 
-def validar_campos_obrigatorios(campos):
-    """
-    Verifica se os campos obrigatórios foram preenchidos.
-    """
-    erros = []
-    for campo, valor in campos.items():
-        if not valor:
-            erros.append(f"O campo '{campo}' é obrigatório.")
-    return True if not erros else erros
+    def validar_campos_obrigatorios(campos):
+        """
+        Verifica se os campos obrigatórios foram preenchidos.
+        """
+        erros = []
+        for campo, valor in campos.items():
+            if not valor:
+                erros.append(f"O campo '{campo}' é obrigatório.")
+        return True if not erros else erros
 
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
@@ -145,41 +144,41 @@ def guia_bens():
         if not data:
             return jsonify({"error": "Os dados enviados não estão no formato JSON!"}), 400
 
-        # Validação de campos obrigatórios
-        campos_obrigatorios = {
-            "bmp_numbers": data.get("bmp_numbers"),
-            "secao_origem": data.get("secao_origem"),
-            "secao_destino": data.get("secao_destino"),
-            "chefia_origem": data.get("chefia_origem"),
-            "chefia_destino": data.get("chefia_destino")
-        }
-        erros = validar_campos_obrigatorios(campos_obrigatorios)
-        if erros is not True:
+    # Validação de campos obrigatórios
+    campos_obrigatorios = {
+        "bmp_numbers": data.get("bmp_numbers"),
+        "secao_origem": data.get("secao_origem"),
+        "secao_destino": data.get("secao_destino"),
+        "chefia_origem": data.get("chefia_origem"),
+        "chefia_destino": data.get("chefia_destino")
+    }
+    erros = validar_campos_obrigatorios(campos_obrigatorios)
+    if erros is not True:
             return jsonify({"error": erros}), 400
         
-         # Simulação de retorno para validar o envio (ajuste conforme necessário)
-        return jsonify({"success": "Dados recebidos com sucesso!"})
+    # Simulação de retorno para validar o envio (ajuste conforme necessário)
+            return jsonify({"success": "Dados recebidos com sucesso!"})
 
-        # Validar BMPs
-        bmp_list = [bmp.strip() for bmp in data["bmp_numbers"] if bmp.strip()]
-        erros_bmps = validar_bmps(bmp_list)
-        if erros_bmps is not True:
+    # Validar BMPs
+    bmp_list = [bmp.strip() for bmp in data["bmp_numbers"] if bmp.strip()]
+    erros_bmps = validar_bmps(bmp_list)
+    if erros_bmps is not True:
             return jsonify({"error": erros_bmps}), 400
 
-        # Filtrar dados dos BMPs
-        dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
-        if dados_bmps.empty:
+    # Filtrar dados dos BMPs
+    dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
+    if dados_bmps.empty:
             return jsonify({"error": "Nenhum BMP válido encontrado."}), 400
       
-        # Extrair os dados do JSON
-        bmp_numbers = data.get("bmp_numbers", [])
-        secao_origem = data.get("secao_origem", "").strip()
-        chefia_origem = data.get("chefia_origem", "").strip()
-        secao_destino = data.get("secao_destino", "").strip()
-        chefia_destino = data.get("chefia_destino", "").strip()  
+    # Extrair os dados do JSON
+    bmp_numbers = data.get("bmp_numbers", [])
+    secao_origem = data.get("secao_origem", "").strip()
+    chefia_origem = data.get("chefia_origem", "").strip()
+    secao_destino = data.get("secao_destino", "").strip()
+    chefia_destino = data.get("chefia_destino", "").strip()  
     
-        # Validar a conta dos BMPs
-        if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
+    # Validar a conta dos BMPs
+    if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
             return render_template(
                 "guia_bens.html",
                 secao_origem=secao_origem,
