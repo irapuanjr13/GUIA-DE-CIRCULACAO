@@ -157,6 +157,8 @@ def guia_bens():
         if erros is not True:
             return jsonify({"error": erros}), 400
 
+
+        
          # Simulação de retorno para validar o envio (ajuste conforme necessário)
         return jsonify({"success": "Dados recebidos com sucesso!"})
 
@@ -171,20 +173,20 @@ def guia_bens():
         if dados_bmps.empty:
             return jsonify({"error": "Nenhum BMP válido encontrado."}), 400
       
-    # Extrair os dados do JSON
-    bmp_numbers = data.get("bmp_numbers", [])
-    secao_origem = data.get("secao_origem", "").strip()
-    chefia_origem = data.get("chefia_origem", "").strip()
-    secao_destino = data.get("secao_destino", "").strip()
-    chefia_destino = data.get("chefia_destino", "").strip()
+        # Extrair os dados do JSON
+        bmp_numbers = data.get("bmp_numbers", [])
+        secao_origem = data.get("secao_origem", "").strip()
+        chefia_origem = data.get("chefia_origem", "").strip()
+        secao_destino = data.get("secao_destino", "").strip()
+        chefia_destino = data.get("chefia_destino", "").strip()  
     
-    # Validar a conta dos BMPs
-    if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
-        return render_template(
-            "guia_bens.html",
-            secao_origem=secao_origem,
-            secao_destino=secao_destino,
-            error="Nenhum BMP válido encontrado."
+        # Validar a conta dos BMPs
+        if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
+            return render_template(
+                "guia_bens.html",
+                secao_origem=secao_origem,
+                secao_destino=secao_destino,
+                error="Nenhum BMP válido encontrado."
         )
 
 @app.route("/gerar_guia", methods=['POST'])
