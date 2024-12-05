@@ -156,8 +156,6 @@ def guia_bens():
         erros = validar_campos_obrigatorios(campos_obrigatorios)
         if erros is not True:
             return jsonify({"error": erros}), 400
-
-
         
          # Simulação de retorno para validar o envio (ajuste conforme necessário)
         return jsonify({"success": "Dados recebidos com sucesso!"})
