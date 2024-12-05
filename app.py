@@ -132,6 +132,45 @@ def validar_campos_obrigatorios(campos):
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
     if request.method == "GET":
+        secao_origem = df["Seção de Origem"].dropna().unique().tolist()
+        secoes_destino = df["Seção de Destino"].dropna().unique().tolist()
+        return render_template("guia_bens.html", secao_origem=secao_origem, secoes_destino=secoes_destino)
+
+    elif request.method == "POST":
+        # Receber dados enviados via JSON
+        data = request.get_json(silent=True)
+        if not data:
+            return jsonify({"error": "Os dados enviados não estão no formato JSON!"}), 400
+
+        # Validação de campos obrigatórios
+        campos_obrigatorios = {
+            "bmp_numbers": data.get("bmp_numbers"),
+            "secao_origem": data.get("secao_origem"),
+            "secao_destino": data.get("secao_destino"),
+            "chefia_origem": data.get("chefia_origem"),
+            "chefia_destino": data.get("chefia_destino")
+        }
+        erros = validar_campos_obrigatorios(campos_obrigatorios)
+        if erros is not True:
+            return jsonify({"error": erros}), 400
+
+        # Validar BMPs
+        bmp_list = [bmp.strip() for bmp in data["bmp_numbers"] if bmp.strip()]
+        erros_bmps = validar_bmps(bmp_list)
+        if erros_bmps is not True:
+            return jsonify({"error": erros_bmps}), 400
+
+        # Filtrar dados dos BMPs
+        dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
+        if dados_bmps.empty:
+            return jsonify({"error": "Nenhum BMP válido encontrado."}), 400
+
+      
+
+
+@app.route("/guia_bens", methods=["GET", "POST"])
+def guia_bens():
+    if request.method == "GET":
         # Renderiza o HTML no carregamento inicial
         secao_origem = df["Seção de Origem"].dropna().unique().tolist()
         secoes_destino = df["Seção de Destino"].dropna().unique().tolist()
@@ -185,16 +224,21 @@ def guia_bens():
         )
 
     # Gerar o PDF
-    pdf = PDF()
-    pdf.add_page()
-    pdf.add_table(dados_bmps)
-    pdf.add_details(chefia_origem, secao_origem, secao_destino, chefia_destino)
+        pdf = PDF()
+        pdf.add_page()
+        pdf.add_table(dados_bmps)
+        pdf.add_details(
+            secao_destino=data["secao_destino"],
+            chefia_origem=data["chefia_origem"],
+            secao_origem=data["secao_origem"],
+            chefia_destino=data["chefia_destino"]
+        )
 
-    output_path = "static/guia_circulacao.pdf"
-    pdf.output(output_path)
+        output_path = "static/guia_circulacao.pdf"
+        pdf.output(output_path)
 
-    # Retornar o PDF para download
-    return send_file(output_path, as_attachment=True)
+        # Retornar o link para download do PDF
+        return jsonify({"success": True, "download_link": f"/{output_path}"})
     
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
