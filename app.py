@@ -46,25 +46,25 @@ class PDF(FPDF):
         self.cell(0, 8, "GUIA DE MOVIMENTAÇÃO DE BEM MÓVEL PERMANENTE ENTRE AS SEÇÕES DO GAPLS", ln=True, align="C")
         self.ln(10)
 
-def add_table(self, dados):
-    col_widths = [25, 70, 55, 35]
-    headers = ["Nº BMP", "Nomenclatura", "Nº Série", "Valor Atualizado"]
-    
-    # Adicionar cabeçalho da tabela
-    self.set_font("Arial", "B", 10)
-    for width, header in zip(col_widths, headers):
-        self.cell(width, 10, header, border=1, align="C")
-    self.ln()
+    def add_table(self, dados):
+        col_widths = [25, 70, 55, 35]
+        headers = ["Nº BMP", "Nomenclatura", "Nº Série", "Valor Atualizado"]
+   
+        # Adicionar cabeçalho da tabela
+        self.set_font("Arial", "B", 10)
+        for width, header in zip(col_widths, headers):
+            self.cell(width, 10, header, border=1, align="C")
+        self.ln()
 
-    # Adicionar as linhas da tabela
-    self.set_font("Arial", size=10)
-    for _, row in dados.iterrows():
-        text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
-        max_chars = int(col_widths[1] / 3)  # Aprox. número de caracteres por linha
-        line_count = len(text) // max_chars + 1
-        row_height = 10 * line_count
+        # Adicionar as linhas da tabela
+        self.set_font("Arial", size=10)
+        for _, row in dados.iterrows():
+            text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
+            max_chars = int(col_widths[1] / 3)  # Aprox. número de caracteres por linha
+            line_count = len(text) // max_chars + 1
+            row_height = 10 * line_count
 
-        self.cell(col_widths[0], row_height, str(row["Nº BMP"]), border=1, align="C")
+            self.cell(col_widths[0], row_height, str(row["Nº BMP"]), border=1, align="C")
         
         # Multi-cell para a coluna "Nomenclatura"
         x, y = self.get_x(), self.get_y()
@@ -75,10 +75,10 @@ def add_table(self, dados):
         self.cell(col_widths[3], row_height, f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ','), border=1, align="R")
         self.ln()
         
-    def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
-        self.set_font("Arial", size=12)
-        self.ln(10)
-        text = f"""
+        def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
+            self.set_font("Arial", size=12)
+            self.ln(10)
+            text = f"""
 Solicitação de Transferência:
 Informo à Senhora Chefe do GAP-LS que os bens especificados estão inservíveis para uso neste setor, classificados como ociosos, recuperáveis, reparados ou novos - aguardando distribuição. Diante disso, solicito autorização para transferir o(s) Bem(ns) Móvel(is) Permanente(s) acima discriminado(s), atualmente sob minha guarda, para a Seção {secao_destino}.
 
