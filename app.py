@@ -154,6 +154,9 @@ def guia_bens():
         if erros is not True:
             return jsonify({"error": erros}), 400
 
+         # Simulação de retorno para validar o envio (ajuste conforme necessário)
+        return jsonify({"success": "Dados recebidos com sucesso!"})
+
         # Validar BMPs
         bmp_list = [bmp.strip() for bmp in data["bmp_numbers"] if bmp.strip()]
         erros_bmps = validar_bmps(bmp_list)
@@ -164,36 +167,7 @@ def guia_bens():
         dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
         if dados_bmps.empty:
             return jsonify({"error": "Nenhum BMP válido encontrado."}), 400
-
-@app.route("/guia_bens", methods=["GET", "POST"])
-def guia_bens():
-    if request.method == "GET":
-        # Renderiza o HTML no carregamento inicial
-        secao_origem = df["Seção de Origem"].dropna().unique().tolist()
-        secoes_destino = df["Seção de Destino"].dropna().unique().tolist()
-        return render_template("guia_bens.html", secao_origem=secao_origem, secoes_destino=secoes_destino)
-
-    elif request.method == "POST":
-        # Receber os dados no formato JSON
-        data = request.get_json(silent=True)
-        if not data:
-            return jsonify({"error": "Os dados enviados não estão no formato JSON!"}), 400
-
-        print("Dados recebidos:", data)  # Para depuração
-
-        # Validação dos campos obrigatórios
-        if not all([
-            data.get("bmp_numbers"),
-            data.get("secao_origem"),
-            data.get("secao_destino"),
-            data.get("chefia_origem"),
-            data.get("chefia_destino")
-        ]):
-            return jsonify({"error": "Dados incompletos!"}), 400
-
-        # Simulação de retorno para validar o envio (ajuste conforme necessário)
-        return jsonify({"success": "Dados recebidos com sucesso!"})
-
+      
     # Extrair os dados do JSON
     bmp_numbers = data.get("bmp_numbers", [])
     secao_origem = data.get("secao_origem", "").strip()
