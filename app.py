@@ -131,26 +131,32 @@ def validar_campos_obrigatorios(campos):
 
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
-    # Carregar as seções únicas
-    secao_origem = df["Seção de Origem"].dropna().unique().tolist()
-    secao_destino = df["Seção de Destino"].dropna().unique().tolist()
+    if request.method == "GET":
+        # Renderiza o HTML no carregamento inicial
+        secao_origem = df["Seção de Origem"].dropna().unique().tolist()
+        secao_destino = df["Seção de Destino"].dropna().unique().tolist()
+        return render_template("guia_bens.html", secao_origem=secao_origem, secao_destino=secao_destino)
 
-    # Receber os dados no formato JSON
-    data = request.get_json(silent=True)
-    if not data:
-        return jsonify({"error": "Os dados enviados não estão no formato JSON!"}), 400
+    elif request.method == "POST":
+        # Receber os dados no formato JSON
+        data = request.get_json(silent=True)
+        if not data:
+            return jsonify({"error": "Os dados enviados não estão no formato JSON!"}), 400
 
-    print("Dados recebidos:", data)  # Para depuração
+        print("Dados recebidos:", data)  # Para depuração
 
-    # Validação dos campos obrigatórios
-    if not all([
-        data.get("bmp_numbers"),
-        data.get("secao_origem"),
-        data.get("secao_destino"),
-        data.get("chefia_origem"),
-        data.get("chefia_destino")
-    ]):
-        return jsonify({"error": "Dados incompletos!"}), 400
+        # Validação dos campos obrigatórios
+        if not all([
+            data.get("bmp_numbers"),
+            data.get("secao_origem"),
+            data.get("secao_destino"),
+            data.get("chefia_origem"),
+            data.get("chefia_destino")
+        ]):
+            return jsonify({"error": "Dados incompletos!"}), 400
+
+        # Simulação de retorno para validar o envio (ajuste conforme necessário)
+        return jsonify({"success": "Dados recebidos com sucesso!"})
 
     # Extrair os dados do JSON
     bmp_numbers = data.get("bmp_numbers", [])
