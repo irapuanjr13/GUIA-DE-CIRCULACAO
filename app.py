@@ -46,7 +46,7 @@ class PDF(FPDF):
         self.cell(0, 8, "GUIA DE MOVIMENTAÇÃO DE BEM MÓVEL PERMANENTE ENTRE AS SEÇÕES DO GAPLS", ln=True, align="C")
         self.ln(10)
 
-def add_table(self, dados):
+def add_table(self, dados_bmp):
     col_widths = [25, 70, 55, 35]
     headers = ["Nº BMP", "Nomenclatura", "Nº Série", "Valor Atualizado"]
     
@@ -207,7 +207,7 @@ def gerar_guia():
         pdf_buffer = io.BytesIO()
         pdf = PDF()  # Sua classe de PDF
         pdf.add_page()
-        pdf.add_table()
+        pdf.add_table(dados_bmp)
         pdf.add_details(
             secao_destino=secao_destino,
             chefia_origem=chefia_origem,
