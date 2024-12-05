@@ -126,11 +126,11 @@ def validar_campos_obrigatorios(campos):
     """
     Verifica se os campos obrigatórios foram preenchidos.
     """
-        erros = []
-        for campo, valor in campos.items():
-            if not valor:
-                erros.append(f"O campo '{campo}' é obrigatório.")
-        return True if not erros else erros
+    erros = []
+    for campo, valor in campos.items():
+        if not valor:
+            erros.append(f"O campo '{campo}' é obrigatório.")
+    return True if not erros else erros
 
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
