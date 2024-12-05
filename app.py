@@ -134,8 +134,8 @@ def guia_bens():
     if request.method == "GET":
         # Renderiza o HTML no carregamento inicial
         secao_origem = df["Seção de Origem"].dropna().unique().tolist()
-        secao_destino = df["Seção de Destino"].dropna().unique().tolist()
-        return render_template("guia_bens.html", secao_origem=secao_origem, secao_destino=secao_destino)
+        secoes_destino = df["Seção de Destino"].dropna().unique().tolist()
+        return render_template("guia_bens.html", secao_origem=secao_origem, secoes_destino=secoes_destino)
 
     elif request.method == "POST":
         # Receber os dados no formato JSON
