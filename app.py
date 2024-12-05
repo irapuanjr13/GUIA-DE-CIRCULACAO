@@ -175,17 +175,7 @@ def guia_bens():
     chefia_origem = data.get("chefia_origem", "").strip()
     secao_destino = data.get("secao_destino", "").strip()
     chefia_destino = data.get("chefia_destino", "").strip()
-
-    # Limpar e validar os números BMP
-    bmp_list = [bmp.strip() for bmp in bmp_numbers if bmp.strip()]
-    if not bmp_list:
-        return jsonify({"error": "Nenhum BMP válido foi enviado!"}), 400
-
-    # Filtrar os BMPs na base de dados
-    dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
-    if dados_bmps.empty:
-        return jsonify({"error": "Nenhum BMP encontrado ou inválido."}), 400
-
+    
     # Validar a conta dos BMPs
     if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
         return render_template(
@@ -205,7 +195,7 @@ def gerar_guia():
             return jsonify({"error": "Nenhum dado recebido"}), 400
 
         # Dados para gerar o PDF
-        dados_bmps = data.get("bmps", [])
+        dados_bmps = data.get("bmp_numbers", [])
         secao_destino = data["secao_destino"]
         chefia_origem = data["chefia_origem"]
         secao_origem = data["secao_origem"]
