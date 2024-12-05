@@ -165,9 +165,6 @@ def guia_bens():
         if dados_bmps.empty:
             return jsonify({"error": "Nenhum BMP válido encontrado."}), 400
 
-      
-
-
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
     if request.method == "GET":
