@@ -205,7 +205,7 @@ def gerar_guia():
         pdf_buffer = io.BytesIO()
         pdf = PDF()  # Sua classe de PDF
         pdf.add_page()
-        pdf.add_table(dados_bmps)
+        pdf.add_table()
         pdf.add_details(
             secao_destino=secao_destino,
             chefia_origem=chefia_origem,
