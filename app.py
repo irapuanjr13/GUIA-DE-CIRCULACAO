@@ -179,9 +179,9 @@ def guia_bens():
     bmp_numbers = dados.get("bmp_numbers", [])
     
     # Garantindo que bmp_numbers seja uma lista de números
-        try:
-            bmp_numbers = [int(bmp) for bmp in bmp_numbers]
-        except ValueError:
+    try:
+        bmp_numbers = [int(bmp) for bmp in bmp_numbers]
+    except ValueError:
             raise ValueError("Os valores de BMP devem ser números inteiros")
 
     secao_origem = dados.get("secao_origem", "").strip()
