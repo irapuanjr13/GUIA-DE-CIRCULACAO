@@ -210,26 +210,15 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
 
     let bmpNumbers = document.getElementById("bmp_numbers").value
         .split(",")
-        .map(bmp => parseInt(bmp.trim(), 10)) // Converte para números inteiros
-        .filter(bmp => !isNaN(bmp)); // Filtra valores inválidos
-
-    const secaoOrigem = document.getElementById("secao_origem").value;
-    const chefiaOrigem = document.getElementById("chefia_origem").value;
-    const secaoDestino = document.getElementById("secao_destino").value;
-    const chefiaDestino = document.getElementById("chefia_destino").value;
-
-    // Verifica se os campos obrigatórios estão preenchidos
-    if (!secaoDestino || bmpNumbers.length === 0 || !secaoOrigem || !chefiaOrigem || !chefiaDestino) {
-        alert("Preencha todos os campos antes de gerar a guia.");
-        return;
-    }
+        .map(bmp => bmp.trim()) // Remove espaços
+        .filter(bmp => bmp !== ""); // Remove valores vazios
 
     const bmp_numbers = {
         secao_origem: secaoOrigem,
         chefia_origem: chefiaOrigem,
         secao_destino: secaoDestino,
         chefia_destino: chefiaDestino,
-        bmp_numbers: bmpNumbers
+        bmp_numbers: bmpNumbers.join(",") // Converte de volta para string
     };
 
     // Envia os dados para validação e geração
