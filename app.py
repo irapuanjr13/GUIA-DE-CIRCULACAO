@@ -201,11 +201,19 @@ def guia_bens():
 @app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
     try:
-        # Obtém o JSON enviado pelo cliente
-        dados = request.json
+        dados = request.json  # Obtém o JSON enviado pelo frontend
+        if not dados:
+            raise ValueError("Nenhum dado recebido no corpo da requisição")
 
-        # Extrai os dados do JSON
-        bmp_numbers = dados.get("bmp_numbers", [])  # Lista de BMPs
+        # Pegando dados enviados do frontend
+        bmp_numbers = dados.get("bmp_numbers", [])
+
+        # Garantindo que bmp_numbers seja uma lista de números
+        try:
+            bmp_numbers = [int(bmp) for bmp in bmp_numbers]
+        except ValueError:
+            raise ValueError("Os valores de BMP devem ser números inteiros")
+
         secao_origem = dados.get("secao_origem", "")
         chefia_origem = dados.get("chefia_origem", "")
         secao_destino = dados.get("secao_destino", "")
@@ -213,14 +221,10 @@ def gerar_guia():
 
         # Validação básica
         if not bmp_numbers or not secao_origem or not secao_destino:
-            return jsonify({"error": "Dados incompletos"}), 400
+            raise ValueError("Dados incompletos: Verifique bmp_numbers, secao_origem e secao_destino")
 
-        # Adicionando prints para verificar o conteúdo
-        print("dados_bmps:", dados_bmps)
-        print("seção_destino:", secao_destino)
-        print("chefia_origem:", chefia_origem)
-        print("seção_origem:", secao_origem)
-        print("chefia_destino:", chefia_destino)
+        # Log dos dados recebidos para depuração
+        print(f"Dados recebidos: {dados}")
 
         # Geração do PDF em memória
         pdf_buffer = io.BytesIO()
@@ -235,7 +239,7 @@ def gerar_guia():
         )
         pdf.output(pdf_buffer)
         pdf_buffer.seek(0)  # Retorna ao início para leitura
-        
+
         # Enviar o PDF gerado como resposta
         return send_file(
             pdf_buffer,
@@ -244,8 +248,12 @@ def gerar_guia():
             download_name="guia_circulacao_interna.pdf"
         )
 
+    except ValueError as ve:
+        print(f"Erro de validação: {ve}")
+        return jsonify({"error": str(ve)}), 400
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Erro inesperado: {e}")
+        return jsonify({"error": f"Erro interno: {str(e)}"}), 500
     
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
