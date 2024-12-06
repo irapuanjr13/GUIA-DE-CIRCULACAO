@@ -272,34 +272,29 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
     // Verifica se a resposta é JSON (sucesso ou erro)
     const contentType = response.headers.get('Content-Type') || '';
     if (contentType.includes('application/json')) {
-        return response.json().then(data => {
-            if (!response.ok) {
-                throw new Error(data.error || 'Erro desconhecido');
-            }
-            return data; // Retorna o JSON válido
-        });
+        return response.json();
     } else if (contentType.includes('application/pdf')) {
-        // Caso a resposta seja um PDF
-        if (response.ok) {
-            return response.blob(); // Recebe o PDF como Blob
-        } else {
-            throw new Error('Falha ao gerar o PDF');
-        }
+        // Processa como PDF
+        return response.blob();
+    } else if (!response.ok) {
+        // Tratamento para respostas não-JSON
+        throw new Error('Erro no servidor. Resposta inesperada.');
     } else {
-        throw new Error('Formato de resposta inesperado');
+        // Resposta vazia
+        throw new Error('Resposta vazia do servidor.');
     }
 })
-.then(result => {
-    if (result instanceof Blob) {
-        // Se for um PDF, baixa o arquivo
-        const url = window.URL.createObjectURL(result);
+.then(data => {
+    if (data instanceof Blob) {
+        // Baixa o PDF
+        const url = window.URL.createObjectURL(data);
         const a = document.createElement('a');
         a.href = url;
         a.download = 'guia_circulacao_interna.pdf';
         a.click();
     } else {
-        // Se for JSON, processa os dados retornados
-        console.log('Dados do backend:', result);
+        // Processa os dados JSON
+        console.log('Dados recebidos:', data);
     }
 })
 .catch(error => {
