@@ -208,7 +208,12 @@ document.addEventListener("DOMContentLoaded", function () {
 document.getElementById("gerar_guia").addEventListener("click", function (event) {
     event.preventDefault(); // Impede o comportamento padrão do formulário
 
-    const bmpNumbers = document.getElementById("bmp_numbers").value.split(",").map(bmp => bmp.trim());
+    // Obtém e processa os BMPs
+    const bmpNumbers = document.getElementById("bmp_numbers").value
+        .split(",")
+        .map(bmp => parseInt(bmp.trim(), 10)) // Converte para números inteiros
+        .filter(bmp => !isNaN(bmp)); // Filtra valores inválidos
+
     const secaoOrigem = document.getElementById("secao_origem").value;
     const chefiaOrigem = document.getElementById("chefia_origem").value;
     const secaoDestino = document.getElementById("secao_destino").value;
@@ -220,41 +225,41 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
         return;
     }
 
-    /// Dados a serem enviados para o backend
-const dados = {
-    secao_origem: secaoOrigem,
-    chefia_origem: chefiaOrigem,
-    secao_destino: secaoDestino,
-    chefia_destino: chefiaDestino,
-    bmp_numbers: bmpNumbers // Lista de BMPs corrigida
-};
+    // Dados a serem enviados para o backend
+    const dados = {
+        secao_origem: secaoOrigem,
+        chefia_origem: chefiaOrigem,
+        secao_destino: secaoDestino,
+        chefia_destino: chefiaDestino,
+        bmp_numbers: bmpNumbers // Lista de BMPs como números
+    };
 
     fetch('/gerar_guia', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(dados)
-})
-.then(response => {
-    if (response.ok) {
-        return response.blob();
-    } else {
-        return response.json().then(err => {
-            throw new Error(err.error || 'Erro desconhecido no backend');
-        });
-    }
-})
-.then(blob => {
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.style.display = 'none';
-    a.href = url;
-    a.download = 'guia_circulacao_interna.pdf';
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-})
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dados)
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.blob(); // Retorna o arquivo PDF como blob
+        } else {
+            return response.json().then(err => {
+                throw new Error(err.error || 'Erro desconhecido no backend');
+            });
+        }
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'guia_circulacao_interna.pdf';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url); // Revoga o URL após o uso
+    })
     .catch(error => {
         const mensagem = document.getElementById("mensagem");
         if (mensagem) {
