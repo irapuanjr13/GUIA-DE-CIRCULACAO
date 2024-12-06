@@ -226,8 +226,8 @@ def gerar_guia():
     
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
-    data = request.get_json()
-    bmp_numbers = data.get("bmp_numbers", [])
+    dados = request.get_json()
+    bmp_numbers = dados.get("bmp_numbers", [])
 
     if not bmp_numbers:
         return jsonify({"error": "Nenhum BMP fornecido!"}), 400
@@ -249,9 +249,9 @@ def autocomplete():
 
 @app.route("/get_chefia", methods=["POST"])
 def get_chefia():
-    data = request.json
-    secao = data.get("secao")
-    tipo = data.get("tipo")
+    dados = request.json
+    secao = dados.get("secao")
+    tipo = dados.get("tipo")
 
     if tipo == "destino":
         chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique()
