@@ -282,18 +282,6 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
         a.download = 'guia_circulacao_interna.pdf';
         a.click();
     })
-    .catch(error => console.error('Erro:', error));
-            window.URL.revokeObjectURL(url); // Revoga o URL após o uso
-        })
-        .catch(error => {
-            const mensagem = document.getElementById("mensagem");
-            if (mensagem) {
-                mensagem.innerText = "Erro: " + error.message;
-            } else {
-                alert("Erro: " + error.message); // Fallback para alert
-            }
-            console.error(error);
-        });
 </script>
 </body>
 </html>
