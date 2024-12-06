@@ -216,8 +216,9 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
     const uniqueBmpNumbers = [...new Set(bmpNumbers)]; // Remove duplicados
     if (uniqueBmpNumbers.length === 0) {
         alert("Insira pelo menos um número BMP válido.");
-        return;    
-    };
+        return;
+    }
+
     // Obter os valores dos outros campos
     const secaoOrigem = document.getElementById("secao_origem").value;
     const chefiaOrigem = document.getElementById("chefia_origem").value;
@@ -228,7 +229,8 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
     if (!secaoOrigem || !chefiaOrigem || !secaoDestino || !chefiaDestino) {
         alert("Preencha todos os campos obrigatórios.");
         return;
-    
+    }
+
     const bmp_numbers = {
         secao_origem: secaoOrigem,
         chefia_origem: chefiaOrigem,
@@ -276,7 +278,7 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
     .catch(error => {
         console.error('Erro:', error.message);
     });
-});
+}); 
 </script>
 </body>
 </html>
