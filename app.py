@@ -223,6 +223,18 @@ def validar_dados():
 def gerar_guia():
     try:
         dados = request.json  # Obtém o JSON enviado pelo frontend
+        # Simular geração do PDF
+        pdf_content = b"%PDF-1.4\n%..."
+        pdf_file = io.BytesIO(pdf_content)
+        pdf_file.seek(0)
+        return send_file(
+            pdf_file,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name='guia_circulacao_interna.pdf'
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
         # Extração de dados do JSON
         bmp_numbers = dados.get("bmp_numbers", [])  # Atualizado para o nome correto
