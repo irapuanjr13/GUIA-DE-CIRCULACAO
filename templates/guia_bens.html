@@ -208,7 +208,6 @@ document.addEventListener("DOMContentLoaded", function () {
 document.getElementById("gerar_guia").addEventListener("click", function (event) {
     event.preventDefault(); // Impede o comportamento padrão do formulário
 
-    // Obtém e processa os BMPs
     let bmpNumbers = document.getElementById("bmp_numbers").value
         .split(",")
         .map(bmp => parseInt(bmp.trim(), 10)) // Converte para números inteiros
@@ -225,25 +224,19 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
         return;
     }
 
-    // Dados a serem enviados para o backend
-    const  bmp_numbres = {
+    const bmp_numbers = {
         secao_origem: secaoOrigem,
         chefia_origem: chefiaOrigem,
         secao_destino: secaoDestino,
         chefia_destino: chefiaDestino,
-        bmp_numbers: bmpNumbers // Lista de BMPs como números
+        bmp_numbers: bmpNumbers
     };
-    // Etapa 1: Validar os dados
+
+    // Envia os dados para validação e geração
     fetch('/validar_dados', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            bmp_numbers: ['BMP001', 'BMP002'],
-            secao_destino: 'Seção A',
-            chefia_origem: 'Chefia X',
-            secao_origem: 'Seção B',
-            chefia_destino: 'Chefia Y'
-        })
+        body: JSON.stringify(bmp_numbers)
     })
     .then(response => response.json())
     .then(data => {
@@ -256,49 +249,28 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
     })
     .catch(error => console.error('Erro:', error));
 
-    // Etapa 2: Gerar o PDF
+    // Geração do PDF
     fetch('/gerar_guia', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            bmp_numbers: ['BMP001', 'BMP002'],
-            secao_destino: 'Seção A',
-            chefia_origem: 'Chefia X',
-            secao_origem: 'Seção B',
-            chefia_destino: 'Chefia Y'
-        })
+        body: JSON.stringify(bmp_numbers)
     })
     .then(response => {
-    // Verifica se a resposta é JSON (sucesso ou erro)
-    const contentType = response.headers.get('Content-Type') || '';
-    if (contentType.includes('application/json')) {
-        return response.json();
-    } else if (contentType.includes('application/pdf')) {
-        // Processa como PDF
-        return response.blob();
-    } else if (!response.ok) {
-        // Tratamento para respostas não-JSON
-        throw new Error('Erro no servidor. Resposta inesperada.');
-    } else {
-        // Resposta vazia
-        throw new Error('Resposta vazia do servidor.');
-    }
-})
-.then(data => {
-    if (data instanceof Blob) {
-        // Baixa o PDF
-        const url = window.URL.createObjectURL(data);
+        if (response.ok) {
+            return response.blob();
+        }
+        throw new Error('Erro ao gerar PDF.');
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = 'guia_circulacao_interna.pdf';
         a.click();
-    } else {
-        // Processa os dados JSON
-        console.log('Dados recebidos:', data);
-    }
-})
-.catch(error => {
-    console.error('Erro:', error.message);
+    })
+    .catch(error => {
+        console.error('Erro:', error.message);
+    });
 });
 </script>
 </body>
