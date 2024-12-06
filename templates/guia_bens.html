@@ -269,20 +269,42 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
         })
     })
     .then(response => {
+    // Verifica se a resposta é JSON (sucesso ou erro)
+    const contentType = response.headers.get('Content-Type') || '';
+    if (contentType.includes('application/json')) {
+        return response.json().then(data => {
+            if (!response.ok) {
+                throw new Error(data.error || 'Erro desconhecido');
+            }
+            return data; // Retorna o JSON válido
+        });
+    } else if (contentType.includes('application/pdf')) {
+        // Caso a resposta seja um PDF
         if (response.ok) {
-            return response.blob(); // Recebe o PDF como blob
+            return response.blob(); // Recebe o PDF como Blob
         } else {
-            return response.json().then(data => { throw new Error(data.error) });
+            throw new Error('Falha ao gerar o PDF');
         }
-    })
-    .then(blob => {
-        const url = window.URL.createObjectURL(blob);
+    } else {
+        throw new Error('Formato de resposta inesperado');
+    }
+})
+.then(result => {
+    if (result instanceof Blob) {
+        // Se for um PDF, baixa o arquivo
+        const url = window.URL.createObjectURL(result);
         const a = document.createElement('a');
         a.href = url;
         a.download = 'guia_circulacao_interna.pdf';
         a.click();
-        })
-    })
+    } else {
+        // Se for JSON, processa os dados retornados
+        console.log('Dados do backend:', result);
+    }
+})
+.catch(error => {
+    console.error('Erro:', error.message);
+});
 </script>
 </body>
 </html>
