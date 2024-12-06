@@ -233,43 +233,68 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
         chefia_destino: chefiaDestino,
         bmp_numbers: bmpNumbers // Lista de BMPs como números
     };
+    // Etapa 1: Validar os dados
+    fetch('/validar_dados', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            bmp_numbers: ['BMP001', 'BMP002'],
+            secao_destino: 'Seção A',
+            chefia_origem: 'Chefia X',
+            secao_origem: 'Seção B',
+            chefia_destino: 'Chefia Y'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            console.error("Erro:", data.error);
+        } else {
+            console.log("Dados validados:", data);
+            // Passa para a próxima etapa, se necessário
+        }
+    })
+    .catch(error => console.error('Erro:', error));
 
+    // Etapa 2: Gerar o PDF
     fetch('/gerar_guia', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(dados)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            bmp_numbers: ['BMP001', 'BMP002'],
+            secao_destino: 'Seção A',
+            chefia_origem: 'Chefia X',
+            secao_origem: 'Seção B',
+            chefia_destino: 'Chefia Y'
+        })
     })
     .then(response => {
         if (response.ok) {
-            return response.blob(); // Retorna o arquivo PDF como blob
+            return response.blob(); // Recebe o PDF como blob
         } else {
-            return response.json().then(err => {
-                throw new Error(err.error || 'Erro desconhecido no backend');
-            });
+            return response.json().then(data => { throw new Error(data.error) });
         }
     })
     .then(blob => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.style.display = 'none';
         a.href = url;
         a.download = 'guia_circulacao_interna.pdf';
-        document.body.appendChild(a);
         a.click();
-        window.URL.revokeObjectURL(url); // Revoga o URL após o uso
     })
-    .catch(error => {
-        const mensagem = document.getElementById("mensagem");
-        if (mensagem) {
-            mensagem.innerText = "Erro: " + error.message;
-        } else {
-            alert("Erro: " + error.message); // Fallback para alert
-        }
-        console.error(error);
+    .catch(error => console.error('Erro:', error));
+            window.URL.revokeObjectURL(url); // Revoga o URL após o uso
+        })
+        .catch(error => {
+            const mensagem = document.getElementById("mensagem");
+            if (mensagem) {
+                mensagem.innerText = "Erro: " + error.message;
+            } else {
+                alert("Erro: " + error.message); // Fallback para alert
+            }
+            console.error(error);
+        });
     });
-});
 </script>
 </body>
 </html>
