@@ -166,9 +166,14 @@ def guia_bens():
             return jsonify({"error": erros_bmps}), 400
 
     # Filtrar dados dos BMPs
-    dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
+    dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)] 
+
     if dados_bmps.empty:
             return jsonify({"error": "Nenhum BMP válido encontrado."}), 400
+
+    # Caso existam dados válidos, converte para um formato apropriado e envia para o frontend
+    dados_validos = dados_bmps.to_dict(orient="records")  # Converte o DataFrame para uma lista de dicionários
+    return jsonify({"dados_bmps": dados_validos}), 200
       
     # Extrair os dados do JSON
     bmp_numbers = dados.get("bmp_numbers", [])
