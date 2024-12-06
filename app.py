@@ -200,38 +200,25 @@ def guia_bens():
 
 @app.route('/validar_dados', methods=['POST'])
 def validar_dados():
-    try:
-        dados = request.json  # Obtém o JSON enviado pelo frontend
+    data = request.json
 
-        # Extração de dados
-        bmp_numbers = dados.get("bmp_numbers", [])
-        secao_destino = dados.get("secao_destino", "")
-        chefia_origem = dados.get("chefia_origem", "")
-        secao_origem = dados.get("secao_origem", "")
-        chefia_destino = dados.get("chefia_destino", "")
+    # Validação básica
+    bmp_numbers = data.get('bmp_numbers', [])
+    if not isinstance(bmp_numbers, list) or not all(isinstance(bmp, int) for bmp in bmp_numbers):
+        return jsonify({'error': 'Os números BMP devem ser uma lista de inteiros.'}), 400
 
-        # Adicionando prints para verificar o conteúdo
-        print("bmp_numbers:", bmp_numbers)
-        print("seção_destino:", secao_destino)
-        print("chefia_origem:", chefia_origem)
-        print("seção_origem:", secao_origem)
-        print("chefia_destino:", chefia_destino)
+    # Exemplo de processamento
+    secao_origem = data.get('secao_origem', '')
+    chefia_origem = data.get('chefia_origem', '')
+    secao_destino = data.get('secao_destino', '')
+    chefia_destino = data.get('chefia_destino', '')
 
-        # Validação
-        if not bmp_numbers or not secao_destino or not chefia_origem or not secao_origem or not chefia_destino:
-            return jsonify({"error": "Preencha todos os campos obrigatórios."}), 400
+    # Lógica de validação ou processamento
+    if not secao_origem or not chefia_origem or not secao_destino or not chefia_destino:
+        return jsonify({'error': 'Preencha todos os campos obrigatórios.'}), 400
 
-        # Retorna os dados extraídos para o frontend
-        return jsonify({
-            "bmp_numbers": bmp_numbers,
-            "secao_destino": secao_destino,
-            "chefia_origem": chefia_origem,
-            "secao_origem": secao_origem,
-            "chefia_destino": chefia_destino
-        }), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
+    return jsonify({'message': 'Dados válidos!', 'bmp_numbers': bmp_numbers})
+    
 @app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
     try:
