@@ -189,26 +189,19 @@ def guia_bens():
 @app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
     try:
-        dados = request.json  # Obtém o JSON enviado
-        # Faça o processamento necessário, como gerar o PDF
-        print(dados)  # Para depuração
+        # Obtém o JSON enviado pelo cliente
+        dados = request.json
 
-        # Retorne o PDF gerado
-        return jsonify({"message": "Guia gerada com sucesso!"}), 200
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-        # Dados para gerar o PDF
-        dados_bmps = data.get("bmp_numbers", [])
-        secao_destino = data["secao_destino"]
-        chefia_origem = data["chefia_origem"]
-        secao_origem = data["secao_origem"]
-        chefia_destino = data["chefia_destino"]
+        # Extrai os dados do JSON
+        dados_bmps = dados.get("bmp_numbers", [])
+        secao_destino = dados.get("secao_destino", "N/D")
+        chefia_origem = dados.get("chefia_origem", "N/D")
+        secao_origem = dados.get("secao_origem", "N/D")
+        chefia_destino = dados.get("chefia_destino", "N/D")
 
         # Geração do PDF em memória
         pdf_buffer = io.BytesIO()
-        pdf = PDF()  # Sua classe de PDF
+        pdf = PDF()
         pdf.add_page()
         pdf.add_table(dados_bmps)
         pdf.add_details(
@@ -220,16 +213,16 @@ def gerar_guia():
         pdf.output(pdf_buffer)
         pdf_buffer.seek(0)  # Retorna ao início para leitura
 
-        # Enviar o PDF gerado como resposta
+        # Envia o PDF gerado como resposta
         return send_file(
             pdf_buffer,
             mimetype='application/pdf',
             as_attachment=True,
             download_name="guia_circulacao_interna.pdf"
         )
-
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        # Retorna o erro em caso de falha
+        return {"error": str(e)}, 500
     
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
