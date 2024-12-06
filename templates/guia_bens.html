@@ -220,42 +220,41 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
         return;
     }
 
-    // Dados a serem enviados para o backend
+    /// Dados a serem enviados para o backend
 const dados = {
     secao_origem: secaoOrigem,
     chefia_origem: chefiaOrigem,
     secao_destino: secaoDestino,
     chefia_destino: chefiaDestino,
-    dados_bmps: bmp_numbers.map(bmp => bmp.trim()) // Lista de BMPs
+    bmp_numbers: bmpNumbers // Lista de BMPs corrigida
 };
 
-    fetch("/gerar_guia", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(dados)
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.blob(); // Recebe o arquivo PDF
-        } else {
-            return response.text().then(text => {
-                throw new Error(`Erro: ${response.status} - ${text}`);
-            });
-        }
-    })
-    .then(blob => {
-        // Criar um link temporário para baixar o arquivo
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "guia_circulacao_interna.pdf";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-    })
+    fetch('/gerar_guia', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(dados)
+})
+.then(response => {
+    if (response.ok) {
+        return response.blob();
+    } else {
+        return response.json().then(err => {
+            throw new Error(err.error || 'Erro desconhecido no backend');
+        });
+    }
+})
+.then(blob => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = 'guia_circulacao_interna.pdf';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+})
     .catch(error => {
         const mensagem = document.getElementById("mensagem");
         if (mensagem) {
