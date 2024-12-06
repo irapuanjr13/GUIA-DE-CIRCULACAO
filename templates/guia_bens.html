@@ -118,78 +118,164 @@
     </footer>
 
 <script>
+document.getElementById("bmp_numbers").addEventListener("input", function () {
+    const bmpList = this.value.split(",").map(bmp => bmp.trim()).filter(bmp => bmp !== "");
+    
+    if (bmpList.length > 0) {
+        // Faz requisição ao backend para buscar dados do BMP
+        fetch("/autocomplete", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ bmp_numbers: bmpList })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Erro ao buscar dados de BMPs!");
+            return response.json();
+        })
+        .then(data => {
+            // Preenche campos de origem com base no primeiro BMP
+            const firstBmp = bmpList[0];
+            const info = data[firstBmp] || { secao_origem: "", chefia_origem: "" };
+
+            document.getElementById("secao_origem").value = info.secao_origem || "";
+            document.getElementById("chefia_origem").value = info.chefia_origem || "";
+        })
+        .catch(error => {
+            console.error(error);
+            document.getElementById("secao_origem").value = "";
+            document.getElementById("chefia_origem").value = "";
+        });
+    } else {
+        document.getElementById("secao_origem").value = "";
+        document.getElementById("chefia_origem").value = "";
+    }
+});
+
+    // Função para buscar chefia com base na seção e tipo
+    function fetchChefia(secao, tipo) {
+        return fetch("/get_chefia", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ secao: secao, tipo: tipo })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Erro ao buscar chefia!");
+            }
+            return response.json();
+        })
+        .then(data => {
+            return data.chefia || [];
+        })
+        .catch(error => {
+            console.error(error);
+            return [];
+        });
+    }
+
+    // Exemplo de uso para o fetchChefia
+    document.getElementById("secao_destino").addEventListener("change", function () {
+        const secao = this.value;
+        fetchChefia(secao, "destino").then(chefiaList => {
+            const chefiaDestino = document.getElementById("chefia_destino");
+            chefiaDestino.innerHTML = ""; // Limpar lista atual
+            chefiaList.forEach(chefia => {
+                const option = document.createElement("option");
+                option.value = chefia;
+                option.textContent = chefia;
+                chefiaDestino.appendChild(option);
+            });
+        });
+    });
+
+// Envio do formulário
 document.addEventListener("DOMContentLoaded", function () {
-    // Evento no botão gerar guia
     const button = document.getElementById("gerar_guia");
     if (button) {
         button.addEventListener("click", function (event) {
             event.preventDefault();
-
-            let bmpNumbers = document.getElementById("bmp_numbers").value
-                .split(",")
-                .map(bmp => bmp.trim())
-                .filter(bmp => /^\d+$/.test(bmp)); // Somente números inteiros
-
-            const uniqueBmpNumbers = [...new Set(bmpNumbers)];
-            if (uniqueBmpNumbers.length === 0) {
-                alert("Insira pelo menos um número BMP válido.");
-                return;
-            }
-
-            const secaoOrigem = document.getElementById("secao_origem").value;
-            const chefiaOrigem = document.getElementById("chefia_origem").value;
-            const secaoDestino = document.getElementById("secao_destino").value;
-            const chefiaDestino = document.getElementById("chefia_destino").value;
-
-            if (!secaoOrigem || !chefiaOrigem || !secaoDestino || !chefiaDestino) {
-                alert("Preencha todos os campos obrigatórios.");
-                return;
-            }
-
-            const bmp_numbers = {
-                secao_origem: secaoOrigem,
-                chefia_origem: chefiaOrigem,
-                secao_destino: secaoDestino,
-                chefia_destino: chefiaDestino,
-                bmp_numbers: uniqueBmpNumbers
-            };
-
-            // Requisição para validar dados
-            fetch('/validar_dados', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(bmp_numbers)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    alert("Erro: " + data.error);
-                } else {
-                    // Geração do PDF
-                    return fetch('/gerar_guia', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(bmp_numbers)
-                    });
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error("Erro ao gerar PDF.");
-                return response.blob();
-            })
-            .then(blob => {
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'guia_circulacao_interna.pdf';
-                a.click();
-            })
-            .catch(error => {
-                console.error(error.message);
-                alert("Erro geral: " + error.message);
-            });
+            console.log("Botão clicado!");
         });
+    } else {
+        console.error("Elemento com ID 'gerar_guia' não encontrado.");
     }
+});
+    
+document.getElementById("gerar_guia").addEventListener("click", function (event) {
+    event.preventDefault(); // Impede o comportamento padrão do formulário
+
+    let bmpNumbers = document.getElementById("bmp_numbers").value
+        .split(",")
+        .map(bmp => parseInt(bmp.trim(), 10)) // Converte para números inteiros
+        .filter(bmp => !isNaN(bmp)); // Filtra valores inválidos
+
+    const uniqueBmpNumbers = [...new Set(bmpNumbers)]; // Remove duplicados
+    if (uniqueBmpNumbers.length === 0) {
+        alert("Insira pelo menos um número BMP válido.");
+        return;    
+    };
+    // Obter os valores dos outros campos
+    const secaoOrigem = document.getElementById("secao_origem").value;
+    const chefiaOrigem = document.getElementById("chefia_origem").value;
+    const secaoDestino = document.getElementById("secao_destino").value;
+    const chefiaDestino = document.getElementById("chefia_destino").value;
+
+    // Verifica se todos os campos obrigatórios foram preenchidos
+    if (!secaoOrigem || !chefiaOrigem || !secaoDestino || !chefiaDestino) {
+        alert("Preencha todos os campos obrigatórios.");
+        return;
+    
+    const bmp_numbers = {
+        secao_origem: secaoOrigem,
+        chefia_origem: chefiaOrigem,
+        secao_destino: secaoDestino,
+        chefia_destino: chefiaDestino,
+        bmp_numbers: uniqueBmpNumbers
+    };
+
+    // Envia os dados para validação e geração
+    fetch('/validar_dados', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bmp_numbers)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            console.error("Erro:", data.error);
+        } else {
+            console.log("Dados validados:", data);
+            // Passa para a próxima etapa, se necessário
+        }
+    })
+    .catch(error => console.error('Erro:', error));
+
+    // Geração do PDF
+    fetch('/gerar_guia', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bmp_numbers)
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.blob();
+        }
+        throw new Error('Erro ao gerar PDF.');
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'guia_circulacao_interna.pdf';
+        a.click();
+    })
+    .catch(error => {
+        console.error('Erro:', error.message);
+    });
 });
 </script>
 </body>
