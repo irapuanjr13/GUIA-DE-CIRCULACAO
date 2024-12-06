@@ -140,17 +140,17 @@ def guia_bens():
 
     elif request.method == "POST":
         # Receber dados enviados via JSON
-        data = request.get_json(silent=True)
+        dados = request.get_json(silent=True)
         if not data:
             return jsonify({"error": "Os dados enviados não estão no formato JSON!"}), 400
 
     # Validação de campos obrigatórios
     campos_obrigatorios = {
-        "bmp_numbers": data.get("bmp_numbers"),
-        "secao_origem": data.get("secao_origem"),
-        "secao_destino": data.get("secao_destino"),
-        "chefia_origem": data.get("chefia_origem"),
-        "chefia_destino": data.get("chefia_destino")
+        "bmp_numbers": dados.get("bmp_numbers"),
+        "secao_origem": dados.get("secao_origem"),
+        "secao_destino": dados.get("secao_destino"),
+        "chefia_origem": dados.get("chefia_origem"),
+        "chefia_destino": dados.get("chefia_destino")
     }
     erros = validar_campos_obrigatorios(campos_obrigatorios)
     if erros is not True:
@@ -160,7 +160,7 @@ def guia_bens():
             return jsonify({"success": "Dados recebidos com sucesso!"})
 
     # Validar BMPs
-    bmp_list = [bmp.strip() for bmp in data["bmp_numbers"] if bmp.strip()]
+    bmp_list = [bmp.strip() for bmp in dados["bmp_numbers"] if bmp.strip()]
     erros_bmps = validar_bmps(bmp_list)
     if erros_bmps is not True:
             return jsonify({"error": erros_bmps}), 400
@@ -171,11 +171,11 @@ def guia_bens():
             return jsonify({"error": "Nenhum BMP válido encontrado."}), 400
       
     # Extrair os dados do JSON
-    bmp_numbers = data.get("bmp_numbers", [])
-    secao_origem = data.get("secao_origem", "").strip()
-    chefia_origem = data.get("chefia_origem", "").strip()
-    secao_destino = data.get("secao_destino", "").strip()
-    chefia_destino = data.get("chefia_destino", "").strip()  
+    bmp_numbers = dados.get("bmp_numbers", [])
+    secao_origem = dados.get("secao_origem", "").strip()
+    chefia_origem = dados.get("chefia_origem", "").strip()
+    secao_destino = dados.get("secao_destino", "").strip()
+    chefia_destino = dados.get("chefia_destino", "").strip()  
     
     # Validar a conta dos BMPs
     if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
