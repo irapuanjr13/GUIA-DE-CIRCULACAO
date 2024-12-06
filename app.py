@@ -177,6 +177,13 @@ def guia_bens():
       
     # Extrair os dados do JSON
     bmp_numbers = dados.get("bmp_numbers", [])
+    
+    # Garantindo que bmp_numbers seja uma lista de números
+        try:
+            bmp_numbers = [int(bmp) for bmp in bmp_numbers]
+        except ValueError:
+            raise ValueError("Os valores de BMP devem ser números inteiros")
+
     secao_origem = dados.get("secao_origem", "").strip()
     chefia_origem = dados.get("chefia_origem", "").strip()
     secao_destino = dados.get("secao_destino", "").strip()
