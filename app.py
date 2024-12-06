@@ -186,14 +186,18 @@ def guia_bens():
                 error="Nenhum BMP válido encontrado."
         )
 
-@app.route("/gerar_guia", methods=['POST'])
+@app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
     try:
-        # Obtém os dados enviados na requisição
-        data = request.get_json()
+        dados = request.json  # Obtém o JSON enviado
+        # Faça o processamento necessário, como gerar o PDF
+        print(dados)  # Para depuração
 
-        if not data:
-            return jsonify({"error": "Nenhum dado recebido"}), 400
+        # Retorne o PDF gerado
+        return jsonify({"message": "Guia gerada com sucesso!"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
         # Dados para gerar o PDF
         dados_bmps = data.get("bmp_numbers", [])
