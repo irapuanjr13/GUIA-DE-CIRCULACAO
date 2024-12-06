@@ -263,10 +263,11 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
         body: JSON.stringify(bmp_numbers)
     })
     .then(response => {
-        if (response.ok) {
-            return response.blob();
-        }
-        throw new Error('Erro ao gerar PDF.');
+    if (!response.ok) {
+        console.error("Erro ao gerar PDF:", response.statusText);
+        return response.json().then(err => console.error("Detalhes do erro:", err));
+    }
+    return response.blob();
     })
     .then(blob => {
         const url = window.URL.createObjectURL(blob);
@@ -276,9 +277,8 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
         a.click();
     })
     .catch(error => {
-        console.error('Erro:', error.message);
+        console.error('Erro geral:', error.message);
     });
-}); 
 </script>
 </body>
 </html>
