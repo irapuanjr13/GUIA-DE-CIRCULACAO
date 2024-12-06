@@ -201,49 +201,40 @@ def guia_bens():
 @app.route('/gerar_guia', methods=['POST'])
 def gerar_guia():
     try:
-        # Obtém o JSON enviado pelo cliente
-        dados = request.json
+        dados = request.json  # Obtém o JSON enviado pelo frontend
 
-        # Extrai os dados do JSON
-        bmp_numbers = dados.get("bmp_numbers", [])  # Lista de BMPs
-        secao_origem = dados.get("secao_origem", "")
-        chefia_origem = dados.get("chefia_origem", "")
+        # Extração de dados do JSON
+        bmp_numbers = dados.get("bmp_numbers", [])  # Atualizado para o nome correto
         secao_destino = dados.get("secao_destino", "")
+        chefia_origem = dados.get("chefia_origem", "")
+        secao_origem = dados.get("secao_origem", "")
         chefia_destino = dados.get("chefia_destino", "")
 
-        # Validação básica
-        if not bmp_numbers or not secao_origem or not secao_destino:
-            return jsonify({"error": "Dados incompletos"}), 400
+        # Verifica se os campos obrigatórios estão preenchidos
+        if not bmp_numbers or not secao_destino or not chefia_origem or not secao_origem or not chefia_destino:
+            return jsonify({"error": "Preencha todos os campos obrigatórios."}), 400
 
-        # Adicionando prints para verificar o conteúdo
-        print("dados_bmps:", dados_bmps)
-        print("seção_destino:", secao_destino)
-        print("chefia_origem:", chefia_origem)
-        print("seção_origem:", secao_origem)
-        print("chefia_destino:", chefia_destino)
-
-        # Geração do PDF em memória
+        # Geração do PDF
         pdf_buffer = io.BytesIO()
         pdf = PDF()  # Sua classe de PDF
         pdf.add_page()
-        pdf.add_table(bmp_numbers)  # Preenchendo tabela com os números de BMP
+        pdf.add_table(bmp_numbers)  # Corrigido para usar o nome correto
         pdf.add_details(
-            secao_origem=secao_origem,
-            chefia_origem=chefia_origem,
             secao_destino=secao_destino,
+            chefia_origem=chefia_origem,
+            secao_origem=secao_origem,
             chefia_destino=chefia_destino
         )
         pdf.output(pdf_buffer)
         pdf_buffer.seek(0)  # Retorna ao início para leitura
-        
-        # Enviar o PDF gerado como resposta
+
+        # Retorna o PDF como resposta
         return send_file(
             pdf_buffer,
             mimetype='application/pdf',
             as_attachment=True,
             download_name="guia_circulacao_interna.pdf"
         )
-
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
