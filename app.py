@@ -199,6 +199,13 @@ def gerar_guia():
         secao_origem = dados.get("secao_origem", "N/D")
         chefia_destino = dados.get("chefia_destino", "N/D")
 
+        # Adicionando prints para verificar o conteúdo
+        print("Dados BMPs:", dados_bmps)
+        print("Seção Destino:", secao_destino)
+        print("Chefia Origem:", chefia_origem)
+        print("Seção Origem:", secao_origem)
+        print("Chefia Destino:", chefia_destino)
+
         # Geração do PDF em memória
         pdf_buffer = io.BytesIO()
         pdf = PDF()
