@@ -218,7 +218,17 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
         alert("Insira pelo menos um número BMP válido.");
         return;    
     };
+    // Obter os valores dos outros campos
+    const secaoOrigem = document.getElementById("secao_origem").value;
+    const chefiaOrigem = document.getElementById("chefia_origem").value;
+    const secaoDestino = document.getElementById("secao_destino").value;
+    const chefiaDestino = document.getElementById("chefia_destino").value;
 
+    // Verifica se todos os campos obrigatórios foram preenchidos
+    if (!secaoOrigem || !chefiaOrigem || !secaoDestino || !chefiaDestino) {
+        alert("Preencha todos os campos obrigatórios.");
+        return;
+    
     const bmp_numbers = {
         secao_origem: secaoOrigem,
         chefia_origem: chefiaOrigem,
