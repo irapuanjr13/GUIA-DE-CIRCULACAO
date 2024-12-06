@@ -210,6 +210,13 @@ def gerar_guia():
         secao_origem = dados.get("secao_origem", "")
         chefia_destino = dados.get("chefia_destino", "")
 
+        # Adicionando prints para verificar o conteúdo
+        print("dados_bmps:", dados_bmps)
+        print("seção_destino:", secao_destino)
+        print("chefia_origem:", chefia_origem)
+        print("seção_origem:", secao_origem)
+        print("chefia_destino:", chefia_destino)
+
         # Verifica se os campos obrigatórios estão preenchidos
         if not bmp_numbers or not secao_destino or not chefia_origem or not secao_origem or not chefia_destino:
             return jsonify({"error": "Preencha todos os campos obrigatórios."}), 400
