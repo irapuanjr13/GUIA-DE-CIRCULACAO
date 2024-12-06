@@ -210,15 +210,21 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
 
     let bmpNumbers = document.getElementById("bmp_numbers").value
         .split(",")
-        .map(bmp => bmp.trim()) // Remove espaços
-        .filter(bmp => bmp !== ""); // Remove valores vazios
+        .map(bmp => parseInt(bmp.trim(), 10)) // Converte para números inteiros
+        .filter(bmp => !isNaN(bmp)); // Filtra valores inválidos
+
+    const uniqueBmpNumbers = [...new Set(bmpNumbers)]; // Remove duplicados
+    if (uniqueBmpNumbers.length === 0) {
+        alert("Insira pelo menos um número BMP válido.");
+        return;    
+    };
 
     const bmp_numbers = {
         secao_origem: secaoOrigem,
         chefia_origem: chefiaOrigem,
         secao_destino: secaoDestino,
         chefia_destino: chefiaDestino,
-        bmp_numbers: bmpNumbers.join(",") // Converte de volta para string
+        bmp_numbers: uniqueBmpNumbers
     };
 
     // Envia os dados para validação e geração
