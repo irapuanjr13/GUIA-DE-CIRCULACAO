@@ -198,13 +198,13 @@ def guia_bens():
                 error="Nenhum BMP válido encontrado."
         )
 
-@app.route('/gerar_guia', methods=['POST'])
-def gerar_guia():
+@app.route('/validar_dados', methods=['POST'])
+def validar_dados():
     try:
         dados = request.json  # Obtém o JSON enviado pelo frontend
 
-        # Extração de dados do JSON
-        bmp_numbers = dados.get("bmp_numbers", [])  # Atualizado para o nome correto
+        # Extração de dados
+        bmp_numbers = dados.get("bmp_numbers", [])
         secao_destino = dados.get("secao_destino", "")
         chefia_origem = dados.get("chefia_origem", "")
         secao_origem = dados.get("secao_origem", "")
@@ -216,6 +216,33 @@ def gerar_guia():
         print("chefia_origem:", chefia_origem)
         print("seção_origem:", secao_origem)
         print("chefia_destino:", chefia_destino)
+
+        # Validação
+        if not bmp_numbers or not secao_destino or not chefia_origem or not secao_origem or not chefia_destino:
+            return jsonify({"error": "Preencha todos os campos obrigatórios."}), 400
+
+        # Retorna os dados extraídos para o frontend
+        return jsonify({
+            "bmp_numbers": bmp_numbers,
+            "secao_destino": secao_destino,
+            "chefia_origem": chefia_origem,
+            "secao_origem": secao_origem,
+            "chefia_destino": chefia_destino
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/gerar_guia', methods=['POST'])
+def gerar_guia():
+    try:
+        dados = request.json  # Obtém o JSON enviado pelo frontend
+
+        # Extração de dados do JSON
+        bmp_numbers = dados.get("bmp_numbers", [])  # Atualizado para o nome correto
+        secao_destino = dados.get("secao_destino", "")
+        chefia_origem = dados.get("chefia_origem", "")
+        secao_origem = dados.get("secao_origem", "")
+        chefia_destino = dados.get("chefia_destino", "")
 
         # Verifica se os campos obrigatórios estão preenchidos
         if not bmp_numbers or not secao_destino or not chefia_origem or not secao_origem or not chefia_destino:
