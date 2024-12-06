@@ -141,7 +141,7 @@ def guia_bens():
     elif request.method == "POST":
         # Receber dados enviados via JSON
         dados = request.get_json(silent=True)
-        if not data:
+        if not dados:
             return jsonify({"error": "Os dados enviados não estão no formato JSON!"}), 400
 
     # Validação de campos obrigatórios
