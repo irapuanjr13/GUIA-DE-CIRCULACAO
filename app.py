@@ -198,11 +198,15 @@ def gerar_guia():
         dados = request.json
 
         # Extrai os dados do JSON
-        dados_bmps = dados.get("bmp_numbers", [])
-        secao_destino = dados.get("secao_destino", "N/D")
-        chefia_origem = dados.get("chefia_origem", "N/D")
-        secao_origem = dados.get("secao_origem", "N/D")
-        chefia_destino = dados.get("chefia_destino", "N/D")
+        bmp_numbers = dados.get("bmp_numbers", [])  # Lista de BMPs
+        secao_origem = dados.get("secao_origem", "")
+        chefia_origem = dados.get("chefia_origem", "")
+        secao_destino = dados.get("secao_destino", "")
+        chefia_destino = dados.get("chefia_destino", "")
+
+        # Validação básica
+        if not bmp_numbers or not secao_origem or not secao_destino:
+            return jsonify({"error": "Dados incompletos"}), 400
 
         # Adicionando prints para verificar o conteúdo
         print("dados_bmps:", dados_bmps)
@@ -213,28 +217,28 @@ def gerar_guia():
 
         # Geração do PDF em memória
         pdf_buffer = io.BytesIO()
-        pdf = PDF()
+        pdf = PDF()  # Sua classe de PDF
         pdf.add_page()
-        pdf.add_table(dados_bmps)
+        pdf.add_table(bmp_numbers)  # Preenchendo tabela com os números de BMP
         pdf.add_details(
-            secao_destino=secao_destino,
-            chefia_origem=chefia_origem,
             secao_origem=secao_origem,
+            chefia_origem=chefia_origem,
+            secao_destino=secao_destino,
             chefia_destino=chefia_destino
         )
         pdf.output(pdf_buffer)
         pdf_buffer.seek(0)  # Retorna ao início para leitura
-
-        # Envia o PDF gerado como resposta
+        
+        # Enviar o PDF gerado como resposta
         return send_file(
             pdf_buffer,
             mimetype='application/pdf',
             as_attachment=True,
             download_name="guia_circulacao_interna.pdf"
         )
+
     except Exception as e:
-        # Retorna o erro em caso de falha
-        return {"error": str(e)}, 500
+        return jsonify({"error": str(e)}), 500
     
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
