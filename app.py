@@ -211,7 +211,7 @@ def gerar_guia():
         chefia_destino = dados.get("chefia_destino", "")
 
         # Adicionando prints para verificar o conteúdo
-        print("dados_bmps:", dados_bmps)
+        print("bmp_numbers:", bmp_numbers)
         print("seção_destino:", secao_destino)
         print("chefia_origem:", chefia_origem)
         print("seção_origem:", secao_origem)
