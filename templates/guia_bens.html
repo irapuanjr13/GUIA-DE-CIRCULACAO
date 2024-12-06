@@ -209,7 +209,7 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
     event.preventDefault(); // Impede o comportamento padrão do formulário
 
     // Obtém e processa os BMPs
-    const bmpNumbers = document.getElementById("bmp_numbers").value
+    let bmpNumbers = document.getElementById("bmp_numbers").value
         .split(",")
         .map(bmp => parseInt(bmp.trim(), 10)) // Converte para números inteiros
         .filter(bmp => !isNaN(bmp)); // Filtra valores inválidos
@@ -226,7 +226,7 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
     }
 
     // Dados a serem enviados para o backend
-    const  bmpNumbers = {
+    const  dados = {
         secao_origem: secaoOrigem,
         chefia_origem: chefiaOrigem,
         secao_destino: secaoDestino,
