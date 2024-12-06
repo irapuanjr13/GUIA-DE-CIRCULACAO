@@ -154,6 +154,7 @@ document.getElementById("bmp_numbers").addEventListener("input", function () {
 });
 
     // Função para buscar chefia com base na seção e tipo
+    // Correção no fetchChefia
     function fetchChefia(secao, tipo) {
         return fetch("/get_chefia", {
             method: "POST",
@@ -168,16 +169,14 @@ document.getElementById("bmp_numbers").addEventListener("input", function () {
             }
             return response.json();
         })
-        .then(data => {
-            return data.chefia || [];
-        })
+        .then(data => data.chefia || [])
         .catch(error => {
             console.error(error);
             return [];
         });
     }
 
-    // Exemplo de uso para o fetchChefia
+    // Correção no listener de secao_destino
     document.getElementById("secao_destino").addEventListener("change", function () {
         const secao = this.value;
         fetchChefia(secao, "destino").then(chefiaList => {
