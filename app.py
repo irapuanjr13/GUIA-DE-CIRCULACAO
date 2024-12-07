@@ -134,142 +134,42 @@ Dirigente Máximo
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
     if request.method == "GET":
-        secao_origem = df["Seção de Origem"].dropna().unique().tolist()
+        secoes_origem = df["Seção de Origem"].dropna().unique().tolist()
         secoes_destino = df["Seção de Destino"].dropna().unique().tolist()
-        return render_template("guia_bens.html", secao_origem=secao_origem, secoes_destino=secoes_destino)
+        return render_template("guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino)
 
     elif request.method == "POST":
-        # Receber dados enviados via JSON
-        dados = request.get_json(silent=True)
-        if not dados:
-            return jsonify({"error": "Os dados enviados não estão no formato JSON!"}), 400
+        try:
+            dados = request.json
+            if not dados:
+                return jsonify({"error": "Dados inválidos ou ausentes."}), 400
 
-    # Validação de campos obrigatórios
-    campos_obrigatorios = {
-        "bmp_numbers": dados.get("bmp_numbers"),
-        "secao_origem": dados.get("secao_origem"),
-        "secao_destino": dados.get("secao_destino"),
-        "chefia_origem": dados.get("chefia_origem"),
-        "chefia_destino": dados.get("chefia_destino")
-    }
-    erros = validar_campos_obrigatorios(campos_obrigatorios)
-    if erros is not True:
-            return jsonify({"error": erros}), 400
-        
-    # Simulação de retorno para validar o envio (ajuste conforme necessário)
-            return jsonify({"success": "Dados recebidos com sucesso!"})
+            campos_obrigatorios = ["bmp_numbers", "secao_origem", "secao_destino", "chefia_origem", "chefia_destino"]
+            for campo in campos_obrigatorios:
+                if not dados.get(campo):
+                    return jsonify({"error": f"O campo '{campo}' é obrigatório."}), 400
 
-    # Validar BMPs
-    bmp_list = [bmp.strip() for bmp in dados["bmp_numbers"] if bmp.strip()]
-    erros_bmps = validar_bmps(bmp_list)
-    if erros_bmps is not True:
-            return jsonify({"error": erros_bmps}), 400
+            bmp_list = [bmp.strip() for bmp in dados["bmp_numbers"]]
+            dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
+            if dados_bmps.empty:
+                return jsonify({"error": "Nenhum BMP válido encontrado."}), 400
 
-    # Filtrar dados dos BMPs
-    dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)] 
+            pdf = PDF()
+            pdf.add_page()
+            pdf.add_table(dados_bmps)
 
-    if dados_bmps.empty:
-            return jsonify({"error": "Nenhum BMP válido encontrado."}), 400
+            pdf_output = io.BytesIO()
+            pdf.output(pdf_output)
+            pdf_output.seek(0)
 
-    # Caso existam dados válidos, converte para um formato apropriado e envia para o frontend
-    dados_validos = dados_bmps.to_dict(orient="records")  # Converte o DataFrame para uma lista de dicionários
-    return jsonify({"dados_bmps": dados_validos}), 200
-      
-    # Extrair os dados do JSON
-    bmp_numbers = dados.get("bmp_numbers", [])
-    
-    # Garantindo que bmp_numbers seja uma lista de números
-    try:
-        bmp_numbers = [int(bmp) for bmp in bmp_numbers]
-    except ValueError:
-            raise ValueError("Os valores de BMP devem ser números inteiros")
-
-    secao_origem = dados.get("secao_origem", "").strip()
-    chefia_origem = dados.get("chefia_origem", "").strip()
-    secao_destino = dados.get("secao_destino", "").strip()
-    chefia_destino = dados.get("chefia_destino", "").strip()  
-    
-    # Validar a conta dos BMPs
-    if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
-            return render_template(
-                "guia_bens.html",
-                secao_origem=secao_origem,
-                secao_destino=secao_destino,
-                error="Nenhum BMP válido encontrado."
-        )
-
-@app.route('/validar_dados', methods=['POST'])
-def validar_dados():
-    data = request.json
-
-    # Validação básica
-    bmp_numbers = data.get('bmp_numbers', [])
-    if not isinstance(bmp_numbers, list) or not all(isinstance(bmp, int) for bmp in bmp_numbers):
-        return jsonify({'error': 'Os números BMP devem ser uma lista de inteiros.'}), 400
-
-    # Exemplo de processamento
-    secao_origem = data.get('secao_origem', '')
-    chefia_origem = data.get('chefia_origem', '')
-    secao_destino = data.get('secao_destino', '')
-    chefia_destino = data.get('chefia_destino', '')
-
-    # Lógica de validação ou processamento
-    if not secao_origem or not chefia_origem or not secao_destino or not chefia_destino:
-        return jsonify({'error': 'Preencha todos os campos obrigatórios.'}), 400
-
-    return jsonify({'message': 'Dados válidos!', 'bmp_numbers': bmp_numbers})
-    
-@app.route('/gerar_guia', methods=['POST'])
-def gerar_guia():
-    try:
-        dados = request.json  # Obtém o JSON enviado pelo frontend
-        # Simular geração do PDF
-        pdf_content = b"%PDF-1.4\n%..."
-        pdf_file = io.BytesIO(pdf_content)
-        pdf_file.seek(0)
-        return send_file(
-            pdf_file,
-            mimetype='application/pdf',
-            as_attachment=True,
-            download_name='guia_circulacao_interna.pdf'
-        )
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-        # Extração de dados do JSON
-        bmp_numbers = dados.get("bmp_numbers", [])  # Atualizado para o nome correto
-        secao_destino = dados.get("secao_destino", "")
-        chefia_origem = dados.get("chefia_origem", "")
-        secao_origem = dados.get("secao_origem", "")
-        chefia_destino = dados.get("chefia_destino", "")
-
-        # Verifica se os campos obrigatórios estão preenchidos
-        if not bmp_numbers or not secao_destino or not chefia_origem or not secao_origem or not chefia_destino:
-            return jsonify({"error": "Preencha todos os campos obrigatórios."}), 400
-
-        # Geração do PDF
-        pdf_buffer = io.BytesIO()
-        pdf = PDF()  # Sua classe de PDF
-        pdf.add_page()
-        pdf.add_table(bmp_numbers)  # Corrigido para usar o nome correto
-        pdf.add_details(
-            secao_destino=secao_destino,
-            chefia_origem=chefia_origem,
-            secao_origem=secao_origem,
-            chefia_destino=chefia_destino
-        )
-        pdf.output(pdf_buffer)
-        pdf_buffer.seek(0)  # Retorna ao início para leitura
-
-        # Retorna o PDF como resposta
-        return send_file(
-            pdf_buffer,
-            mimetype='application/pdf',
-            as_attachment=True,
-            download_name="guia_circulacao_interna.pdf"
-        )
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+            return send_file(
+                pdf_output,
+                mimetype="application/pdf",
+                as_attachment=True,
+                download_name="guia_bens.pdf"
+            )
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500    
     
 @app.route("/autocomplete", methods=["POST"])
 def autocomplete():
