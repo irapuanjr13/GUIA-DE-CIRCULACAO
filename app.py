@@ -107,30 +107,7 @@ LUCIANA DO AMARAL CORREA  Cel Int
 Dirigente Máximo
 """
         self.multi_cell(0, 8, self.fix_text(text))
-# Mock para as funções de validação
-    def validar_bmps(dados_bmps):
-        """
-        Valida se os BMPs fornecidos são válidos.
-        Retorna True se todos os BMPs forem válidos e uma lista de erros se houver problemas.
-        """
-        erros = []
-        for bmp in dados_bmps:
-            if not bmp.isdigit():  # Exemplo simples: verifica se é numérico
-                erros.append(f"BMP '{bmp}' não é um número válido.")
-            elif int(bmp) <= 0:
-                erros.append(f"BMP '{bmp}' deve ser maior que zero.")
-        return True if not erros else erros
-
-    def validar_campos_obrigatorios(campos):
-        """
-        Verifica se os campos obrigatórios foram preenchidos.
-        """
-        erros = []
-        for campo, valor in campos.items():
-            if not valor:
-                erros.append(f"O campo '{campo}' é obrigatório.")
-        return True if not erros else erros
-
+        
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
     if request.method == "GET":
@@ -208,6 +185,37 @@ def get_chefia():
         return jsonify({"error": "Tipo inválido!"}), 400
 
     return jsonify({"chefia": chefia.tolist()})
+
+@app.route('/validar_dados', methods=['POST'])
+def validar_dados():
+    dados = request.json
+    # Valide os dados conforme necessário
+    if not dados.get('secao_origem') or not dados.get('chefia_origem'):
+        return jsonify({"error": "Dados de origem incompletos"}), 400
+    if not dados.get('secao_destino') or not dados.get('chefia_destino'):
+        return jsonify({"error": "Dados de destino incompletos"}), 400
+    return jsonify({"message": "Dados válidos"})
+
+# Rota para geração do PDF
+@app.route('/gerar_guia', methods=['POST'])
+def gerar_guia():
+    dados = request.json
+    # Aqui você geraria o PDF conforme o modelo, usando uma biblioteca como ReportLab ou FPDF
+    # Exemplo simples de PDF gerado em memória
+    pdf_content = f"""
+    Guia de Circulação Interna de BMP
+
+    Números de BMP: {dados.get('bmp_numbers', [])}
+    Seção de Origem: {dados.get('secao_origem')}
+    Chefia de Origem: {dados.get('chefia_origem')}
+    Seção de Destino: {dados.get('secao_destino')}
+    Chefia de Destino: {dados.get('chefia_destino')}
+    """
+    pdf_bytes = BytesIO()
+    pdf_bytes.write(pdf_content.encode('utf-8'))
+    pdf_bytes.seek(0)
+
+    return send_file(pdf_bytes, as_attachment=True, download_name='guia_circulacao_interna.pdf')
 
 @app.route("/consulta_bmp", methods=["GET", "POST"])
 def consulta_bmp():
