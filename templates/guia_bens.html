@@ -205,76 +205,72 @@ document.addEventListener("DOMContentLoaded", function () {
 });
     
 document.getElementById("gerar_guia").addEventListener("click", function (event) {
-    event.preventDefault(); // Impede o comportamento padrão do formulário
+    event.preventDefault();
 
     let bmpNumbers = document.getElementById("bmp_numbers").value
         .split(",")
-        .map(bmp => parseInt(bmp.trim(), 10)) // Converte para números inteiros
-        .filter(bmp => !isNaN(bmp)); // Filtra valores inválidos
+        .map(bmp => parseInt(bmp.trim(), 10))
+        .filter(bmp => !isNaN(bmp));
 
-    const uniqueBmpNumbers = [...new Set(bmpNumbers)]; // Remove duplicados
-    if (uniqueBmpNumbers.length === 0) {
-        alert("Insira pelo menos um número BMP válido.");
-        return;    
-    };
-    // Obter os valores dos outros campos
-    const secaoOrigem = document.getElementById("secao_origem").value;
-    const chefiaOrigem = document.getElementById("chefia_origem").value;
+    const uniqueBmpNumbers = [...new Set(bmpNumbers)];
+    const secaoOrigem = document.getElementById("secao_origem").value.trim();
+    const chefiaOrigem = document.getElementById("chefia_origem").value.trim();
     const secaoDestino = document.getElementById("secao_destino").value;
     const chefiaDestino = document.getElementById("chefia_destino").value;
 
-    // Verifica se todos os campos obrigatórios foram preenchidos
-    if (!secaoOrigem || !chefiaOrigem || !secaoDestino || !chefiaDestino) {
-        alert("Preencha todos os campos obrigatórios.");
+    // Validação dos campos
+    if (uniqueBmpNumbers.length === 0) {
+        alert("Por favor, insira pelo menos um número BMP válido.");
         return;
-    
-    const bmp_numbers = {
+    }
+    if (!secaoOrigem || !chefiaOrigem || !secaoDestino || !chefiaDestino) {
+        alert("Por favor, preencha todos os campos obrigatórios.");
+        return;
+    }
+
+    const data = {
+        bmp_numbers: uniqueBmpNumbers,
         secao_origem: secaoOrigem,
         chefia_origem: chefiaOrigem,
         secao_destino: secaoDestino,
         chefia_destino: chefiaDestino,
-        bmp_numbers: uniqueBmpNumbers
     };
 
-    // Envia os dados para validação e geração
-    fetch('/validar_dados', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bmp_numbers)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.error) {
-            console.error("Erro:", data.error);
-        } else {
-            console.log("Dados validados:", data);
-            // Passa para a próxima etapa, se necessário
-        }
-    })
-    .catch(error => console.error('Erro:', error));
-
-    // Geração do PDF
-    fetch('/gerar_guia', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bmp_numbers)
+    // Envia os dados e realiza validação
+    fetch("/validar_dados", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
     })
     .then(response => {
-        if (response.ok) {
-            return response.blob();
+        if (!response.ok) throw new Error("Erro na validação dos dados.");
+        return response.json();
+    })
+    .then(validData => {
+        if (validData.error) {
+            alert(validData.error);
+            return;
         }
-        throw new Error('Erro ao gerar PDF.');
+
+        // Geração do PDF
+        return fetch("/gerar_guia", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+        });
+    })
+    .then(response => {
+        if (!response.ok) throw new Error("Erro ao gerar o PDF.");
+        return response.blob();
     })
     .then(blob => {
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
-        a.download = 'guia_circulacao_interna.pdf';
+        a.download = "guia_circulacao_interna.pdf";
         a.click();
     })
-    .catch(error => {
-        console.error('Erro:', error.message);
-    });
+    .catch(error => console.error("Erro:", error.message));
 });
 </script>
 </body>
