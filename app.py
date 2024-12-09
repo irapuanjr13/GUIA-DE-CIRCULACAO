@@ -183,43 +183,43 @@ class PDF(FPDF):
             self.cell(width, 10, header, border=1, align="C")
         self.ln()
 
-    # Adicionar as linhas da tabela
-    self.set_font("Arial", size=10)
-    line_height = self.font_size + 2  # Define a altura da linha com base no tamanho da fonte
+        # Adicionar as linhas da tabela
+        self.set_font("Arial", size=10)
+        line_height = self.font_size + 2  # Define a altura da linha com base no tamanho da fonte
 
-    for _, row in dados_bmps.iterrows():
-        # Calcular a altura necessária para a célula "NOMECLATURA/COMPONENTE"
-        text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
-        line_count = self.get_string_width(text) // col_widths[1] + 1
-        row_height = line_height * line_count  # Altura ajustada ao tamanho do texto
+        for _, row in dados_bmps.iterrows():
+            # Calcular a altura necessária para a célula "NOMECLATURA/COMPONENTE"
+            text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
+            line_count = self.get_string_width(text) // col_widths[1] + 1
+            row_height = line_height * line_count  # Altura ajustada ao tamanho do texto
 
-        # Adicionar célula "Nº BMP"
-        self.cell(col_widths[0], row_height, str(row["Nº BMP"]), border=1, align="C")
+            # Adicionar célula "Nº BMP"
+            self.cell(col_widths[0], row_height, str(row["Nº BMP"]), border=1, align="C")
 
-        # Adicionar célula "NOMECLATURA/COMPONENTE" com quebra automática
-        x, y = self.get_x(), self.get_y()
-        self.multi_cell(col_widths[1], line_height, text, border=1)
-        self.set_xy(x + col_widths[1], y)  # Reposicionar para a próxima coluna
+            # Adicionar célula "NOMECLATURA/COMPONENTE" com quebra automática
+            x, y = self.get_x(), self.get_y()
+            self.multi_cell(col_widths[1], line_height, text, border=1)
+            self.set_xy(x + col_widths[1], y)  # Reposicionar para a próxima coluna
 
-        # Adicionar célula "Nº SERIE"
-        self.cell(
-            col_widths[2],
-            row_height,
-            self.fix_text(str(row["Nº SERIE"]) if pd.notna(row["Nº SERIE"]) else ""),
-            border=1,
-            align="C"
-        )
+            # Adicionar célula "Nº SERIE"
+            self.cell(
+                col_widths[2],
+                row_height,
+                self.fix_text(str(row["Nº SERIE"]) if pd.notna(row["Nº SERIE"]) else ""),
+                border=1,
+                align="C"
+            )
 
-        # Adicionar célula "VL. ATUALIZ."
-        self.cell(
-            col_widths[3],
-            row_height,
-            f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ','),
-            border=1,
-            align="R"
-        )
+            # Adicionar célula "VL. ATUALIZ."
+            self.cell(
+                col_widths[3],
+                row_height,
+                f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ','),
+                border=1,
+                align="R"
+            )
 
-        self.ln()  # Próxima linha
+            self.ln()  # Próxima linha
                        
     def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
         self.set_font("Arial", size=12)
