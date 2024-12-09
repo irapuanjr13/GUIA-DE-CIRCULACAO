@@ -48,7 +48,7 @@ def guia_bens():
             if dados_bmps.empty:
                 return jsonify({"error": "Nenhum BMP válido encontrado."}), 400
 
-             if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
+            if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
                 return render_template(
                     "guia_bens.html",
                     secoes_origem=secoes_origem,
