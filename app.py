@@ -361,8 +361,8 @@ Dirigente Máximo
 """
         self.multi_cell(0, 8, text)
         
-@app.route("/", methods=["GET", "POST"])
-def guia_duradouro():
+@app.route("/autocoomplete1", methods=["GET", "POST"])
+def autocoomplete1():
     secoes_origem = df["Seção de Origem"].dropna().unique().tolist()
     secoes_destino = df["Seção de Destino"].dropna().unique().tolist()
     
