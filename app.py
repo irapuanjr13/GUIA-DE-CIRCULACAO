@@ -59,7 +59,7 @@ def autocomplete():
     dados = request.get_json()
     bmp_numbers = dados.get("bmp_numbers", [])
 
-    if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
+    if not bmp_numbers["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
         return render_template(
         "guia_bens.html",
         secoes_origem=secoes_origem,
