@@ -75,11 +75,17 @@
     <div class="container">
         <h1>Guia de Circulação BMP</h1>
         <form id="guia_bens_form">
-            <div class="error">
+            <div class="container">
+            <h1>Guia de Circulação BMP</h1>
+            <form id="guia_bens_form">
+                <!-- Exibição da mensagem de erro -->
                 {% if error %}
+                <div class="alert alert-danger" role="alert">
                     {{ error }}
+                </div>
                 {% endif %}
-            </div>
+        </form>
+    </div>
             <div class="form-group">
                 <label for="bmp_numbers">Números de BMP (separados por vírgula):</label>
                 <input type="text" id="bmp_numbers" name="bmp_numbers" placeholder="Ex.: 123, 456">
