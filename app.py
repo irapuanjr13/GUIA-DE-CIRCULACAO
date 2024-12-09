@@ -190,12 +190,7 @@ def gerar_guia():
     pdf_output = BytesIO()
     pdf_output.write(pdf.output(dest='S').encode('latin1'))  # Corrige para o formato correto
     pdf_output.seek(0)
-
-     # Enviar o e-mail após gerar o PDF
-    destinatarios = dados.get("SREG.GAPLS@FAB.MIL.BR, TP.IRAPUANIMFJ@FAB.MIL.BR, TP.DORNELASKWDD@FAB.MIL.BR" , [])
-    if destinatarios:
-        enviar_email(pdf_output, destinatarios)
-
+    
     # Retorna o PDF para o usuário
     return send_file(
         pdf_output,
@@ -300,6 +295,11 @@ def gerar_guia_pdf(dados_bmps):
     pdf_output = BytesIO()
     pdf.output(pdf_output)
     pdf_output.seek(0)
+
+    # Enviar o e-mail após gerar o PDF
+    destinatarios = dados.get("SREG.GAPLS@FAB.MIL.BR, TP.IRAPUANIMFJ@FAB.MIL.BR, TP.DORNELASKWDD@FAB.MIL.BR" , [])
+    if destinatarios:
+        enviar_email(pdf_output, destinatarios)
 
     return send_file(
         pdf_output,
