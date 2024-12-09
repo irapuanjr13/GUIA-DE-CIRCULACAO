@@ -185,14 +185,25 @@ class PDF(FPDF):
 
         # Adicionar as linhas da tabela
         self.set_font("Arial", size=8)
-        line_height = self.font_size + 1  # Define a altura da linha com base no tamanho da fonte
+        line_height = self.font_size + 2  # Define a altura da linha com base no tamanho da fonte
 
         for _, row in dados_bmps.iterrows():
             # Calcular a altura necessária para a célula "NOMECLATURA/COMPONENTE"
             text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
-            line_count = self.get_string_width(text) // col_widths[1] + 2
+            line_count = self.get_string_width(text) // col_widths[1] + 1
             row_height = line_height * line_count  # Altura ajustada ao tamanho do texto
 
+            # Calcular a altura das outras células na mesma linha, baseando-se no valor máximo
+            # Para a célula "Nº BMP"
+            row_height_bmp = line_height  # Pode ser ajustado se necessário
+            # Para a célula "Nº SERIE"
+            row_height_serie = line_height  # Pode ser ajustado se necessário
+            # Para a célula "VL. ATUALIZ."
+            row_height_valor = line_height  # Pode ser ajustado se necessário
+
+            # Definir a altura final da linha (a maior altura entre as células)
+            row_height = max(row_height, row_height_bmp, row_height_serie, row_height_valor)
+            
             # Adicionar célula "Nº BMP"
             self.cell(col_widths[0], row_height, str(row["Nº BMP"]), border=1, align="C")
 
