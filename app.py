@@ -197,7 +197,7 @@ class PDF(FPDF):
             self.multi_cell(col_widths[1], 10, text, border=1)
             self.set_xy(x + col_widths[1], y)  # Reposicionar para a próxima coluna
 
-            self.cell(col_widths[2], row_height, self.fix_text(row["Nº SERIE"]), border=1, align="C")
+            self.cell(col_widths[2], row_height, self.fix_text(str(row["Nº SERIE"])if pd.notna(row["Nº SERIE"]) else ""), border=1, align="C")
             self.cell(col_widths[3], row_height, f"R$ {row['VL. ATUALIZ.']:.2f}".replace('.', ','), border=1, align="R")
             self.ln()
                        
