@@ -43,18 +43,18 @@ def guia_bens():
                 if not dados.get(campo):
                     return jsonify({"error": f"O campo '{campo}' é obrigatório."}), 400
 
+                if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
+                    return render_template(
+                        "guia_bens.html",
+                        secoes_origem=secoes_origem,
+                        secoes_destino=secoes_destino,
+                        error="Estes itens pertencem à conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO'."
+                    )
+
             bmp_list = [bmp.strip() for bmp in dados["bmp_numbers"]]
             dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
             if dados_bmps.empty:
-                return jsonify({"error": "Nenhum BMP válido encontrado."}), 400
-
-            if not dados_bmps["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
-                return render_template(
-                    "guia_bens.html",
-                    secoes_origem=secoes_origem,
-                    secoes_destino=secoes_destino,
-                    error="Estes itens pertencem à conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO'."
-                )
+                return jsonify({"error": "Nenhum BMP válido encontrado."}), 400          
 
             # Processamento do PDF ou outros passos podem ir aqui
             return jsonify({"message": "Dados processados com sucesso."})
