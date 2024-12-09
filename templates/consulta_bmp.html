@@ -74,10 +74,10 @@
     <div class="container">
         <h1>Consulta de Bens Móveis Permanentes</h1>
         <form method="POST" action="/consulta_bmp">
-            <input type="text" name="bmp_query" placeholder="Digite o número do BMP" required />
-            <button type="submit">Buscar</button>
-        </form>
-
+            <label for="bmp_query">Digite os BMPs separados por vírgula:</label>
+            <input type="text" id="bmp_query" name="bmp_query" placeholder="Ex: 123, 456, 789">
+            <button type="submit">Pesquisar</button>
+        </form>    
         <!-- Exibir os resultados somente se houver consulta -->
         {% if results is not none and not results.empty %}
             <div class="cards">
