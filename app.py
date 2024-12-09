@@ -295,7 +295,12 @@ def consulta_bmp():
     if request.method == "POST":
         search_query = request.form.get("bmp_query", "").strip().lower()
         if search_query:
-            results = df[df['Nº BMP'].astype(str).str.lower().str.contains(search_query)]
+            # Divide os BMPs por vírgula e remove espaços em excesso
+            search_terms = [term.strip() for term in search_query.split(",") if term.strip()]
+            # Filtra o dataframe para linhas que contenham qualquer um dos termos
+            results = df[df['Nº BMP'].astype(str).str.lower().apply(
+                lambda x: any(term in x for term in search_terms)
+            )]
     return render_template("consulta_bmp.html", results=results)
 
 @app.route("/")
