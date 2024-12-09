@@ -189,7 +189,7 @@ class PDF(FPDF):
             # Calcular a altura necessária para a célula "Nomenclatura"
             text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
             line_count = self.get_string_width(text) // col_widths[1] + 1
-            row_height = 20 * line_count  # 20 é a altura padrão da célula
+            row_height = 10 * line_count  # 10 é a altura padrão da célula
             
             self.cell(col_widths[0], row_height, str(row["Nº BMP"]), border=1, align="C")
 
