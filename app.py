@@ -212,6 +212,9 @@ class PDF(FPDF):
             self.multi_cell(col_widths[1], line_height, text, border=1)
             self.set_xy(x + col_widths[1], y)  # Reposicionar para a próxima coluna
 
+            # Usar self.set_xy() para garantir que a próxima célula não sobreponha a anterior
+            self.set_xy(x + col_widths[1], y)  # Reposicionar para a próxima coluna
+
             # Adicionar célula "Nº SERIE"
             self.cell(
                 col_widths[2],
