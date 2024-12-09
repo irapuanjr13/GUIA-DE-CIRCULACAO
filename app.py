@@ -61,15 +61,7 @@ def autocomplete():
 
     if not bmp_numbers:
         return jsonify({"error": "Nenhum BMP fornecido!"}), 400
-    
-    if df["CONTA"].eq("87 - MATERIAL DE CONSUMO DE USO DURADOURO").any():
-        return render_template(
-            "guia_bens.html",
-            secoes_origem=secoes_origem,
-            secoes_destino=secoes_destino,
-            error="Estes itens pertencem à conta '87 - MATERIAL DE CONSUMO DE USO DURADOURO'."
-        )
-    
+           
     response = {}
     for bmp in bmp_numbers:
         filtro_bmp = df[df["Nº BMP"].astype(str) == bmp]
