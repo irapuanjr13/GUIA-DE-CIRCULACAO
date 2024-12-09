@@ -174,7 +174,7 @@ class PDF(FPDF):
         self.ln(10)
 
     def add_table(self, dados_bmps):
-        col_widths = [20, 85, 50, 30]
+        col_widths = [20, 95, 50, 30]
         headers = ["Nº BMP", "Nomenclatura", "Nº Série", "Valor Atualizado"]
 
         # Adicionar cabeçalho da tabela
