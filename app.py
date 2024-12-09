@@ -184,7 +184,7 @@ class PDF(FPDF):
         self.ln()
 
         # Adicionar as linhas da tabela
-        self.set_font("Arial", size=10)
+        self.set_font("Arial", size=08)
         line_height = self.font_size + 2  # Define a altura da linha com base no tamanho da fonte
 
         for _, row in dados_bmps.iterrows():
