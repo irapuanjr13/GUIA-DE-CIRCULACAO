@@ -190,7 +190,7 @@ class PDF(FPDF):
         for _, row in dados_bmps.iterrows():
             # Calcular a altura necessária para a célula "NOMECLATURA/COMPONENTE"
             text = self.fix_text(row["NOMECLATURA/COMPONENTE"])
-            line_count = self.get_string_width(text) // col_widths[1] + 1
+            line_count = self.get_string_width(text) // col_widths[1] + 2
             row_height = line_height * line_count  # Altura ajustada ao tamanho do texto
 
             # Calcular a altura das outras células na mesma linha, baseando-se no valor máximo
