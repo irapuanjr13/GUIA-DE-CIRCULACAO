@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Termo de Transmissão e Assunção de Cargo</title>
     <style>
-        /* Estilos para a página */
+        /* Estilos da página */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
@@ -24,8 +24,11 @@
             text-align: center;
             color: #333;
         }
-        .form-group {
-            margin-bottom: 15px;
+        p.observacao {
+            font-size: 14px;
+            color: #555;
+            margin-top: -10px;
+            text-align: center;
         }
         label {
             display: block;
@@ -46,63 +49,52 @@
             border: none;
             cursor: pointer;
         }
-        button:hover {
-            background-color: #0056b3;
-        }
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-        footer {
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-            padding: 10px 0;
-            background-color: #f4f4f9;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Termo de Transmissão e Assunção de Cargo</h1>
+        <p class="observacao">Responda as perguntas e selecione as opções conforme necessário.</p>
         <form method="POST" action="/TTAC_apontamentos">
-            <label for="chefia_origem">Chefia de Origem:</label>
-            <input type="text" id="chefia_origem" name="chefia_origem" required><br><br>
+            <!-- Agente Substituído -->
+            <label for="agente_substituido">Agente Substituído (Chefe de Origem):</label>
+            <select id="agente_substituido" name="agente_substituido" required>
+                {% for agente in chefe_origem %}
+                    <option value="{{ agente }}">{{ agente }}</option>
+                {% endfor %}
+            </select><br><br>
 
-            <label for="numero_boletim">Número do Boletim:</label>
-            <input type="text" id="numero_boletim" name="numero_boletim" required><br><br>
+            <!-- Agente Substituto -->
+            <label for="agente_substituto">Agente Substituto (Chefe de Destino):</label>
+            <select id="agente_substituto" name="agente_substituto" required>
+                {% for agente in chefe_destino %}
+                    <option value="{{ agente }}">{{ agente }}</option>
+                {% endfor %}
+            </select><br><br>
 
-            <label for="data_boletim">Data do Boletim:</label>
-            <input type="date" id="data_boletim" name="data_boletim" required><br><br>
+            <!-- Seção -->
+            <label for="secao">Seção de Origem:</label>
+            <select id="secao" name="secao" required>
+                {% for secao in secoes_origem %}
+                    <option value="{{ secao }}">{{ secao }}</option>
+                {% endfor %}
+            </select><br><br>
 
-            <label for="secao_origem">Seção de Origem:</label>
-            <input type="text" id="secao_origem" name="secao_origem" required><br><br>
-
+            <!-- Tipo de Boletim -->
             <label for="boletim_tipo">Tipo do Boletim:</label>
             <select id="boletim_tipo" name="boletim_tipo" required>
+                <option value="Ostensivo">Ostensivo</option>
                 <option value="Reservado">Reservado</option>
                 <option value="Confidencial">Confidencial</option>
                 <option value="Secreto">Secreto</option>
             </select><br><br>
 
-            <label for="restricoes">Restrições:</label>
-            <textarea id="restricoes" name="restricoes"></textarea><br><br>
-
-            <label for="apontamentos">Apontamentos:</label>
-            <textarea id="apontamentos" name="apontamentos"></textarea><br><br>
-
-            <label for="data_confecção">Data de Confecção:</label>
+            <!-- Data de Confecção -->
+            <label for="data_confecção">Data:</label>
             <input type="date" id="data_confecção" name="data_confecção" required><br><br>
-
-            <label for="email_destino">E-mail Destino:</label>
-            <input type="email" id="email_destino" name="email_destino" required><br><br>
 
             <button type="submit">Enviar</button>
         </form>
-        <!-- Botão "Voltar" -->
-        <div class="form-group">
-            <button class="btn-voltar" onclick="history.back()">Voltar</button>
-        </div>
     </div>
 </body>
 </html>
