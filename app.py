@@ -423,8 +423,8 @@ LUCIANA DO AMARAL CORREA  Cel Int
 Dirigente Máximo
 """
 
-@app.route('/TTAC_apontamentos', methods=['GET', 'POST'])
-def TTAC_apontamentos():
+@app.route('/TTAC_apontamentos', methods=['GET'])
+def ttac_apontamentos_form():
     if request.method == 'POST':
         # Captura as respostas do formulário
         chefia_origem = request.form.get('chefia_origem')
@@ -472,7 +472,7 @@ def TTAC_apontamentos():
         return send_file(caminho_arquivo, as_attachment=True)
     
     # Renderiza o formulário
-    return render_template('TTAC_apontamentos.html')
+   return render_template('ttac_apontamentos.html')
 
 @app.route("/consulta_bmp", methods=["GET", "POST"])
 def consulta_bmp():
