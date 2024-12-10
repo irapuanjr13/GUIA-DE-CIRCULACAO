@@ -5,6 +5,12 @@ from fpdf import FPDF
 import os
 import io
 from io import BytesIO
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+
 
 app = Flask(__name__)
 
@@ -24,6 +30,40 @@ df = get_excel_from_google_drive()
 data_secoes_origem = df["Seção de Origem"].dropna().unique().tolist()
 data_secoes_destino = df["Seção de Destino"].dropna().unique().tolist()
 data_dados_bmps = df[df["Nº BMP"].astype(str).isin]
+       
+    
+def enviar_email(destinatario, assunto, corpo, arquivo_anexo):
+    try:
+        # Configurar o servidor SMTP do Yahoo
+        servidor = smtplib.SMTP("smtp.mail.yahoo.com", 587)
+        servidor.starttls()
+        servidor.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+
+        # Criar o e-mail
+        mensagem = MIMEMultipart()
+        mensagem["From"] = EMAIL_ADDRESS
+        mensagem["To"] = destinatario
+        mensagem["Subject"] = assunto
+        mensagem.attach(MIMEText(corpo, "plain"))
+
+        # Adicionar o arquivo anexo
+        if arquivo_anexo:
+            parte = MIMEBase("application", "octet-stream")
+            parte.set_payload(arquivo_anexo.read())
+            encoders.encode_base64(parte)
+            parte.add_header(
+                "Content-Disposition",
+                f"attachment; filename={arquivo_anexo.name}",
+            )
+            mensagem.attach(parte)
+
+        # Enviar o e-mail
+        servidor.send_message(mensagem)
+        servidor.quit()
+        return True
+    except Exception as e:
+        print(f"Erro ao enviar o e-mail: {e}")
+        return False
         
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
@@ -31,7 +71,7 @@ def guia_bens():
         secoes_origem = df["Seção de Origem"].dropna().unique().tolist()
         secoes_destino = df["Seção de Destino"].dropna().unique().tolist()
         return render_template("guia_bens.html", secoes_origem=secoes_origem, secoes_destino=secoes_destino)
-
+        
     elif request.method == "POST":
         try:
             dados = request.json
@@ -46,8 +86,8 @@ def guia_bens():
             bmp_list = [bmp.strip() for bmp in dados["bmp_numbers"]]
             dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
             if dados_bmps.empty:
-                return jsonify({"error": "Nenhum BMP válido encontrado."}), 400  
-
+                return jsonify({"error": "Nenhum BMP válido encontrado."}), 400
+            
             # Processamento do PDF ou outros passos podem ir aqui
             return jsonify({"message": "Dados processados com sucesso."})
 
@@ -58,7 +98,7 @@ def guia_bens():
 def autocomplete():
     dados = request.get_json()
     bmp_numbers = dados.get("bmp_numbers", [])
-
+    
     if not bmp_numbers:
         return jsonify({"error": "Nenhum BMP fornecido!"}), 400
            
@@ -71,7 +111,8 @@ def autocomplete():
             response[bmp] = {
                 "secao_origem": secao_origem,
                 "chefia_origem": chefia_origem
-            }
+            }   
+            
         else:
             response[bmp] = {"secao_origem": "", "chefia_origem": ""}
 
@@ -144,6 +185,18 @@ def gerar_guia():
     pdf_output.write(pdf.output(dest='S').encode('latin1'))  # Corrige para o formato correto
     pdf_output.seek(0)
 
+    # Enviar o e-mail
+    destinatario = dados.get("tp.irapuanimfj@fab.mil.br", "")
+    if destinatario:
+        sucesso = enviar_email(
+            destinatario,
+            "Guia de Movimentação de Bens",
+            "Segue anexo o PDF gerado com as informações solicitadas.",
+            pdf_output
+        )
+        if not sucesso:
+            return jsonify({"error": "Erro ao enviar o e-mail."}), 500
+       
     # Retorna o PDF para o usuário
     return send_file(
         pdf_output,
