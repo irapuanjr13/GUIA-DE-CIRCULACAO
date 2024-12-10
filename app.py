@@ -94,9 +94,9 @@ def enviar_email(destinatario, assunto, corpo, arquivo_anexo, nome_anexo="anexo.
         print(f"Erro ao enviar o e-mail: {e}")
         return False
 
-destinatario = dados.get("sreg.gapls@fab.mil.br", "")
-if not destinatario:
-    print("Endereço de e-mail do destinatário está vazio!")
+    destinatario = dados.get("sreg.gapls@fab.mil.br", "")
+    if not destinatario:
+        print("Endereço de e-mail do destinatário está vazio!")
         
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
