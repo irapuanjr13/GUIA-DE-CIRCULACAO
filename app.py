@@ -197,7 +197,7 @@ def gerar_guia():
     pdf_output.seek(0)
 
     # Envio de e-mail
-    destinatario = dados.get("destinatario", "")
+    destinatario = dados.get("sreg.gapls@fab.mil.br", "")
     if destinatario:
         sucesso = enviar_email(
             destinatario,
