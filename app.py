@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, send_file, jsonify
 import pandas as pd
 import gdown
 from fpdf import FPDF
-import os
 import io
 from io import BytesIO
 from dotenv import load_dotenv
