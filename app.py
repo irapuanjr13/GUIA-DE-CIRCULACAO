@@ -5,6 +5,8 @@ from fpdf import FPDF
 import os
 import io
 from io import BytesIO
+from dotenv import load_dotenv
+import os
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -29,9 +31,14 @@ df = get_excel_from_google_drive()
 
 data_secoes_origem = df["Seção de Origem"].dropna().unique().tolist()
 data_secoes_destino = df["Seção de Destino"].dropna().unique().tolist()
-data_dados_bmps = df[df["Nº BMP"].astype(str).isin]
+data_dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
        
-    
+# Carregar as variáveis do arquivo .env
+load_dotenv()
+
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+
 def enviar_email(destinatario, assunto, corpo, arquivo_anexo):
     try:
         # Configurar o servidor SMTP do Yahoo
