@@ -111,7 +111,12 @@
                 <button id="gerar_guia">Gerar Guia</button>
             </div>
         </form>
+        <!-- Botão "Voltar" -->
+        <div class="form-group">
+            <button class="btn-voltar" onclick="history.back()">Voltar</button>
+        </div>
     </div>
+</body>
 
     <footer>
         Criado por <strong>Cb Irapuan</strong>
@@ -120,6 +125,8 @@
 <script>
 document.getElementById("bmp_numbers").addEventListener("input", function () {
     const bmpList = this.value.split(",").map(bmp => bmp.trim()).filter(bmp => bmp !== "");
+
+    const errorMessage = document.getElementById("error-message");
     
     if (bmpList.length > 0) {
         // Faz requisição ao backend para buscar dados do BMP
@@ -236,6 +243,9 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
         chefia_destino: chefiaDestino,
     };
 
+     // Remover qualquer propriedade desnecessária
+     delete data.email_destinatario;
+
     // Envia os dados e realiza validação
     fetch("/validar_dados", {
         method: "POST",
@@ -270,8 +280,12 @@ document.getElementById("gerar_guia").addEventListener("click", function (event)
         a.download = "guia_circulacao_interna.pdf";
         a.click();
     })
-    .catch(error => console.error("Erro:", error.message));
-});
+    
+    // Limpa os campos do formulário após o sucesso
+    document.getElementById("guia_bens_form").reset();
+    document.getElementById("secao_origem").value = ""; // Limpa os campos de origem manualmente, se necessário
+    document.getElementById("chefia_origem").value = "";
+})
 </script>
 </body>
 </html>
