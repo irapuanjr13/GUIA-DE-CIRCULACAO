@@ -242,7 +242,7 @@ def gerar_guia():
         mimetype='application/pdf'
     )
 
-class PDFGuia(FPDF):
+class PDF(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'A4')
 
