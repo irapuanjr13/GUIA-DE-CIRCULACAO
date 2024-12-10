@@ -4,6 +4,7 @@ import gdown
 from fpdf import FPDF
 import io
 from io import BytesIO
+from datetime import datetime
 from dotenv import load_dotenv
 import os
 import smtplib
@@ -40,37 +41,40 @@ SENHA_EMAIL = os.getenv("SENHA_EMAIL")      # Nome da variável no arquivo .env
 # Verificar se as variáveis foram carregadas corretamente
 if not EMAIL_REMETENTE or not SENHA_EMAIL:
     raise ValueError("As variáveis de ambiente EMAIL_REMETENTE ou SENHA_EMAIL não foram configuradas corretamente.")
+
+def gerar_nome_anexo(prefixo="anexo"):
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    return f"{prefixo}_{timestamp}.pdf"
                 
-def enviar_email(destinatarios, assunto, corpo, arquivo_anexo):
-   try:
-            for destinatario in destinatarios:
-                msg = MIMEMultipart()
-                msg['From'] = EMAIL_REMETENTE
-                msg['To'] = destinatario
-                msg['Subject'] = assunto
-                msg.attach(MIMEText(mensagem, 'plain'))
+def enviar_email(destinatario, assunto, corpo, arquivo_anexo, nome_anexo="anexo.pdf"):
+    try:
+        servidor = smtplib.SMTP("smtp.mail.yahoo.com", 587)
+        servidor.starttls()
+        servidor.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
 
-                with open(anexo, "rb") as f:
-                    part = MIMEBase('application', 'octet-stream')
-                    part.set_payload(f.read())
-                    encoders.encode_base64(part)
-                    part.add_header('Content-Disposition', f"attachment; filename={os.path.basename(anexo)}")
-                    msg.attach(part)
+        mensagem = MIMEMultipart()
+        mensagem["From"] = EMAIL_ADDRESS
+        mensagem["To"] = destinatario
+        mensagem["Subject"] = assunto
+        mensagem.attach(MIMEText(corpo, "plain"))
 
-                with smtplib.SMTP("smtp.mail.yahoo.com", 587) as smtp:
-                    smtp.starttls()
-                    smtp.login(EMAIL_REMETENTE, SENHA_EMAIL)
-                    smtp.send_message(msg)
-                    print(f"Email enviado para {destinatario} com sucesso!")
-            return  # Se tudo der certo, sai da função
-       
-                # Enviar o e-mail
-                servidor.send_message(mensagem)
-                servidor.quit()
-                return True
-            except Exception as e:
-                print(f"Erro ao enviar o e-mail: {e}")
-                return False
+        # Adicionar o arquivo anexo
+        if arquivo_anexo:
+            parte = MIMEBase("application", "octet-stream")
+            parte.set_payload(arquivo_anexo.read())
+            encoders.encode_base64(parte)
+            parte.add_header(
+                "Content-Disposition",
+                f"attachment; filename={nome_anexo}",
+            )
+            mensagem.attach(parte)
+
+        servidor.send_message(mensagem)
+        servidor.quit()
+        return True
+    except Exception as e:
+        print(f"Erro ao enviar o e-mail: {e}")
+        return False
         
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
@@ -192,14 +196,15 @@ def gerar_guia():
     pdf_output.write(pdf.output(dest='S').encode('latin1'))  # Corrige para o formato correto
     pdf_output.seek(0)
 
-    # Enviar o e-mail
+    # Envio de e-mail
     destinatario = dados.get("destinatario", "")
     if destinatario:
         sucesso = enviar_email(
             destinatario,
             "Guia de Movimentação de Bens",
             "Segue anexo o PDF gerado com as informações solicitadas.",
-            pdf_output
+            pdf_output,
+            nome_anexo=nome_anexo
         )
         if not sucesso:
             return jsonify({"error": "Erro ao enviar o e-mail."}), 500
