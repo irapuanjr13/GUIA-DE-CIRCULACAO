@@ -525,7 +525,7 @@ Por terem sido cumpridas todas as formalidades legais, determino que o presente 
 LUCIANA DO AMARAL CORREA  Cel Int
 Dirigente Máximo
 """
-    return render_template(
+return render_template(
         'TTAC_apontamentos.html',
         chefe_origem=chefe_origem,
         chefe_destino=chefe_destino,
