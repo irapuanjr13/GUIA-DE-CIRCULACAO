@@ -43,8 +43,7 @@ if not EMAIL_REMETENTE or not SENHA_EMAIL:
     raise ValueError("As variáveis de ambiente EMAIL_REMETENTE ou SENHA_EMAIL não foram configuradas corretamente.")
 
 # Email fixo do destinatário
-EMAIL_DESTINATARIO = 'd
-sreg.gapls@fab.mil.br'
+EMAIL_DESTINATARIO = "sreg.gapls@fab.mil.br"
 
 def gerar_nome_anexo(prefixo="anexo"):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
