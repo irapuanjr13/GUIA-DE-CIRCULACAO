@@ -94,7 +94,7 @@ def enviar_email(destinatario, assunto, corpo, arquivo_anexo, nome_anexo="anexo.
         print(f"Erro ao enviar o e-mail: {e}")
         return False
 
-    destinatario = dados.get("email_sreg.gapls@fab.mil.br", "")
+    destinatario = dados.get("sreg.gapls@fab.mil.br", "")
     if not destinatario:
         print("Endereço de e-mail do destinatário está vazio!")
         
@@ -219,7 +219,7 @@ def gerar_guia():
     pdf_output.seek(0)
 
     # Envio de e-mail
-    destinatario = dados.get("email_sreg.gapls@fab.mil.br", "")
+    destinatario = dados.get("sreg.gapls@fab.mil.br", "")
     if destinatario:
         sucesso = enviar_email(
             destinatario,
