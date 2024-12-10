@@ -376,7 +376,108 @@ def gerar_guia_pdf(dados_bmps):
         download_name="guia_bens.pdf"
     )
 
-TEXTO_BASE = """
+@app.route('/TTAC_apontamentos', methods=['GET'])
+def TTAC_apontamentos_form():
+dados = request.json
+    secao = dados.get("secao")
+    tipo = dados.get("tipo")
+
+    if tipo == "destino":
+        chefia = df[df['Seção de Destino'] == secao]['Chefia de Destino'].dropna().unique()
+    elif tipo == "origem":
+        chefia = df[df['Seção de Origem'] == secao]['Chefia de Origem'].dropna().unique()
+    else:
+        return jsonify({"error": "Tipo inválido!"}), 400
+
+    return jsonify({"chefia": chefia.tolist()})
+
+@app.route('/validar_dados', methods=['POST'])
+def validar_dados():
+    dados = request.json
+    # Valide os dados conforme necessário
+    if not dados.get('secao_origem') or not dados.get('chefia_origem'):
+        return jsonify({"error": "Dados de origem incompletos"}), 400
+    if not dados.get('secao_destino') or not dados.get('chefia_destino'):
+        return jsonify({"error": "Dados de destino incompletos"}), 400
+    return jsonify({"message": "Dados válidos"})
+
+# Rota para geração do PDF
+@app.route('/gerar_guia', methods=['POST'])
+def gerar_guia():
+    dados = request.json
+
+    # Imprime os dados recebidos para depuração
+    print("Dados recebidos para gerar o PDF:", dados)
+
+    if not dados:
+        return jsonify({"error": "Nenhum dado enviado para gerar o PDF."}), 400
+
+    # Cria o PDF completo usando a classe PDF
+    pdf = PDF()
+    pdf.add_page()
+    pdf.add_details(
+        secao_destino=dados.get('secao_destino'),
+        chefia_origem=dados.get('chefia_origem'),
+        secao_origem=dados.get('secao_origem'),
+        chefia_destino=dados.get('chefia_destino')
+    )
+
+    # Salva o PDF localmente para depuração
+    debug_pdf_path = "debug_TTAC_completo.pdf"
+    pdf.output(debug_pdf_path)
+    print(f"PDF salvo para depuração: {debug_pdf_path}")
+
+    # Gera o PDF em memória para envio
+    pdf_output = BytesIO()
+    pdf_output.write(pdf.output(dest='S').encode('latin1'))  # Corrige para o formato correto
+    pdf_output.seek(0)
+
+    # Envio de e-mail
+    destinatario = dados.get("sreg.gapls@fab.mil.br", "")
+    if destinatario:
+        sucesso = enviar_email(
+            destinatario,
+            "Guia de Movimentação de Bens",
+            "Segue anexo o PDF gerado com as informações solicitadas.",
+            pdf_output,
+            nome_anexo=nome_anexo
+        )
+        if not sucesso:
+            return jsonify({"error": "Erro ao enviar o e-mail."}), 500
+       
+    # Retorna o PDF para o usuário
+    return send_file(
+        pdf_output,
+        as_attachment=True,
+        download_name='TTAC_completo.pdf',
+        mimetype='application/pdf'
+    )
+
+class PDF(FPDF):
+    def __init__(self):
+        super().__init__('P', 'mm', 'A4')
+
+    def fix_text(self, text):
+        """Corrige caracteres incompatíveis com a codificação latin-1."""
+        replacements = {
+            "–": "-", "“": '"', "”": '"', "’": "'"
+        }
+        for old, new in replacements.items():
+            text = text.replace(old, new)
+        return text
+
+    def header(self):
+        self.set_font("Arial", "B", 12)
+        self.cell(0, 6, "MINISTÉRIO DA DEFESA", ln=True, align="C")
+        self.cell(0, 6, "COMANDO DA AERONÁUTICA", ln=True, align="C")
+        self.cell(0, 6, "GRUPAMENTO DE APOIO DE LAGOA SANTA", ln=True, align="C")
+        self.cell(0, 8, "GUIA DE MOVIMENTAÇÃO DE BEM MÓVEL PERMANENTE ENTRE AS SEÇÕES DO GAPLS", ln=True, align="C")
+        self.ln(10)
+                          
+    def add_details(self, secao_destino, chefia_origem, secao_origem, chefia_destino):
+        self.set_font("Arial", size=12)
+        self.ln(10)
+        text = f"""
 Do(a) {chefia_origem}
 À Dirigente Máximo
 
@@ -391,6 +492,8 @@ d) do material em uso na Seção;
 e) dos dois últimos Relatórios de Auditoria do CENCIAR;
 f) dos balancetes referentes aos últimos dez anos; e
 g) outros.
+
+{data_confecção}
 
 {chefia_origem}
 
@@ -422,14 +525,6 @@ Por terem sido cumpridas todas as formalidades legais, determino que o presente 
 LUCIANA DO AMARAL CORREA  Cel Int
 Dirigente Máximo
 """
-
-@app.route('/TTAC_apontamentos', methods=['GET'])
-def ttac_apontamentos_form():
-    # Simulação de dados obtidos de um DataFrame
-    chefe_origem = ["João Silva - Capitão", "Maria Oliveira - Tenente", "Carlos Souza - Major"]
-    chefe_destino = ["Ana Paula - Capitão", "Luiz Fernando - Tenente", "Roberto Santos - Major"]
-    secoes_origem = ["Seção de Logística", "Seção de Operações", "Seção de Pessoal"]
-
     return render_template(
         'TTAC_apontamentos.html',
         chefe_origem=chefe_origem,
@@ -442,6 +537,23 @@ def process_ttac_apontamentos():
     # Receber e processar os dados do formulário
     form_data = request.form
     print("Dados recebidos:", form_data)  # Para depuração
+    pdf = PDF()
+    pdf.add_page()
+    
+    # Salvar PDF localmente para debug
+    pdf.output("debug_guia_bens.pdf")
+
+    # Retornar o PDF
+    pdf_output = BytesIO()
+    pdf.output(pdf_output)
+    pdf_output.seek(0)
+
+    return send_file(
+        pdf_output,
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name="ttac.pdf"
+    )    
     # Aqui você pode incluir a lógica para gerar o PDF e enviar por e-mail.
     return "Formulário processado com sucesso!"
 
