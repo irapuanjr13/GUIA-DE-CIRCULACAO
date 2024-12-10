@@ -50,7 +50,7 @@ def testar_conexao_email():
     try:
         servidor = smtplib.SMTP("smtp.mail.yahoo.com", 587)
         servidor.starttls()
-        servidor.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        servidor.login(EMAIL_REMETENTE, SENHA_EMAIL)
         print("Conexão bem-sucedida!")
         servidor.quit()
     except Exception as e:
@@ -65,11 +65,11 @@ def enviar_email(destinatario, assunto, corpo, arquivo_anexo, nome_anexo="anexo.
         servidor = smtplib.SMTP("smtp.mail.yahoo.com", 587)
         servidor.set_debuglevel(1)  # Habilita detalhes de depuração
         servidor.starttls()
-        servidor.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        servidor.login(EMAIL_REMETENTE SENHA_EMAIL)
 
         # Configurar a mensagem
         mensagem = MIMEMultipart()
-        mensagem["From"] = EMAIL_ADDRESS
+        mensagem["From"] = EMAIL_REMETENTE
         mensagem["To"] = destinatario
         mensagem["Subject"] = assunto
         mensagem.attach(MIMEText(corpo, "plain"))
