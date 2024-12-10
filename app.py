@@ -41,9 +41,9 @@ def enviar_email(destinatario, assunto, corpo, arquivo_anexo):
 
         # Criar o e-mail
         mensagem = MIMEMultipart()
-        mensagem["From"] = jreletricidade@yahoo.com
-        mensagem["To"] = irapuanimfj@gmail.com
-        mensagem["Subject"] = Segue o documento em anexo para abertura de suprocesso no SILOMS
+        mensagem["From"] = "jreletricidade@yahoo.com"
+        mensagem["To"] = "irapuanimfj@gmail.com"
+        mensagem["Subject"] = "Segue o documento em anexo para abertura de suprocesso no SILOMS"
         mensagem.attach(MIMEText(corpo, "plain"))
 
         # Adicionar o arquivo anexo
