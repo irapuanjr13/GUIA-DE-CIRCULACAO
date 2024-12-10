@@ -472,7 +472,7 @@ def ttac_apontamentos_form():
         return send_file(caminho_arquivo, as_attachment=True)
     
             # Renderiza o formulário
-    return render_template('ttac_apontamentos.html')
+    return render_template('TTAC_apontamentos.html')
 
 @app.route("/consulta_bmp", methods=["GET", "POST"])
 def consulta_bmp():
