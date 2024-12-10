@@ -3,124 +3,289 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Unificado</title>
-    <link rel="stylesheet" href="/static/css/consulta_bmp.css">
+    <title>Guia de Circulação BMP</title>
     <style>
+        /* Estilos para a página */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: #f4f4f9;
             margin: 0;
             padding: 0;
         }
         .container {
             max-width: 800px;
-            margin: 50px auto;
-            text-align: center;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         h1 {
+            text-align: center;
             color: #333;
         }
-        .button {
-            display: inline-block;
-            padding: 15px 30px;
-            margin: 15px;
-            font-size: 18px;
-            color: #fff;
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
-            text-decoration: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+        .form-group {
+            margin-bottom: 15px;
         }
-        .button:hover {
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        select, input[type="text"], button {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
             background-color: #0056b3;
         }
-        /* Estilos para a lista suspensa */
-        select {
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            margin: 15px 0;
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
-        .dropdown-container {
-            display: none;
-            margin-top: 20px;
-            text-align: center;
+        .error {
+            color: red;
+            font-size: 14px;
         }
-        .dropdown-container select {
-            width: 100%;
+        .success {
+            color: green;
+            font-size: 14px;
         }
         footer {
             text-align: center;
             font-size: 12px;
             color: #666;
             padding: 10px 0;
-            background-color: #f4f4f4;
+            background-color: #f4f4f9;
         }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Sistema Unificado</h1>
-        <p>Escolha a funcionalidade que deseja utilizar:</p>
-
-        <!-- Menu Suspenso para Guia de Circulação -->
-        <button class="button" onclick="toggleDropdown('guiaDropdown')">Guia de Circulação Interna</button>
-        <div class="dropdown-container" id="guiaDropdown">
-            <select onchange="navigateToPage(this)">
-                <option value="" disabled selected>Selecione o tipo de bem</option>
-                <option value="/guia_bens"">Bens Móveis Permanentes</option>
-                <option value="/guia_duradouro"">Bens Móveis de Uso Duradouro</option>
-            </select>
+        <h1>Guia de Circulação BMP</h1>
+        <form id="guia_bens_form">
+            <div class="error">
+                {% if error %}
+                    {{ error }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="bmp_numbers">Números de BMP (separados por vírgula):</label>
+                <input type="text" id="bmp_numbers" name="bmp_numbers" placeholder="Ex.: 123, 456">
+            </div>
+            <div class="form-group">
+                <label for="secao_origem">Seção de Origem:</label>
+                <input type="text" id="secao_origem" name="secao_origem" readonly>
+            </div>
+            <div class="form-group">
+                <label for="chefia_origem">Chefia de Origem:</label>
+                <input type="text" id="chefia_origem" name="chefia_origem" readonly>
+            </div>
+            <div class="form-group">
+                <label for="secao_destino">Seção de Destino:</label>
+                <select id="secao_destino" name="secao_destino">
+                    <option value="" disabled selected>Selecione uma seção</option>
+                    {% for secao in secoes_destino %}
+                        <option value="{{ secao }}">{{ secao }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="chefia_destino">Chefia de Destino:</label>
+                <select id="chefia_destino" name="chefia_destino">
+                    <option value="" disabled selected>Selecione uma chefia</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button id="gerar_guia">Gerar Guia</button>
+            </div>
+        </form>
+        <!-- Botão "Voltar" -->
+        <div class="form-group">
+            <button class="btn-voltar" onclick="history.back()">Voltar</button>
         </div>
-
-        <!-- Menu Suspenso para Termos -->
-        <button class="button" onclick="toggleDropdown('termoDropdown')">Termos</button>
-        <div class="dropdown-container" id="termoDropdown">
-            <select onchange="navigateToPage(this)">
-                <option value="" disabled selected>Selecione o tipo de termo</option>
-                <option value="/termo_assuncao">TAC</option>
-                <option value="/termo_entrega">TEC</option>
-                <option value="/transmissao_assuncao">TTAC (Apontamentos)</option>
-                <option value="/termo_exame_bmp">Exame de BMP</option>
-                <option value="/termo_exame_TI">Exame Bens de TI</option>
-                <option value="/termo_avaliacao">Termo de Avaliação</option>
-            </select>
-        </div>
-
-        <!-- Menu Suspenso para Baixa de Bens -->
-        <button class="button" onclick="toggleDropdown('baixaDropdown')">Baixa de Bens</button>
-        <div class="dropdown-container" id="baixaDropdown">
-            <select onchange="navigateToPage(this)">
-                <option value="" disabled selected>Selecione o tipo de baixa</option>
-                <option value="/baixa_duradouro">Baixa de Bens de Uso Duradouro</option>
-            </select>
-        </div>
-
-        <!-- Botões adicionais (em elaboração) -->
-        <a href="/consulta_bmp" class="button">Consulta de BMP</a>
     </div>
+</body>
 
     <footer>
         Criado por <strong>Cb Irapuan</strong>
     </footer>
 
-    <script>
-        // Função para exibir/esconder o menu suspenso
-        function toggleDropdown(dropdownId) {
-            const dropdown = document.getElementById(dropdownId);
-            dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
+<script>
+document.getElementById("bmp_numbers").addEventListener("input", function () {
+    const bmpList = this.value.split(",").map(bmp => bmp.trim()).filter(bmp => bmp !== "");
+
+    const errorMessage = document.getElementById("error-message");
+    
+    if (bmpList.length > 0) {
+        // Faz requisição ao backend para buscar dados do BMP
+        fetch("/autocomplete", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ bmp_numbers: bmpList })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Erro ao buscar dados de BMPs!");
+            return response.json();
+        })
+        .then(data => {
+            // Preenche campos de origem com base no primeiro BMP
+            const firstBmp = bmpList[0];
+            const info = data[firstBmp] || { secao_origem: "", chefia_origem: "" };
+
+            document.getElementById("secao_origem").value = info.secao_origem || "";
+            document.getElementById("chefia_origem").value = info.chefia_origem || "";
+        })
+        .catch(error => {
+            console.error(error);
+            document.getElementById("secao_origem").value = "";
+            document.getElementById("chefia_origem").value = "";
+        });
+    } else {
+        document.getElementById("secao_origem").value = "";
+        document.getElementById("chefia_origem").value = "";
+    }
+});
+
+    // Função para buscar chefia com base na seção e tipo
+    // Correção no fetchChefia
+    function fetchChefia(secao, tipo) {
+        return fetch("/get_chefia", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ secao: secao, tipo: tipo })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Erro ao buscar chefia!");
+            }
+            return response.json();
+        })
+        .then(data => data.chefia || [])
+        .catch(error => {
+            console.error(error);
+            return [];
+        });
+    }
+
+    // Correção no listener de secao_destino
+    document.getElementById("secao_destino").addEventListener("change", function () {
+        const secao = this.value;
+        fetchChefia(secao, "destino").then(chefiaList => {
+            const chefiaDestino = document.getElementById("chefia_destino");
+            chefiaDestino.innerHTML = ""; // Limpar lista atual
+            chefiaList.forEach(chefia => {
+                const option = document.createElement("option");
+                option.value = chefia;
+                option.textContent = chefia;
+                chefiaDestino.appendChild(option);
+            });
+        });
+    });
+
+// Envio do formulário
+document.addEventListener("DOMContentLoaded", function () {
+    const button = document.getElementById("gerar_guia");
+    if (button) {
+        button.addEventListener("click", function (event) {
+            event.preventDefault();
+            console.log("Botão clicado!");
+        });
+    } else {
+        console.error("Elemento com ID 'gerar_guia' não encontrado.");
+    }
+});
+    
+document.getElementById("gerar_guia").addEventListener("click", function (event) {
+    event.preventDefault();
+
+    let bmpNumbers = document.getElementById("bmp_numbers").value
+        .split(",")
+        .map(bmp => parseInt(bmp.trim(), 10))
+        .filter(bmp => !isNaN(bmp));
+
+    const uniqueBmpNumbers = [...new Set(bmpNumbers)];
+    const secaoOrigem = document.getElementById("secao_origem").value.trim();
+    const chefiaOrigem = document.getElementById("chefia_origem").value.trim();
+    const secaoDestino = document.getElementById("secao_destino").value;
+    const chefiaDestino = document.getElementById("chefia_destino").value;
+
+    // Validação dos campos
+    if (uniqueBmpNumbers.length === 0) {
+        alert("Por favor, insira pelo menos um número BMP válido.");
+        return;
+    }
+    if (!secaoOrigem || !chefiaOrigem || !secaoDestino || !chefiaDestino) {
+        alert("Por favor, preencha todos os campos obrigatórios.");
+        return;
+    }
+
+    const data = {
+        bmp_numbers: uniqueBmpNumbers,
+        secao_origem: secaoOrigem,
+        chefia_origem: chefiaOrigem,
+        secao_destino: secaoDestino,
+        chefia_destino: chefiaDestino,
+    };
+
+     // Remover qualquer propriedade desnecessária
+     delete data.email_destinatario;
+
+    // Envia os dados e realiza validação
+    fetch("/validar_dados", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+    })
+    .then(response => {
+        if (!response.ok) throw new Error("Erro na validação dos dados.");
+        return response.json();
+    })
+    .then(validData => {
+        if (validData.error) {
+            alert(validData.error);
+            return;
         }
 
-        // Função para navegar para a página selecionada no dropdown
-        function navigateToPage(selectElement) {
-            const url = selectElement.value;
-            if (url) {
-                window.location.href = url;  // Redireciona para a página selecionada
-            }
-        }
-    </script>
+        // Geração do PDF
+        return fetch("/gerar_guia", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+        });
+    })
+    .then(response => {
+        if (!response.ok) throw new Error("Erro ao gerar o PDF.");
+        return response.blob();
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "guia_circulacao_interna.pdf";
+        a.click();
+    })
+    
+    // Limpa os campos do formulário após o sucesso
+    document.getElementById("guia_bens_form").reset();
+    document.getElementById("secao_origem").value = ""; // Limpa os campos de origem manualmente, se necessário
+    document.getElementById("chefia_origem").value = "";
+})
+</script>
 </body>
 </html>
