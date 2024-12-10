@@ -13,7 +13,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 
-
 app = Flask(__name__)
 
 # ID do arquivo no Google Drive
@@ -31,39 +30,40 @@ df = get_excel_from_google_drive()
 
 data_secoes_origem = df["Seção de Origem"].dropna().unique().tolist()
 data_secoes_destino = df["Seção de Destino"].dropna().unique().tolist()
-data_dados_bmps = df[df["Nº BMP"].astype(str).isin(bmp_list)]
-       
-# Carregar as variáveis do arquivo .env
+
+# Carregar variáveis de ambiente
 load_dotenv()
 
-EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
-EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+# Configurações de e-mail
+EMAIL_REMETENTE = os.getenv("EMAIL_REMETENTE")  # Nome da variável no arquivo .env
+SENHA_EMAIL = os.getenv("SENHA_EMAIL")      # Nome da variável no arquivo .env
 
-def enviar_email(destinatario, assunto, corpo, arquivo_anexo):
-    try:
-        # Configurar o servidor SMTP do Yahoo
-        servidor = smtplib.SMTP("smtp.mail.yahoo.com", 587)
-        servidor.starttls()
-        servidor.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+# Verificar se as variáveis foram carregadas corretamente
+if not EMAIL_REMETENTE or not SENHA_EMAIL:
+    raise ValueError("As variáveis de ambiente EMAIL_REMETENTE ou SENHA_EMAIL não foram configuradas corretamente.")
+                
+def enviar_email(destinatarios, assunto, corpo, arquivo_anexo):
+   try:
+            for destinatario in destinatarios:
+                msg = MIMEMultipart()
+                msg['From'] = EMAIL_REMETENTE
+                msg['To'] = destinatario
+                msg['Subject'] = assunto
+                msg.attach(MIMEText(mensagem, 'plain'))
 
-        # Criar o e-mail
-        mensagem = MIMEMultipart()
-        mensagem["From"] = "jreletricidade@yahoo.com"
-        mensagem["To"] = "irapuanimfj@gmail.com"
-        mensagem["Subject"] = "Segue o documento em anexo para abertura de suprocesso no SILOMS"
-        mensagem.attach(MIMEText(corpo, "plain"))
+                with open(anexo, "rb") as f:
+                    part = MIMEBase('application', 'octet-stream')
+                    part.set_payload(f.read())
+                    encoders.encode_base64(part)
+                    part.add_header('Content-Disposition', f"attachment; filename={os.path.basename(anexo)}")
+                    msg.attach(part)
 
-        # Adicionar o arquivo anexo
-        if arquivo_anexo:
-            parte = MIMEBase("application", "octet-stream")
-            parte.set_payload(arquivo_anexo.read())
-            encoders.encode_base64(parte)
-            parte.add_header(
-                "Content-Disposition",
-                f"attachment; filename={document.pdf}",
-            )
-            mensagem.attach(parte)
-
+                with smtplib.SMTP("smtp.mail.yahoo.com", 587) as smtp:
+                    smtp.starttls()
+                    smtp.login(EMAIL_REMETENTE, SENHA_EMAIL)
+                    smtp.send_message(msg)
+                    print(f"Email enviado para {destinatario} com sucesso!")
+            return  # Se tudo der certo, sai da função
         # Enviar o e-mail
         servidor.send_message(mensagem)
         servidor.quit()
