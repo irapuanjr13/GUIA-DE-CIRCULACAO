@@ -425,54 +425,25 @@ Dirigente Máximo
 
 @app.route('/TTAC_apontamentos', methods=['GET'])
 def ttac_apontamentos_form():
-    if request.method == 'POST':
-        # Captura as respostas do formulário
-        chefia_origem = request.form.get('chefia_origem')
-        numero_boletim = request.form.get('numero_boletim')
-        data_boletim = request.form.get('data_boletim')
-        secao_origem = request.form.get('secao_origem')
-        boletim_tipo = request.form.get('boletim_tipo')
-        restricoes = request.form.get('restricoes', 'sem restrições a considerar')
-        apontamentos = request.form.get('apontamentos', 'Nenhum apontamento adicional.')
-        data_confecção = request.form.get('data_confecção')
-        email_destino = request.form.get('email_destino')
+    # Simulação de dados obtidos de um DataFrame
+    chefe_origem = ["João Silva - Capitão", "Maria Oliveira - Tenente", "Carlos Souza - Major"]
+    chefe_destino = ["Ana Paula - Capitão", "Luiz Fernando - Tenente", "Roberto Santos - Major"]
+    secoes_origem = ["Seção de Logística", "Seção de Operações", "Seção de Pessoal"]
 
-        # Gera o texto final substituindo os placeholders
-        texto_final = TEXTO_BASE.format(
-            chefia_origem=chefia_origem,
-            numero_boletim=numero_boletim,
-            data_boletim=data_boletim,
-            secao_origem=secao_origem,
-            boletim_tipo=boletim_tipo,
-            restricoes=restricoes,
-            apontamentos=apontamentos,
-            data_confecção=data_confecção
-        )
+    return render_template(
+        'TTAC_apontamentos.html',
+        chefe_origem=chefe_origem,
+        chefe_destino=chefe_destino,
+        secoes_origem=secoes_origem
+    )
 
-        # Salva o texto em um arquivo temporário
-        caminho_arquivo = "termo_apontamentos.txt"
-        with open(caminho_arquivo, "w") as f:
-            f.write(texto_final)
-
-        # Envio do e-mail
-        try:
-            msg = Message(
-                subject="Termo de Apontamentos",
-                sender="seu_email@yahoo.com",
-                recipients=[email_destino],
-                body="Segue em anexo o Termo de Apontamentos."
-            )
-            with app.open_resource(caminho_arquivo) as arquivo:
-                msg.attach("termo_apontamentos.txt", "text/plain", arquivo.read())
-            mail.send(msg)
-        except Exception as e:
-            return f"Erro ao enviar o e-mail: {e}", 500
-
-            # Envia o arquivo para download
-        return send_file(caminho_arquivo, as_attachment=True)
-    
-            # Renderiza o formulário
-    return render_template('TTAC_apontamentos.html')
+@app.route('/TTAC_apontamentos', methods=['POST'])
+def process_ttac_apontamentos():
+    # Receber e processar os dados do formulário
+    form_data = request.form
+    print("Dados recebidos:", form_data)  # Para depuração
+    # Aqui você pode incluir a lógica para gerar o PDF e enviar por e-mail.
+    return "Formulário processado com sucesso!"
 
 @app.route("/consulta_bmp", methods=["GET", "POST"])
 def consulta_bmp():
