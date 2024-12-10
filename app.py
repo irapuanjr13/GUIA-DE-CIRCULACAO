@@ -554,7 +554,7 @@ def PROCESS_TTAC_apontamentos():
         as_attachment=True,
         download_name="ttac.pdf"
     )    
-   return "Formulário processado com sucesso!"
+return "Formulário processado com sucesso!"
 
 @app.route("/consulta_bmp", methods=["GET", "POST"])
 def consulta_bmp():
