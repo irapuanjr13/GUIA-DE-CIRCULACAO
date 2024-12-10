@@ -239,7 +239,7 @@ def gerar_guia():
         mimetype='application/pdf'
     )
 
-class PDF(FPDF):
+class PDFGuia(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'A4')
 
@@ -453,7 +453,7 @@ def gerar_ttac():
         mimetype='application/pdf'
     )
 
-class PDF(FPDF):
+class PDFTTAC(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'A4')
 
