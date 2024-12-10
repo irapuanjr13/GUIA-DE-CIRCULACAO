@@ -391,8 +391,8 @@ dados = request.json
 
     return jsonify({"chefia": chefia.tolist()})
 
-@app.route('/validar_dados', methods=['POST'])
-def validar_dados():
+@app.route('/validar_dados1', methods=['POST'])
+def validar_dados1():
     dados = request.json
     # Valide os dados conforme necessário
     if not dados.get('secao_origem') or not dados.get('chefia_origem'):
@@ -402,8 +402,8 @@ def validar_dados():
     return jsonify({"message": "Dados válidos"})
 
 # Rota para geração do PDF
-@app.route('/gerar_guia', methods=['POST'])
-def gerar_guia():
+@app.route('/gerar_ttac', methods=['POST'])
+def gerar_ttac():
     dados = request.json
 
     # Imprime os dados recebidos para depuração
@@ -532,8 +532,8 @@ Dirigente Máximo
         secoes_origem=secoes_origem
     )
 
-@app.route('/TTAC_apontamentos', methods=['POST'])
-def process_ttac_apontamentos():
+@app.route('/PROCESS_TTAC_apontamentos', methods=['POST'])
+def PROCESS_TTAC_apontamentos():
     # Receber e processar os dados do formulário
     form_data = request.form
     print("Dados recebidos:", form_data)  # Para depuração
@@ -541,7 +541,7 @@ def process_ttac_apontamentos():
     pdf.add_page()
     
     # Salvar PDF localmente para debug
-    pdf.output("debug_guia_bens.pdf")
+    pdf.output("debug_TTAC.pdf")
 
     # Retornar o PDF
     pdf_output = BytesIO()
@@ -554,8 +554,7 @@ def process_ttac_apontamentos():
         as_attachment=True,
         download_name="ttac.pdf"
     )    
-    # Aqui você pode incluir a lógica para gerar o PDF e enviar por e-mail.
-    return "Formulário processado com sucesso!"
+   return "Formulário processado com sucesso!"
 
 @app.route("/consulta_bmp", methods=["GET", "POST"])
 def consulta_bmp():
