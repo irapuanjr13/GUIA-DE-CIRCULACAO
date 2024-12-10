@@ -468,11 +468,11 @@ def ttac_apontamentos_form():
         except Exception as e:
             return f"Erro ao enviar o e-mail: {e}", 500
 
-        # Envia o arquivo para download
+            # Envia o arquivo para download
         return send_file(caminho_arquivo, as_attachment=True)
     
-        # Renderiza o formulário
-       return render_template('ttac_apontamentos.html')
+            # Renderiza o formulário
+    return render_template('ttac_apontamentos.html')
 
 @app.route("/consulta_bmp", methods=["GET", "POST"])
 def consulta_bmp():
