@@ -64,13 +64,14 @@ def enviar_email(destinatarios, assunto, corpo, arquivo_anexo):
                     smtp.send_message(msg)
                     print(f"Email enviado para {destinatario} com sucesso!")
             return  # Se tudo der certo, sai da função
-        # Enviar o e-mail
-        servidor.send_message(mensagem)
-        servidor.quit()
-        return True
-    except Exception as e:
-        print(f"Erro ao enviar o e-mail: {e}")
-        return False
+       
+            # Enviar o e-mail
+            servidor.send_message(mensagem)
+            servidor.quit()
+            return True
+        except Exception as e:
+            print(f"Erro ao enviar o e-mail: {e}")
+            return False
         
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
