@@ -65,7 +65,7 @@ def enviar_email(destinatario, assunto, corpo, arquivo_anexo, nome_anexo="anexo.
         servidor = smtplib.SMTP("smtp.mail.yahoo.com", 587)
         servidor.set_debuglevel(1)  # Habilita detalhes de depuração
         servidor.starttls()
-        servidor.login(EMAIL_REMETENTE SENHA_EMAIL)
+        servidor.login(EMAIL_REMETENTE, SENHA_EMAIL)
 
         # Configurar a mensagem
         mensagem = MIMEMultipart()
