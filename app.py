@@ -453,7 +453,7 @@ def gerar_ttac():
         mimetype='application/pdf'
     )
 
-class PDF(FPDF)1:
+class PDF(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'A4')
 
