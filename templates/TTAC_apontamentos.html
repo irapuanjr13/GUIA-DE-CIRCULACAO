@@ -57,7 +57,7 @@
         <p class="observacao">Responda as perguntas e selecione as opções conforme necessário.</p>
         <form method="POST" action="/TTAC_apontamentos">
             <!-- Agente Substituído -->
-            <label for="agente_substituido">Agente Substituído (Chefe de Origem):</label>
+            <label for="agente_substituido">Nome do Agente Substituído:</label>
             <select id="agente_substituido" name="agente_substituido" required>
                 {% for agente in chefe_origem %}
                     <option value="{{ agente }}">{{ agente }}</option>
@@ -65,7 +65,7 @@
             </select><br><br>
 
             <!-- Agente Substituto -->
-            <label for="agente_substituto">Agente Substituto (Chefe de Destino):</label>
+            <label for="agente_substituto">Nome do Agente Substituto:</label>
             <select id="agente_substituto" name="agente_substituto" required>
                 {% for agente in chefe_destino %}
                     <option value="{{ agente }}">{{ agente }}</option>
@@ -73,14 +73,14 @@
             </select><br><br>
 
             <!-- Seção -->
-            <label for="secao">Seção de Origem:</label>
+            <label for="secao">Cargo de Chefe da Seção:</label>
             <select id="secao" name="secao" required>
                 {% for secao in secoes_origem %}
                     <option value="{{ secao }}">{{ secao }}</option>
                 {% endfor %}
             </select><br><br>
 
-            <!-- Tipo de Boletim -->
+            <!-- qual o tipo do Boletim -->
             <label for="boletim_tipo">Tipo do Boletim:</label>
             <select id="boletim_tipo" name="boletim_tipo" required>
                 <option value="Ostensivo">Ostensivo</option>
@@ -88,8 +88,71 @@
                 <option value="Confidencial">Confidencial</option>
                 <option value="Secreto">Secreto</option>
             </select><br><br>
-
-            <!-- Data de Confecção -->
+            
+<!-- Perguntas -->
+            <fieldset>
+                <legend>Perguntas</legend>
+                <div class="form-group">
+                    <label for="pergunta_a">a) Dos bens móveis permanentes:</label>
+                    <select id="pergunta_a" name="pergunta_a" required>
+                        <option value="Sem restrições">Sem restrições</option>
+                        <option value="Não se aplica">Não se aplica</option>
+                        <option value="Com apontamentos">Com apontamentos</option>
+                    </select>
+                    <textarea id="detalhes_pergunta_a" name="detalhes_pergunta_a" placeholder="Detalhe os apontamentos, se necessário."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="pergunta_b">b) Dos bens móveis de consumo de uso duradouro:</label>
+                    <select id="pergunta_b" name="pergunta_b" required>
+                        <option value="Sem restrições">Sem restrições</option>
+                        <option value="Não se aplica">Não se aplica</option>
+                        <option value="Com apontamentos">Com apontamentos</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pergunta_c">b) Dos bens móveis de consumo de uso duradouro:</label>
+                    <select id="pergunta_b" name="pergunta_b" required>
+                        <option value="Sem restrições">Sem restrições</option>
+                        <option value="Não se aplica">Não se aplica</option>
+                        <option value="Com apontamentos">Com apontamentos</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pergunta_d">d) do material em uso na Seção:</label>
+                    <select id="pergunta_d" name="pergunta_d" required>
+                        <option value="Sem restrições">Sem restrições</option>
+                        <option value="Não se aplica">Não se aplica</option>
+                        <option value="Com apontamentos">Com apontamentos</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pergunta_e">e) dos dois últimos Relatórios de Auditoria do CENCIAR:</label>
+                    <select id="pergunta_e" name="pergunta_e" required>
+                        <option value="Sem restrições">Sem restrições</option>
+                        <option value="Não se aplica">Não se aplica</option>
+                        <option value="Com apontamentos">Com apontamentos</option>
+                    </select>
+                    <textarea id="detalhes_pergunta_b" name="detalhes_pergunta_b" placeholder="Detalhe os apontamentos, se necessário."></textarea>
+                </div>
+                </div>
+                <div class="form-group">
+                    <label for="pergunta_f">f) dos balancetes referentes aos últimos dez anos:</label>
+                    <select id="pergunta_f" name="pergunta_f" required>
+                        <option value="Sem restrições">Sem restrições</option>
+                        <option value="Não se aplica">Não se aplica</option>
+                        <option value="Com apontamentos">Com apontamentos</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pergunta_g">g) outros (numerarios, balancetes):</label>
+                    <select id="pergunta_g" name="pergunta_g" required>
+                        <option value="Sem restrições">Sem restrições</option>
+                        <option value="Não se aplica">Não se aplica</option>
+                        <option value="Com apontamentos">Com apontamentos</option>
+                    </select>
+            </fieldset>
+            
+            <!-- Data da Assunção -->
             <label for="data_confecção">Data:</label>
             <input type="date" id="data_confecção" name="data_confecção" required><br><br>
 
