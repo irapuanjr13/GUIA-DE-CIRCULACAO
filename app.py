@@ -376,6 +376,104 @@ def gerar_guia_pdf(dados_bmps):
         download_name="guia_bens.pdf"
     )
 
+TEXTO_BASE = """
+Do(a) {chefia_origem}
+À Dirigente Máximo
+
+1. PASSAGEM
+
+Comunico ao senhor que, em cumprimento à publicação constante do boletim interno {boletim_tipo} nº {numero_boletim}, de {data_boletim}; transmiti o cargo de Chefe da {secao_origem} ao meu substituto legal a quem fiz a entrega:
+
+a) dos bens móveis permanentes, constantes da relação expedida pela Seção de Registro Patrimonial;
+b) dos bens móveis de consumo de uso duradouro constantes da relação expedida pela Seção de Registro Patrimonial;
+c) dos bens móveis de consumo em estoque;
+d) do material em uso na Seção;
+e) dos dois últimos Relatórios de Auditoria do CENCIAR;
+f) dos balancetes referentes aos últimos dez anos; e
+g) outros.
+
+{chefia_origem}
+
+2. RECEBIMENTO
+
+Ao assumir o cargo de Chefe da {secao_origem}, declaro para todos os efeitos legais ter recebido tudo que consta do presente documento, inclusive os dois últimos Relatórios do CENCIAR, {restricoes}.
+
+{data_confecção}
+
+{chefia_origem}
+
+3. ENCAMINHAMENTO
+
+Encaminho ao senhor o presente Termo, informando que a escrituração se encontra em ordem e em dia, e que foram cumpridas as prescrições das normas vigentes.
+
+{apontamentos}
+
+{data_confecção}
+
+KARINA RAQUEL VALIMAREANU  Maj Int
+Chefe da ACI
+
+4. SOLUÇÃO:
+
+Por terem sido cumpridas todas as formalidades legais, determino que o presente termo seja transcrito, na íntegra, em boletim interno ({boletim_tipo}).
+
+{data_confecção}
+
+LUCIANA DO AMARAL CORREA  Cel Int
+Dirigente Máximo
+"""
+
+@app.route('/TTAC_apontamentos', methods=['GET', 'POST'])
+def ttac_apontamentos():
+    if request.method == 'POST':
+        # Captura as respostas do formulário
+        chefia_origem = request.form.get('chefia_origem')
+        numero_boletim = request.form.get('numero_boletim')
+        data_boletim = request.form.get('data_boletim')
+        secao_origem = request.form.get('secao_origem')
+        boletim_tipo = request.form.get('boletim_tipo')
+        restricoes = request.form.get('restricoes', 'sem restrições a considerar')
+        apontamentos = request.form.get('apontamentos', 'Nenhum apontamento adicional.')
+        data_confecção = request.form.get('data_confecção')
+        email_destino = request.form.get('email_destino')
+
+        # Gera o texto final substituindo os placeholders
+        texto_final = TEXTO_BASE.format(
+            chefia_origem=chefia_origem,
+            numero_boletim=numero_boletim,
+            data_boletim=data_boletim,
+            secao_origem=secao_origem,
+            boletim_tipo=boletim_tipo,
+            restricoes=restricoes,
+            apontamentos=apontamentos,
+            data_confecção=data_confecção
+        )
+
+        # Salva o texto em um arquivo temporário
+        caminho_arquivo = "termo_apontamentos.txt"
+        with open(caminho_arquivo, "w") as f:
+            f.write(texto_final)
+
+        # Envio do e-mail
+        try:
+            msg = Message(
+                subject="Termo de Apontamentos",
+                sender="seu_email@yahoo.com",
+                recipients=[email_destino],
+                body="Segue em anexo o Termo de Apontamentos."
+            )
+            with app.open_resource(caminho_arquivo) as arquivo:
+                msg.attach("termo_apontamentos.txt", "text/plain", arquivo.read())
+            mail.send(msg)
+        except Exception as e:
+            return f"Erro ao enviar o e-mail: {e}", 500
+
+        # Envia o arquivo para download
+        return send_file(caminho_arquivo, as_attachment=True)
+    
+    # Renderiza o formulário
+    return render_template('ttac_apontamentos.html')
+
 @app.route("/consulta_bmp", methods=["GET", "POST"])
 def consulta_bmp():
     results = pd.DataFrame()
