@@ -42,6 +42,10 @@ SENHA_EMAIL = os.getenv("SENHA_EMAIL")      # Nome da variável no arquivo .env
 if not EMAIL_REMETENTE or not SENHA_EMAIL:
     raise ValueError("As variáveis de ambiente EMAIL_REMETENTE ou SENHA_EMAIL não foram configuradas corretamente.")
 
+# Email fixo do destinatário
+EMAIL_DESTINATARIO = 'd
+sreg.gapls@fab.mil.br'
+
 def gerar_nome_anexo(prefixo="anexo"):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     return f"{prefixo}_{timestamp}.pdf"
@@ -94,7 +98,7 @@ def enviar_email(destinatario, assunto, corpo, arquivo_anexo, nome_anexo="anexo.
         print(f"Erro ao enviar o e-mail: {e}")
         return False
 
-    destinatario = dados.get("sreg.gapls@fab.mil.br", "")
+    destinatario = dados.get("destinatario", "")
     if not destinatario:
         print("Endereço de e-mail do destinatário está vazio!")
         
@@ -219,7 +223,7 @@ def gerar_guia():
     pdf_output.seek(0)
 
     # Envio de e-mail
-    destinatario = dados.get("sreg.gapls@fab.mil.br", "")
+    destinatario = dados.get("destinatario", "")
     if destinatario:
         sucesso = enviar_email(
             destinatario,
