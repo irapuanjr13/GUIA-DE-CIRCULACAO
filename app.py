@@ -378,7 +378,7 @@ def gerar_guia_pdf(dados_bmps):
 
 @app.route('/TTAC_apontamentos', methods=['GET'])
 def TTAC_apontamentos_form():
-dados = request.json
+    dados = request.json
     secao = dados.get("secao")
     tipo = dados.get("tipo")
 
