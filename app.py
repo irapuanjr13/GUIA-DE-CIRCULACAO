@@ -42,8 +42,8 @@ def enviar_email(destinatario, assunto, corpo, arquivo_anexo):
         # Criar o e-mail
         mensagem = MIMEMultipart()
         mensagem["From"] = EMAIL_ADDRESS
-        mensagem["To"] = destinatario
-        mensagem["Subject"] = assunto
+        mensagem["To"] = irapuanimfj@gmail.com
+        mensagem["Subject"] = Segue o documento em anexo para abertura de suprocesso no SILOMS
         mensagem.attach(MIMEText(corpo, "plain"))
 
         # Adicionar o arquivo anexo
@@ -53,7 +53,7 @@ def enviar_email(destinatario, assunto, corpo, arquivo_anexo):
             encoders.encode_base64(parte)
             parte.add_header(
                 "Content-Disposition",
-                f"attachment; filename={arquivo_anexo.name}",
+                f"attachment; filename={document.pdf}",
             )
             mensagem.attach(parte)
 
@@ -186,7 +186,7 @@ def gerar_guia():
     pdf_output.seek(0)
 
     # Enviar o e-mail
-    destinatario = dados.get("tp.irapuanimfj@fab.mil.br", "")
+    destinatario = dados.get("destinatario", "")
     if destinatario:
         sucesso = enviar_email(
             destinatario,
