@@ -45,20 +45,36 @@ if not EMAIL_REMETENTE or not SENHA_EMAIL:
 def gerar_nome_anexo(prefixo="anexo"):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     return f"{prefixo}_{timestamp}.pdf"
-                
-def enviar_email(destinatario, assunto, corpo, arquivo_anexo, nome_anexo="anexo.pdf"):
+
+def testar_conexao_email():
     try:
         servidor = smtplib.SMTP("smtp.mail.yahoo.com", 587)
         servidor.starttls()
         servidor.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        print("Conexão bem-sucedida!")
+        servidor.quit()
+    except Exception as e:
+        print(f"Erro na conexão SMTP: {e}")
 
+# Chamar a função para testar
+testar_conexao_email()
+                
+def enviar_email(destinatario, assunto, corpo, arquivo_anexo, nome_anexo="anexo.pdf"):
+    try:
+        # Configurar o servidor SMTP
+        servidor = smtplib.SMTP("smtp.mail.yahoo.com", 587)
+        servidor.set_debuglevel(1)  # Habilita detalhes de depuração
+        servidor.starttls()
+        servidor.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+
+        # Configurar a mensagem
         mensagem = MIMEMultipart()
         mensagem["From"] = EMAIL_ADDRESS
         mensagem["To"] = destinatario
         mensagem["Subject"] = assunto
         mensagem.attach(MIMEText(corpo, "plain"))
 
-        # Adicionar o arquivo anexo
+        # Adicionar anexo
         if arquivo_anexo:
             parte = MIMEBase("application", "octet-stream")
             parte.set_payload(arquivo_anexo.read())
@@ -69,12 +85,18 @@ def enviar_email(destinatario, assunto, corpo, arquivo_anexo, nome_anexo="anexo.
             )
             mensagem.attach(parte)
 
+        # Enviar o e-mail
         servidor.send_message(mensagem)
         servidor.quit()
+        print("E-mail enviado com sucesso!")
         return True
     except Exception as e:
         print(f"Erro ao enviar o e-mail: {e}")
         return False
+
+destinatario = dados.get("sreg.gapls@fab.mil.br", "")
+if not destinatario:
+    print("Endereço de e-mail do destinatário está vazio!")
         
 @app.route("/guia_bens", methods=["GET", "POST"])
 def guia_bens():
