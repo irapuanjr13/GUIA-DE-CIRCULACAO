@@ -424,7 +424,7 @@ Dirigente Máximo
 """
 
 @app.route('/TTAC_apontamentos', methods=['GET', 'POST'])
-def ttac_apontamentos():
+def TTAC_apontamentos():
     if request.method == 'POST':
         # Captura as respostas do formulário
         chefia_origem = request.form.get('chefia_origem')
